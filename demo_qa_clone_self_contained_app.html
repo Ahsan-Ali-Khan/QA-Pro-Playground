@@ -332,6 +332,34 @@ td.invalid{
     border:1px solid #ef4444;
 }
 
+#filterPopup{
+  position:absolute;
+  min-width:220px;
+  background:white;
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  padding:12px;
+  z-index:5000;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+#filterPopup input,
+#filterPopup select{
+  width:100%;
+}
+
+.filter-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+#filterPopup.hidden{
+  display:none !important;
+}
+
 /* =========================
    GEAR ICON
 ========================= */
@@ -709,15 +737,6 @@ li{
     onkeyup="filterTable(this.value)"
   >
 
-  <select id="columnFilter" onchange="applyColumnFilter()">
-    <option value="">Filter Column</option>
-  </select>
-
-  <input
-    id="columnFilterValue"
-    placeholder="Filter Value"
-    onkeyup="applyColumnFilter()"
-  >
 </div>
 
 <!-- Hidden Duplicate -->
@@ -731,6 +750,8 @@ li{
 <thead><tr id="headerRow"></tr></thead>
 <tbody class="body"></tbody>
 </table>
+
+<div id="filterPopup" class="hidden"></div>
 
 <!-- ADD RECORD MODAL -->
 <div id="modalOverlay" class="modal-overlay hidden">
@@ -880,6 +901,8 @@ if(nameInput){
 }
 
 // ===== TABLE DATA =====
+
+
 const columns = ["#","Name","Date","Price","Action"];
 let activeCols = [...columns];
 
@@ -894,6 +917,162 @@ const data = Array.from({length:10}, (_,i)=>({
   "Date": new Date(2024,0,i+1).toISOString().split('T')[0],
   "Price": "$"+(Math.random()*100).toFixed(2)
 }));
+
+let columnFilters = {}; 
+
+/*
+for prefilled filters
+
+let columnFilters = {
+  Name: { op: "contains", v1: "Item", v2: "" },
+  Price: { op: ">", v1: 50 },
+  Date: { op: "between", v1: "2024-01-01", v2: "2024-01-10" }
+};
+
+*/
+
+const operators = {
+  text: [
+    "contains",
+    "starts with",
+    "ends with",
+    "equals",
+    "not contains"
+  ],
+  number: [
+    "=",
+    "!=",
+    ">",
+    "<",
+    ">=",
+    "<=",
+    "between"
+  ],
+  date: [
+    "before",
+    "after",
+    "between"
+  ]
+};
+
+function getColumnType(col){
+  if(col === "Price" || col === "#") return "number";
+  if(col === "Date") return "date";
+  return "text";
+}
+
+let currentFilterCol = null;
+
+function openFilterPopup(col, anchor){
+
+  currentFilterCol = col;
+
+  const popup = document.getElementById('filterPopup');
+  popup.innerHTML = '';
+  popup.classList.remove('hidden');
+
+  const rect = anchor.getBoundingClientRect();
+
+  popup.style.top = rect.bottom + window.scrollY + "px";
+  popup.style.left = rect.left + "px";
+
+  const type = getColumnType(col);
+
+  const op = document.createElement('select');
+  operators[type].forEach(o=>{
+    const opt = document.createElement('option');
+    opt.value = o;
+    opt.innerText = o;
+    op.appendChild(opt);
+  });
+
+  const v1 = document.createElement('input');
+  const v2 = document.createElement('input');
+
+  const existing = columnFilters[col];
+
+  if(existing){
+    op.value = existing.op;
+    v1.value = existing.v1;
+    v2.value = existing.v2 || "";
+  
+    if(existing.op === "between"){
+      v2.style.display = "block";
+    }
+  }
+
+  v2.style.display = "none";
+
+  if(type === "date"){
+    v1.type = "date";
+    v2.type = "date";
+  }
+
+  op.onchange = () => {
+    v2.style.display = op.value === "between" ? "block" : "none";
+  };
+
+  // ACTION BUTTONS
+  const actions = document.createElement('div');
+  actions.className = "filter-actions";
+
+  const apply = document.createElement('button');
+  apply.innerText = "Apply";
+
+  apply.onclick = (e) => {
+  e.stopPropagation();
+  updateFilter(col, op.value, v1.value, v2.value);
+  closeFilterPopup();
+  };
+
+  const cancel = document.createElement('button');
+  cancel.innerText = "Cancel";
+  cancel.className = "cancel-btn";
+
+  cancel.onclick = (e) => {
+    e.stopPropagation();
+    closeFilterPopup();
+  };
+
+  const clear = document.createElement('button');
+  clear.innerText = "Clear";
+  clear.style.background = "#ef4444";
+  
+  clear.onclick = (e) => {
+    e.stopPropagation();
+    
+    delete columnFilters[col];   // remove filter
+    applyAllFilters();           // re-render
+    closeFilterPopup();
+  };
+  
+  actions.appendChild(apply);
+  actions.appendChild(cancel);
+  actions.appendChild(clear);
+
+  popup.appendChild(op);
+  popup.appendChild(v1);
+  popup.appendChild(v2);
+  popup.appendChild(actions);
+}
+
+document.addEventListener('click', (e)=>{
+  const popup = document.getElementById('filterPopup');
+
+  if(!popup || popup.classList.contains('hidden')) return;
+
+  if(popup.contains(e.target)) return;
+
+  popup.classList.add('hidden');
+});
+
+function closeFilterPopup(){
+  const popup = document.getElementById('filterPopup');
+  popup.classList.add('hidden');
+  popup.innerHTML = ''; // reset UI (prevents stale values)
+  currentFilterCol = null;
+}
+
 
 // =========================
 // VALIDATION HELPERS
@@ -956,17 +1135,28 @@ function renderTable(filteredData = data){
 
       const th = document.createElement('th');
 
-      th.style.cursor = 'pointer';
-
-      const arrow =
-        sortState.column === col
-          ? (sortState.direction === 'asc' ? ' ▲' : ' ▼')
-          : '';
-
-      th.innerText = col + arrow;
-
-      th.onclick = () => sortTable(col);
-
+      const title = document.createElement('div');
+      title.innerText = col;
+      title.style.cursor = "pointer";
+      title.onclick = () => sortTable(col);
+      
+      th.appendChild(title);
+      
+      if(col !== "Action"){
+        const icon = document.createElement('span');
+        icon.innerHTML = "🔽";
+        icon.style.cursor = "pointer";
+        icon.style.marginLeft = "8px";
+        icon.style.color = columnFilters[col] ? "yellow" : "white";
+      
+        icon.onclick = (e) => {
+          e.stopPropagation();
+          openFilterPopup(col, icon);
+        };
+      
+        title.appendChild(icon);
+      }
+      
       header.appendChild(th);
     });
   });
@@ -1057,7 +1247,170 @@ function renderTable(filteredData = data){
 
   });
 
-  populateColumnFilter();
+}
+
+function updateFilter(col, op, v1, v2){
+
+  // Treat empty properly
+  if(v1 === "" || v1 === null || v1 === undefined){
+    delete columnFilters[col];
+  } else {
+    columnFilters[col] = { op, v1, v2 };
+  }
+
+  applyAllFilters();
+}
+
+function applyAllFilters(){
+
+  let filtered = [...data];
+
+  if(globalSearchValue){
+    filtered = filtered.filter(row =>
+      Object.values(row)
+        .join(' ')
+        .toLowerCase()
+        .includes(globalSearchValue)
+    );
+  }
+
+  Object.keys(columnFilters).forEach(col => {
+
+    const { op, v1, v2 } = columnFilters[col];
+    const type = getColumnType(col);
+
+    filtered = filtered.filter(row => {
+
+      let cell = row[col];
+      let val1 = v1;
+      let val2 = v2;
+
+      // =========================
+      // NORMALIZATION (FIXED)
+      // =========================
+
+      if(type === "number"){
+        cell = parseFloat(cell.toString().replace('$',''));
+        val1 = parseFloat(val1);
+        val2 = v2 ? parseFloat(v2) : null;
+      }
+
+      if(type === "date"){
+        cell = new Date(cell);
+        val1 = v1 ? new Date(v1) : null;
+        val2 = v2 ? new Date(v2) : null;
+      }
+
+      if(type === "text"){
+        cell = String(cell).toLowerCase();
+        val1 = val1.toLowerCase();
+      }
+
+      // =========================
+      // OPERATORS (FIXED)
+      // =========================
+
+      switch(op){
+
+        // TEXT
+        case "contains": return cell.includes(val1);
+        case "starts with": return cell.startsWith(val1);
+        case "ends with": return cell.endsWith(val1);
+        case "equals": return cell === val1;
+        case "not contains": return !cell.includes(val1);
+
+        // NUMBER
+        case "=": return cell === val1;
+        case "!=": return cell !== val1;
+        case ">": return cell > val1;
+        case "<": return cell < val1;
+        case ">=": return cell >= val1;
+        case "<=": return cell <= val1;
+
+        // DATE
+        case "before":
+          if(!val1) return true;
+          return cell < val1;
+
+        case "after":
+          if(!val1) return true;
+          return cell > val1;
+
+        // BETWEEN (CRITICAL FIX)
+        case "between":
+
+          if(type === "number"){
+            if(isNaN(val1)) return true;
+
+            if(val2 === null || isNaN(val2)){
+              return cell >= val1;   // ✅ FIX: single bound
+            }
+          }
+
+          if(type === "date"){
+            if(!val1) return true;
+
+            if(!val2){
+              return cell >= val1;   // ✅ FIX: single bound
+            }
+          }
+
+          return cell >= val1 && cell <= val2;
+
+        default: return true;
+      }
+
+    });
+
+  });
+
+  renderTable(filtered);
+}
+
+
+function createFilterUI(col){
+
+  const container = document.createElement('div');
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
+  container.style.gap = "4px";
+
+  const type = getColumnType(col);
+
+  // OPERATOR
+  const op = document.createElement('select');
+
+  operators[type].forEach(o=>{
+    const opt = document.createElement('option');
+    opt.value = o;
+    opt.innerText = o;
+    op.appendChild(opt);
+  });
+
+  // VALUE 1
+  const v1 = document.createElement('input');
+  v1.placeholder = "value";
+
+  // VALUE 2 (for between)
+  const v2 = document.createElement('input');
+  v2.placeholder = "value";
+  v2.style.display = "none";
+
+  if(type === "date"){
+    v1.type = "date";
+    v2.type = "date";
+  }
+
+  op.onchange = () => {
+    v2.style.display = op.value === "between" ? "block" : "none";
+    updateFilter(col, op.value, v1.value, v2.value);
+  };
+
+  container.appendChild(op);
+  container.appendChild(v1);
+  container.appendChild(v2);
+
+  return container;
 }
 
 function deleteRow(id){
@@ -1073,7 +1426,7 @@ function deleteRow(id){
       r["#"] = i + 1;
     });
 
-    renderTable(data);
+    applyAllFilters();
   }
 }
 
@@ -1157,7 +1510,7 @@ function addRecord(){
 
   closeAddModal();
 
-  renderTable(data);
+  applyAllFilters();
 }
 
 
@@ -1209,69 +1562,19 @@ function sortTable(column){
     return 0;
   });
 
-  renderTable(data);
+  applyAllFilters();
 }
 
 // =========================
 // GLOBAL FILTER
 // =========================
+let globalSearchValue = "";
+
 function filterTable(val){
-
-  val = val.toLowerCase();
-
-  const filtered = data.filter(row =>
-    Object.values(row)
-      .join(' ')
-      .toLowerCase()
-      .includes(val)
-  );
-
-  renderTable(filtered);
+  globalSearchValue = val.toLowerCase();
+  applyAllFilters();
 }
 
-// =========================
-// COLUMN FILTER
-// =========================
-function populateColumnFilter(){
-
-  const select = document.getElementById('columnFilter');
-
-  if(select.options.length > 1) return;
-
-  activeCols.forEach(col => {
-
-    const option = document.createElement('option');
-
-    option.value = col;
-    option.innerText = col;
-
-    select.appendChild(option);
-
-  });
-}
-
-function applyColumnFilter(){
-
-  const col = document.getElementById('columnFilter').value;
-
-  const val = document
-    .getElementById('columnFilterValue')
-    .value
-    .toLowerCase();
-
-  if(!col || !val){
-    renderTable(data);
-    return;
-  }
-
-  const filtered = data.filter(row =>
-    String(row[col])
-      .toLowerCase()
-      .includes(val)
-  );
-
-  renderTable(filtered);
-}
 
 // =========================
 // SETTINGS PANEL
@@ -1301,7 +1604,7 @@ function toggleSettings(){
       activeCols=activeCols.filter(c=>c!==col);
     }
 
-    renderTable(data);
+    applyAllFilters();
   };
 
   const label=document.createElement('label');
