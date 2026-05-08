@@ -939,12 +939,12 @@
           </div>
 
           <div class="form-group">
-            <label for="dob">Date of Birth *</label>
+            <label for="dob">Date of Birth</label>
             <input id="dob" type="date">
           </div>
 
           <div class="form-group">
-            <label for="gender">Gender *</label>
+            <label for="gender">Gender</label>
             <select id="gender">
               <option value="">Select</option>
               <option>Male</option>
@@ -1338,8 +1338,6 @@
       if (stage === 1) {
 
         const name = document.getElementById('name').value.trim();
-        const dob = document.getElementById('dob').value;
-        const gender = document.getElementById('gender').value;
       
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
@@ -1354,8 +1352,6 @@
         termsError.style.display = 'none';
       
         if (!name) return errorBox.innerText = "Name is required", false;
-        if (!dob) return errorBox.innerText = "DOB is required", false;
-        if (!gender) return errorBox.innerText = "Gender is required", false;
       
         if (!username) return errorBox.innerText = "Username is required", false;
         if (!password) return errorBox.innerText = "Password is required", false;
@@ -1424,7 +1420,6 @@
 
         btns.forEach(b => {
           b.disabled = !valid;
-          b.style.display = valid ? 'inline-block' : 'none';
         });
       }
 
