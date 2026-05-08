@@ -1,0 +1,44 @@
+/* =====================================
+   ENV FORM ALIGNMENT FIX
+===================================== */
+
+.env-form{
+  margin-top:20px;
+  display:grid;
+  grid-template-columns:180px 1fr;
+  gap:14px 20px;
+  align-items:center;
+  max-width:600px;
+}
+
+/* labels */
+
+.env-form label{
+  font-weight:600;
+  text-align:right;
+  color:#1f2937;
+}
+
+/* fields */
+
+.env-form select{
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid #e5e7eb;
+  font-size:14px;
+  width:100%;
+}
+
+/* responsive */
+
+@media(max-width:700px){
+
+  .env-form{
+    grid-template-columns:1fr;
+  }
+
+  .env-form label{
+    text-align:left;
+  }
+
+}

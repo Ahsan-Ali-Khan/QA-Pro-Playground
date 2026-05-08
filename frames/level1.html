@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>QA Automation Frame</title>
+  <link rel="stylesheet" href="../css/frame-styles.css">
+</head>
+
+<body>
+
+  <main class="container">
+
+    <section class="card">
+
+      <header class="card-header">
+        <h2>🧩 Level 1 Frame</h2>
+        <p class="subtitle">
+          Enter user details and preview nested frame behaviour.
+        </p>
+      </header>
+
+      <form class="form">
+
+        <!-- NAME -->
+        <div class="form-group">
+          <label for="nameInput">Name</label>
+          <input id="nameInput" type="text" placeholder="Enter your name">
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="form-group">
+          <label for="passwordInput">Password</label>
+          <input id="passwordInput" type="password" placeholder="Enter password">
+        </div>
+
+        <!-- CHECKBOX -->
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="toggleAddress">
+            Enable Address
+          </label>
+        </div>
+
+        <!-- ADDRESS -->
+        <div id="addressBox" class="hidden form-group">
+          <label for="addressInput">Address</label>
+          <textarea id="addressInput" placeholder="Enter address"></textarea>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary">
+            Save Details
+          </button>
+
+          <button type="reset" class="btn btn-secondary">
+            Reset
+          </button>
+        </div>
+
+      </form>
+
+      <!-- IFRAME AREA -->
+      <section class="frame-preview">
+        <h3>Frame Preview</h3>
+
+        <iframe
+          id="frame-level2"
+          src="level2.html">
+        </iframe>
+      </section>
+
+    </section>
+
+  </main>
+
+  <script>
+    document
+      .getElementById("toggleAddress")
+      .addEventListener("change", function () {
+        document
+          .getElementById("addressBox")
+          .classList.toggle("hidden", !this.checked);
+      });
+  </script>
+
+</body>
+</html>

@@ -3,6 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/env-simulator.css">
   <title>QA Pro Automation Playground - Advanced</title>
   <style>
     /* =========================
@@ -234,7 +236,11 @@
     /* =========================
    INPUTS
 ========================= */
-    input {
+
+    input[type="text"],
+    input[type="password"],
+    textarea,
+    select {
       width: 100%;
       max-width: 350px;
 
@@ -649,13 +655,113 @@
       color: white;
     }
 
+    /* ===============================
+   GLOBAL
+================================*/
+    body {
+      font-family: Arial;
+      background: #f3f4f6;
+      padding: 40px;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      background: #6366f1;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ===============================
+   STATUS AREA
+================================*/
+    .status-box {
+      margin-top: 20px;
+      padding: 16px;
+      background: white;
+      border-radius: 10px;
+      border-left: 5px solid #6366f1;
+    }
+
+    /* ===============================
+   FULL PAGE SPINNER OVERLAY
+================================*/
+    #spinnerOverlay {
+
+      position: fixed;
+      inset: 0;
+
+      background: rgba(0, 0, 0, .65);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      z-index: 9999;
+    }
+
+    /* Center Card */
+    .spinner-card {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      text-align: center;
+      width: 320px;
+    }
+
+    /* Spinner */
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 6px solid #e5e7eb;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .progress {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .status-text {
+      margin-top: 10px;
+      color: #555;
+    }
+
+    /* ===============================
+   DATA CARD
+================================*/
+    .data-card {
+      margin-top: 25px;
+      padding: 20px;
+      background: #ecfeff;
+      border-left: 5px solid #06b6d4;
+      border-radius: 10px;
+    }
+
     /* =========================
    IFRAME
 ========================= */
-    iframe {
-      width: 100%;
-      height: 240px;
 
+
+    iframe {
+
+      height: 60vh;
+      min-height: 400px;
       border: none;
       border-radius: 16px;
 
@@ -782,37 +888,243 @@
     .hidden {
       display: none;
     }
+
+
+    .playground-frame {
+      width: 100%;
+      height: 700px;
+      border: none;
+      border-radius: 16px;
+      background: white;
+      margin-top: 16px;
+    }
+
+    .status-box {
+      background: #f9fafb;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    /* =============================
+   CUSTOM ALERT
+============================= */
+
+    .toggle {
+      font-weight: bold;
+    }
+
+    .alert-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .alert-card {
+      width: 380px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, .25);
+      animation: scaleIn .25s ease;
+      overflow: hidden;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .alert-header {
+      background: #111827;
+      color: #fff;
+      padding: 15px;
+    }
+
+    .alert-body {
+      padding: 20px;
+    }
+
+    .alert-body input {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+    }
+
+    .alert-footer {
+      padding: 15px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn {
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn.secondary {
+      background: #e5e7eb;
+    }
+
+    .dynamic-box {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f4f7fb;
+      border-radius: 8px;
+      font-size: 18px;
+      min-height: 50px;
+    }
   </style>
 </head>
 
 <body>
 
   <div id="sidebar">
-    <div onclick="show('elements')">Elements</div>
+    <div onclick="show('dynamicElements')">Dynamic Elements</div>
     <div onclick="show('tables')">Dynamic Tables</div>
     <div onclick="show('forms')">Forms</div>
+    <div onclick="show('slowAndDisappearingElements')">Slow & Disappearing Elements</div>
     <div onclick="show('alerts')">Alerts</div>
-    <div onclick="show('widgets')">Widgets</div>
-    <div onclick="show('interactions')">Interactions</div>
+    <div onclick="show('dynamicText')">Dynamic Text</div>
     <div onclick="show('iframeSec')">iFrame</div>
     <div onclick="show('shadow')">Shadow DOM</div>
-    <div onclick="show('bookstore')">Book Store (API)</div>
-    <div onclick="show('advanced')">Advanced Failure Lab</div>
+    <div onclick="show('env')">Environment/Locale/Browser Change</div>
   </div>
 
   <div id="content">
 
     <!-- ELEMENTS -->
-    <div id="elements" class="section">
-      <h2>Dynamic Locators (Dynamic ID/Class)</h2>
+    <div id="dynamicElements" class="section">
+      <h2>Dynamic Elements Lab</h2>
       <div class="note">
-        <b>Reproduce:</b> <br>
-        Dynamic Id / Class / Attribute changes every wait 10s <br>
-        CSS and Text Change Every 10 Sec <br>
-        <b>Category:</b> Locator Drift Over Time
+        <b>Reproduce:</b><br>
+
+        • Elements dynamically change attributes (ID, Class, data-*). <br>
+        • Text, visibility, position, and DOM structure update automatically. <br>
+        • Some elements appear late, move, duplicate, re-render, or become stale. <br>
+        • Automation relying on static locators, timing assumptions, or cached references will fail. <br><br>
+
+        <b>Category:</b> Dynamic UI Behaviour • Locator Drift • Stale Elements • Async Rendering • Flaky Interactions
+        <br>
+
+        <button onclick="DynamicLab.reset()">🔄 Reset Playground</button>
+
+        <br>
+        <!-- ===================== -->
+        <!-- 1. Dynamic Attributes -->
+        <!-- ===================== -->
+        <div class="card" id="lab-attributes">
+          <h3>Dynamic Attributes</h3>
+          <p>ID / Class / Text keeps changing</p>
+
+          <button id="btn-click" class="btn dyn-class" data-testid="stableBtn">
+            Click Me
+          </button>
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- 2. Delayed Element -->
+        <!-- ===================== -->
+        <div class="card" id="lab-delay">
+          <h3>Delayed Rendering</h3>
+
+          <button id="delayed-btn" class="hidden">
+            I appear after delay
+          </button>
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- 3. Visibility Toggle -->
+        <!-- ===================== -->
+        <div class="card" id="lab-visibility">
+          <h3>Flaky Visibility</h3>
+
+          <button id="toggle-btn">
+            Sometimes Visible
+          </button>
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- 4. Catch Me Button -->
+        <!-- ===================== -->
+        <div class="card" id="lab-catch">
+          <h3>Catch Me If You Can 😈</h3>
+
+          <button id="catch-me">
+            Catch Me
+          </button>
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- 5. DOM Re-render -->
+        <!-- ===================== -->
+        <div class="card" id="lab-stale">
+          <h3>DOM Re-Render</h3>
+
+          <button id="rerender-btn">
+            I become stale
+          </button>
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- 6. Duplicate Elements -->
+        <!-- ===================== -->
+        <div class="card" id="lab-duplicate">
+          <h3>Duplicate Locator Trap</h3>
+
+          <div id="duplicate-box">
+            <button class="dup">Duplicate</button>
+          </div>
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- 7. Async Enable -->
+        <!-- ===================== -->
+        <div class="card" id="lab-async">
+          <h3>Async Enable Button</h3>
+
+          <button id="async-btn" disabled>
+            Wait Until Enabled
+          </button>
+        </div>
+
+        <p id="text-output"></p>
       </div>
-      <button id="btn-click" class="btn dyn-class" data-testid="stableBtn">Click Me</button>
-      <p id="text-output"></p>
     </div>
 
     <!-- TABLES -->
@@ -1120,56 +1432,267 @@
 
       </div>
     </div>
-    
+
 
     <!-- ALERTS -->
+    <div id="slowAndDisappearingElements" class="section hidden">
+      <h2>Slow + Disappearing Elements (Automation Failure Lab)</h2>
+      <div class="note">
+        <b>Reproduce:</b>
+        Click Trigger → Full page spinner appears →
+        Progress updates dynamically (1%–100%) →
+        Spinner disappears →
+        Status shows “Waiting for response” →
+        Data appears after random delay →
+        Data automatically disappears after 10s
+
+        <br><br>
+
+        <b>Category:</b>
+        Async Processing • False Completion Signal • Disappearing Elements • Timing Synchronization Failure
+      </div>
+      <div>
+        <button id="triggerBtn">Trigger Process</button>
+        <div id="statusBox" class="status-box">
+          Status: Idle
+        </div>
+        <div id="dataCard" class="data-card hidden">
+          ✅ Response Data Loaded
+        </div>
+        <!-- ===============================
+               SPINNER OVERLAY
+          ================================-->
+        <div id="spinnerOverlay" class="hidden">
+          <div class="spinner-card">
+            <div class="loader"></div>
+            <div id="spinnerStatus">Triggered...</div>
+            <div id="progress" class="progress">0%</div>
+            <div class="status-text">
+              Processing request
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ALERTS -->
     <div id="alerts" class="section hidden">
-      <h2>Slow + Disappearing Elements</h2>
+      <h2>Different Types of Alerts</h2>
       <div class="note">
-        <b>Reproduce:</b> Click → spinner appears → disappears → alert delayed
+        <b>Reproduce:</b><br>
+
+        • Click alert triggers → alert appears after random delay (3–10s).<br>
+        • Some executions intentionally do NOT show an alert.<br>
+        • Multiple alert types simulated:
+        Prompt Input • Confirmation • Error • Delayed Notification.<br>
+        • Alerts may overlap timing expectations or appear unpredictably.<br><br>
+
+        <b>Category:</b>
+        Alert Handling • Async Events • Conditional UI Behaviour • Timing Uncertainty • Flaky Synchronization
       </div>
-      <button onclick="showAlert()">Trigger</button>
-      <div id="spinner" style="display:none">Loading...</div>
+
+      <label class="toggle">
+        <input type="checkbox" id="alertModeToggle" onchange="toggleAlertMode()" />
+        Use Browser Alerts
+      </label>
+      <!-- Trigger buttons -->
+
+      <button onclick="showAlertWithDelay()">Show Alert With Delay</button>
+      <button onclick="showPromptAlert()">Prompt Alert</button>
+      <button onclick="showConfirmationAlert()">Confirmation Alert</button>
+      <button onclick="showErrorAlert()">Error Alert</button>
     </div>
 
-    <!-- WIDGETS -->
-    <div id="widgets" class="section hidden">
-      <h2>Dynamic Text</h2>
-      <div class="note">
-        <b>Reproduce:</b> Counter auto updates every 2s
-        <b>Category:</b> Data Dependent UI
+    <div id="customAlertOverlay" class="alert-overlay hidden">
+      <div class="alert-card">
+
+        <div class="alert-header">
+          <h3 id="alertTitle"></h3>
+        </div>
+
+        <div class="alert-body">
+          <p id="alertMessage"></p>
+          <input id="alertInput" class="hidden" placeholder="Enter value..." />
+        </div>
+
+        <div class="alert-footer">
+          <button id="alertCancel" class="btn secondary hidden">Cancel</button>
+          <button id="alertOk" class="btn primary">OK</button>
+        </div>
+
       </div>
-      <p id="counter">Items: 0</p>
     </div>
 
-    <!-- INTERACTIONS -->
-    <div id="interactions" class="section hidden">
-      <h2>Stale Element</h2>
+    <!-- Dynamic Text -->
+    <div id="dynamicText" class="section hidden">
+
+      <h2>Dynamic Text Simulator</h2>
+
       <div class="note">
-        <b>Reproduce:</b> Click replace → element re-rendered (stale reference)
+        <b>Reproduce:</b>
+        Select a dynamic behavior → Text updates automatically with async,
+        random, streaming, disappearing, or time-based changes.
+
+        <br><br>
+
+        <b>Category:</b>
+        Data Dependent UI • Async Rendering • Timing Instability •
+        Streaming Content • Conditional UI State
       </div>
-      <button onclick="replaceNode()">Replace Element</button>
-      <div id="replaceable">Original Element</div>
+
+      <label>Select Dynamic Scenario:</label>
+      <select id="dynamicMode" onchange="startDynamicMode()">
+        <option value="counter">Auto Counter</option>
+        <option value="population">Increasing Population</option>
+        <option value="randomValue">Random Value</option>
+        <option value="apiDelay">Async API Response</option>
+        <option value="typing">Typing Animation</option>
+        <option value="statusFlow">Status Flow</option>
+        <option value="flicker">Flicker Message</option>
+        <option value="visibilityDelay">Delayed Visibility</option>
+        <option value="partial">Partial Dynamic Text</option>
+        <option value="retry">Retry Loop</option>
+        <option value="aiFlow">AI Processing Flow</option>
+        <option value="randomResult">Random Success/Failure</option>
+        <option value="dateTime">Live Date Time Formats</option>
+      </select>
+
+      <p id="dynamicOutput" class="dynamic-box">
+        Waiting...
+      </p>
     </div>
 
-    <!-- IFRAME -->
+    <!-- IFRAME CONTEXT -->
     <div id="iframeSec" class="section hidden">
+
       <h2>iFrame Context</h2>
+
       <div class="note">
-        <b>Reproduce:</b> Switch to iframe → click button
-        <b>Category:</b> Cross Component Relationships
+        <b>Reproduce:</b>
+        iframe reloads automatically every 40 seconds and ID changes dynamically.
+        Nested frames exist inside Level 1 → Level 2 → Level 3.
+
+        <br><br>
+
+        <b>Category:</b>
+        Frame Switching • Dynamic DOM • Locator Stability
       </div>
-      <iframe srcdoc="<button onclick='alert(\" Inside Frame\")'>Click inside iframe</button>"></iframe>
+
+      <!-- STATUS PANEL -->
+      <div class="status-box">
+        <p><b>Active Frame ID:</b> <span id="frameStatus">frame0</span></p>
+        <p><b>Reload Counter:</b> <span id="frameReload">0</span></p>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="controls">
+        <button id="reloadFrameBtn">Reload Frame</button>
+        <button id="spawnFrameBtn">Spawn New Frame</button>
+      </div>
+
+      <!-- IFRAME -->
+      <iframe id="frame0" src="frames/level1.html" class="playground-frame">
+      </iframe>
+
     </div>
 
     <!-- SHADOW -->
     <div id="shadow" class="section hidden">
-      <h2>Shadow DOM</h2>
+
+      <h2>Shadow DOM Simulator</h2>
+
       <div class="note">
-        <b>Reproduce:</b> Access via shadowRoot
+        <b>Reproduce:</b>
+        Select scenario → elements render inside shadow DOM layers.
+        Requires shadowRoot traversal, timing handling, or special locator strategies.
+
+        <br><br>
+
+        <b>Category:</b>
+        Shadow DOM • Encapsulated UI • Nested Components • Dynamic Rendering
       </div>
+
+      <label>Select Scenario:</label>
+      <select id="shadowMode">
+        <option value="basic">Basic Shadow DOM</option>
+        <option value="nested">Nested Shadow DOM</option>
+        <option value="dynamic">Dynamic Shadow Creation</option>
+        <option value="closed">Closed Shadow Root</option>
+        <option value="input">Shadow Input Field</option>
+        <option value="button">Shadow Button Action</option>
+        <option value="textUpdate">Dynamic Shadow Text</option>
+        <option value="disappear">Disappearing Shadow Element</option>
+        <option value="multiple">Multiple Shadow Hosts</option>
+        <option value="replace">Random Shadow Replacement</option>
+      </select>
+
       <div id="shadow-host"></div>
+
     </div>
+
+    <!-- ENVIRONMENT LOCATOR TESTING -->
+    <div id="env" class="section hidden">
+    
+      <h2>Environment & Locale Locator Simulator</h2>
+    
+      <div class="note">
+        <b>Reproduce:</b>
+        Same feature behaves differently across environments,
+        locales, browsers, and feature flags.
+    
+        <br><br>
+        <b>Category:</b>
+        Cross Environment • i18n • Browser Rendering • Responsive UI
+      </div>
+    
+      <!-- ⭐ FORM GRID -->
+      <div class="env-form">
+    
+        <label for="envSelect">Environment:</label>
+        <select id="envSelect">
+          <option>QA</option>
+          <option>UAT</option>
+          <option>PROD</option>
+        </select>
+    
+        <label for="localeSelect">Locale:</label>
+        <select id="localeSelect">
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="hi">Hindi</option>
+          <option value="ar">Arabic</option>
+        </select>
+    
+        <label for="browserSelect">Browser:</label>
+        <select id="browserSelect">
+          <option>Chrome</option>
+          <option>Firefox</option>
+          <option>Safari</option>
+        </select>
+    
+        <label for="deviceSelect">Device:</label>
+        <select id="deviceSelect">
+          <option>Desktop</option>
+          <option>Mobile</option>
+        </select>
+    
+        <label for="featureSelect">Feature Flag:</label>
+        <select id="featureSelect">
+          <option>Old Checkout</option>
+          <option>New Checkout</option>
+        </select>
+    
+        <label for="themeSelect">Theme:</label>
+        <select id="themeSelect">
+          <option>Light</option>
+          <option>Dark</option>
+        </select>
+    
+      </div>
+    
+      <!-- Simulator Output -->
+      <div id="env-host" class="env-container"></div>
+</div>
 
     <!-- BOOKSTORE -->
     <div id="bookstore" class="section hidden">
@@ -1182,22 +1705,6 @@
       <ul id="books"></ul>
     </div>
 
-    <!-- ADVANCED -->
-    <div id="advanced" class="section hidden">
-      <h2>Advanced Failure Lab</h2>
-      <div class="note">
-        Covers:
-        <ul>
-          <li>Random attributes</li>
-          <li>Environment variation</li>
-          <li>Duplicate buttons</li>
-        </ul>
-      </div>
-      <button class="btn same">Save</button>
-      <button class="btn same">Save</button>
-      <button id="envBtn">Env Button</button>
-    </div>
-
   </div>
 
   <script>
@@ -1206,43 +1713,6 @@
       document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
       document.getElementById(section).classList.remove('hidden');
     }
-
-    // Dynamic ID/Class
-    setInterval(() => {
-      const btn = document.querySelector('#elements button');
-      if (btn) {
-        btn.id = 'btn-' + Math.floor(Math.random() * 9999);
-        btn.className = 'dyn-' + Math.floor(Math.random() * 999);
-        btn.setAttribute("data-testid",'dyn-' + Math.floor(Math.random() * 999) + "-btn");
-        // RANDOM TEXT
-        const messages = [
-          "Click me 😄",
-          "click me ⚡",
-          "clickme 🔧",
-          "clickMe 👀",
-          "Click here 🔁",
-          "Click ME -_-",
-          "Click\nMe"
-        ];
-      
-        btn.innerText = messages[Math.floor(Math.random() * messages.length)];
-      
-        // RANDOM COLORS
-        const colors = ["red", "blue", "green", "purple", "orange"];
-        const color = colors[Math.floor(Math.random() * colors.length)];
-      
-        btn.style.setProperty("background", color, "important");
-        btn.style.setProperty("background-image", "none", "important");
-        btn.style.setProperty("color", "white", "important");
-      
-        // RANDOM EFFECTS
-        const scale = (1 + Math.random() * 0.4).toFixed(2);
-      
-        btn.style.setProperty("font-weight", "bold", "important");
-        btn.style.setProperty("transform", `scale(${scale})`, "important");
-      }
-    }, 10000);
-
 
     // =========================
     // FORM BREADCRUMB
@@ -1267,19 +1737,19 @@
     function renderReview() {
       const container = document.getElementById('reviewData');
       container.innerHTML = '';
-    
+
       if (Object.keys(formState).length === 0) {
         container.innerHTML = "<i>No data captured</i>";
         return;
       }
-    
+
       Object.entries(formState).forEach(([key, val]) => {
         const div = document.createElement('div');
-    
+
         if (typeof val === "boolean") {
           val = val ? "Yes" : "No";
         }
-    
+
         div.innerHTML = `<b>${key}:</b> ${val || '-'}`;
         container.appendChild(div);
       });
@@ -1287,16 +1757,16 @@
 
     function captureFormState() {
       const elements = document.querySelectorAll('#forms input, #forms textarea, #forms select');
-    
+
       elements.forEach(el => {
         if (!el.id) return;
-    
+
         if (el.type === "file") {
           formState[el.id] = el.files[0] ? el.files[0].name : "";
-        } 
+        }
         else if (el.type === "checkbox") {
           formState[el.id] = el.checked;
-        } 
+        }
         else {
           formState[el.id] = el.value.trim();
         }
@@ -1307,55 +1777,55 @@
     // FORM STAGES
     // =========================
     function switchStage(n) {
-    
+
       if (n < 1 || n > 4) return;
-    
+
       const isForward = n > currentStage;
       const isSame = n === currentStage;
-    
+
       if (isSame) return;
-    
-      
+
+
       captureFormState();
-      
-    
+
+
       // ❌ Prevent skipping
       if (isForward && n > currentStage + 1) {
         return;
       }
-    
+
       // ✅ FIX: Show error instead of silent failure
       if (isForward && !validateStage(currentStage)) {
         alert("Please fill all required fields correctly before proceeding");
         return;
       }
-    
+
       // Hide all stages
       document.querySelectorAll('.form-stage')
         .forEach(s => s.classList.add('hidden'));
-    
+
       const nextStageEl = document.getElementById('stage' + n);
       if (!nextStageEl) return;
-    
+
       nextStageEl.classList.remove('hidden');
-    
+
       visitedStages.add(currentStage);
       currentStage = n;
-    
+
       restoreState();
       updateStepper();
-    
+
       if (n === 4) {
-        captureFormState(); 
+        captureFormState();
         renderReview();
       }
-    
+
       updateBreadcrumb();
-    
+
       if (nextStageEl.querySelector('.next-btn')) {
         randomizeNextButtons(nextStageEl);
       }
-    
+
       nextStageEl.scrollIntoView({
         behavior: "smooth",
         block: "start"
@@ -1389,38 +1859,38 @@
         const name = document.getElementById('name').value.trim();
         const dob = document.getElementById('dob').value;
         const gender = document.getElementById('gender').value;
-      
+
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
         const confirm = document.getElementById('confirmPassword').value.trim();
-      
+
         const terms = document.getElementById('terms').checked;
-      
+
         const errorBox = document.getElementById('stage1Error');
         const termsError = document.getElementById('termsError');
-      
+
         errorBox.innerText = '';
         termsError.style.display = 'none';
-      
+
         if (!name) return errorBox.innerText = "Name is required", false;
         if (!dob) return errorBox.innerText = "DOB is required", false;
         if (!gender) return errorBox.innerText = "Gender is required", false;
-      
+
         if (!username) return errorBox.innerText = "Username is required", false;
         if (!password) return errorBox.innerText = "Password is required", false;
         if (!confirm) return errorBox.innerText = "Confirm password is required", false;
-      
+
         if (password.length < 6)
           return errorBox.innerText = "Password must be at least 6 characters", false;
-      
+
         if (password !== confirm)
           return errorBox.innerText = "Passwords do not match", false;
-      
+
         if (!terms) {
           termsError.style.display = 'block';
           return false;
         }
-      
+
         return true;
       }
 
@@ -1443,18 +1913,18 @@
     }
 
     function randomizeNextButtons(stage) {
-  const btns = stage.querySelectorAll('.next-btn');
+      const btns = stage.querySelectorAll('.next-btn');
 
-  if (btns.length <= 1) {
-    btns.forEach(b => b.classList.remove('hidden')); // don't hide single button
-    return;
-  }
+      if (btns.length <= 1) {
+        btns.forEach(b => b.classList.remove('hidden')); // don't hide single button
+        return;
+      }
 
-  btns.forEach(b => b.classList.add('hidden'));
+      btns.forEach(b => b.classList.add('hidden'));
 
-  const index = Math.floor(Math.random() * btns.length);
-  btns[index].classList.remove('hidden');
-}
+      const index = Math.floor(Math.random() * btns.length);
+      btns[index].classList.remove('hidden');
+    }
 
     function handleStage1Inputs() {
       const username = document.getElementById('username');
@@ -1496,10 +1966,6 @@
       });
     }
 
-    handleStage1Inputs();
-    handleStage2Inputs();
-    updateBreadcrumb();
-    captureFormState();
 
 
     function restoreState() {
@@ -1543,6 +2009,10 @@
       });
     });
 
+    handleStage1Inputs();
+    handleStage2Inputs();
+    updateBreadcrumb();
+    captureFormState();
     // =========================
     // FILE PREVIEW
     // =========================
@@ -2297,42 +2767,6 @@
 
     renderTable();
 
-    // Spinner + alert
-    function showAlert() {
-      const s = document.getElementById('spinner');
-      s.style.display = 'block';
-      setTimeout(() => {
-        s.style.display = 'none';
-        alert('Loaded');
-      }, 2000);
-    }
-
-    // Counter
-    let count = 0;
-    setInterval(() => {
-      const el = document.getElementById('counter');
-      if (el) { el.innerText = 'Items: ' + (++count); }
-    }, 2000);
-
-    // Stale element
-    function replaceNode() {
-      const old = document.getElementById('replaceable');
-      const newNode = document.createElement('div');
-      newNode.id = 'replaceable';
-      newNode.innerText = 'New Element';
-      old.replaceWith(newNode);
-    }
-
-    // Shadow DOM
-    const host = document.getElementById('shadow-host');
-    if (host) {
-      const root = host.attachShadow({ mode: 'open' });
-      const btn = document.createElement('button');
-      btn.textContent = 'Shadow Button';
-      btn.onclick = () => alert('Shadow Click');
-      root.appendChild(btn);
-    }
-
     // API
     function fakeApi() {
       return new Promise(res => setTimeout(() => res(['A', 'B', 'C']), 2000 + Math.random() * 2000));
@@ -2348,13 +2782,271 @@
       });
     }
 
-    // Env variation
-    const envBtn = document.getElementById('envBtn');
-    if (envBtn) {
-      envBtn.className = (navigator.userAgent.includes('Chrome')) ? 'chrome-class' : 'other-class';
+    /* =====================================
+   ELEMENTS
+===================================== */
+
+    const triggerBtn = document.getElementById("triggerBtn");
+    const overlay = document.getElementById("spinnerOverlay");
+    const progressText = document.getElementById("progress");
+    const spinnerStatus = document.getElementById("spinnerStatus");
+    const statusBox = document.getElementById("statusBox");
+    const dataCard = document.getElementById("dataCard");
+
+    let running = false;
+
+
+    /* =====================================
+       MAIN FLOW
+    ===================================== */
+
+    triggerBtn.addEventListener("click", startProcess);
+
+    function startProcess() {
+
+      if (running) return;
+
+      running = true;
+      triggerBtn.disabled = true;
+
+      showSpinner();
+
+      simulateProcessing();
+    }
+
+
+    /* =====================================
+       SPINNER CONTROL
+    ===================================== */
+
+    function showSpinner() {
+      overlay.classList.remove("hidden");
+    }
+
+    function hideSpinner() {
+      overlay.classList.add("hidden");
+    }
+
+
+    /* =====================================
+       PROCESS SIMULATION
+    ===================================== */
+
+    function simulateProcessing() {
+
+      let progress = 0;
+
+      // Random total duration (10–40 sec)
+      const totalDuration = random(10000, 40000);
+
+      const intervalTime = 200;
+      const steps = totalDuration / intervalTime;
+      const increment = 100 / steps;
+
+      spinnerStatus.textContent = "Triggered...";
+      statusBox.textContent = "Status: Request Triggered";
+
+      const progressInterval = setInterval(() => {
+
+        progress += increment;
+
+        if (progress < 30)
+          spinnerStatus.textContent = "Initializing...";
+        else if (progress < 70)
+          spinnerStatus.textContent = "Processing data...";
+        else
+          spinnerStatus.textContent = "Finalizing...";
+
+        progressText.textContent = Math.floor(progress) + "%";
+
+        if (progress >= 100) {
+
+          clearInterval(progressInterval);
+
+          progressText.textContent = "100%";
+
+          setTimeout(afterSpinnerComplete, 500);
+        }
+
+      }, intervalTime);
+    }
+
+
+    /* =====================================
+       AFTER SPINNER
+    ===================================== */
+
+    function afterSpinnerComplete() {
+
+      hideSpinner();
+
+      statusBox.textContent =
+        "Status: Waiting for response from server...";
+
+      // random backend delay (not fixed)
+      setTimeout(showData, random(3000, 12000));
+    }
+
+
+    /* =====================================
+       DATA APPEARS THEN DISAPPEARS
+    ===================================== */
+
+    function showData() {
+
+      dataCard.classList.remove("hidden");
+
+      statusBox.textContent = "Status: Data received";
+
+      // disappears after 10 sec
+      setTimeout(() => {
+
+        dataCard.classList.add("hidden");
+
+        statusBox.textContent =
+          "Status: Response expired";
+
+        triggerBtn.disabled = false;
+        running = false;
+
+      }, 10000);
+    }
+
+
+    /* =====================================
+       RANDOM
+    ===================================== */
+
+    function random(min, max) {
+      return Math.floor(Math.random() * (max - min) + min);
+    }
+
+    const AlertEngine = {
+
+      open({ title, message, type = "info", onOk, onCancel }) {
+
+        const overlay = document.getElementById("customAlertOverlay");
+        const titleEl = document.getElementById("alertTitle");
+        const msgEl = document.getElementById("alertMessage");
+        const inputEl = document.getElementById("alertInput");
+        const okBtn = document.getElementById("alertOk");
+        const cancelBtn = document.getElementById("alertCancel");
+
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+
+        inputEl.classList.add("hidden");
+        cancelBtn.classList.add("hidden");
+
+        if (type === "prompt") {
+          inputEl.value = "";
+          inputEl.classList.remove("hidden");
+        }
+
+        if (type === "confirm") {
+          cancelBtn.classList.remove("hidden");
+        }
+
+        overlay.classList.remove("hidden");
+
+        okBtn.onclick = () => {
+          overlay.classList.add("hidden");
+          const value = type === "prompt" ? inputEl.value : true;
+          onOk?.(value);
+        };
+
+        cancelBtn.onclick = () => {
+          overlay.classList.add("hidden");
+          onCancel?.();
+        };
+      }
+    };
+
+    function showAlertWithDelay() {
+
+      const delay = Math.random() * 7000 + 3000;
+
+      setTimeout(() => {
+
+        if (useBrowserAlert) {
+          alert("Delayed alert appeared!");
+        } else {
+          AlertEngine.open({
+            title: "Delayed Alert",
+            message: "Alert appeared after random delay"
+          });
+        }
+
+      }, delay);
+    }
+
+    function showPromptAlert() {
+
+      if (useBrowserAlert) {
+        const value = prompt("Enter name:");
+        console.log(value);
+        return;
+      }
+
+      AlertEngine.open({
+        title: "Prompt",
+        message: "Enter your name",
+        type: "prompt",
+        onOk: (value) => console.log("User:", value)
+      });
+    }
+
+    function showConfirmationAlert() {
+
+      if (useBrowserAlert) {
+        console.log(confirm("Are you sure?"));
+        return;
+      }
+
+      AlertEngine.open({
+        title: "Confirmation",
+        message: "Are you sure?",
+        type: "confirm",
+        onOk: () => console.log("Confirmed"),
+        onCancel: () => console.log("Cancelled")
+      });
+    }
+
+    function showErrorAlert() {
+
+      if (useBrowserAlert) {
+        alert("System failure!");
+        return;
+      }
+
+      AlertEngine.open({
+        title: "Error",
+        message: "Unexpected system failure"
+      });
+    }
+
+    let useBrowserAlert = false;
+
+    function toggleAlertMode() {
+      useBrowserAlert =
+        document.getElementById("alertModeToggle").checked;
+
+      console.log(
+        useBrowserAlert
+          ? "Browser Alerts Enabled"
+          : "Custom Alerts Enabled"
+      );
     }
 
   </script>
+  <script src="js/dynamic-elements.js"></script>
+  <script src="js/iframe-loader.js"></script>
+  <script src="js/iframe-context.js"></script>
+  <script src="js/dynamic-text.js"></script>
+  <script src="js/shadow-dom.js"></script>
+  <script src="js/environment-simulator.js"></script>
+
+
 
 </body>
 
