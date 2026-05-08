@@ -806,7 +806,9 @@
     <div id="elements" class="section">
       <h2>Dynamic Locators (Dynamic ID/Class)</h2>
       <div class="note">
-        <b>Reproduce:</b> Refresh page OR wait 30s → ID/class changes<br>
+        <b>Reproduce:</b> <br>
+        Dynamic Id / Class / Attribute changes every wait 10s <br>
+        CSS and Text Change Every 10 Sec <br>
         <b>Category:</b> Locator Drift Over Time
       </div>
       <button id="btn-click" class="btn dyn-class" data-testid="stableBtn">Click Me</button>
@@ -1207,12 +1209,39 @@
 
     // Dynamic ID/Class
     setInterval(() => {
-      const btn = document.getElementById('btn-click');
+      const btn = document.querySelector('#elements button');
       if (btn) {
         btn.id = 'btn-' + Math.floor(Math.random() * 9999);
         btn.className = 'dyn-' + Math.floor(Math.random() * 999);
+        btn.setAttribute("data-testid",'dyn-' + Math.floor(Math.random() * 999) + "-btn");
+        // RANDOM TEXT
+        const messages = [
+          "Click me 😄",
+          "click me ⚡",
+          "clickme 🔧",
+          "clickMe 👀",
+          "Click here 🔁",
+          "Click ME -_-",
+          "Click\nMe"
+        ];
+      
+        btn.innerText = messages[Math.floor(Math.random() * messages.length)];
+      
+        // RANDOM COLORS
+        const colors = ["red", "blue", "green", "purple", "orange"];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+      
+        btn.style.setProperty("background", color, "important");
+        btn.style.setProperty("background-image", "none", "important");
+        btn.style.setProperty("color", "white", "important");
+      
+        // RANDOM EFFECTS
+        const scale = (1 + Math.random() * 0.4).toFixed(2);
+      
+        btn.style.setProperty("font-weight", "bold", "important");
+        btn.style.setProperty("transform", `scale(${scale})`, "important");
       }
-    }, 30000);
+    }, 10000);
 
 
     // =========================
