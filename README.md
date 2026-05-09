@@ -33,12 +33,9 @@ Then open:
 
 ```
 /
-├── index.html                  # Dynamic version (auto-deployed by Netlify)
+├── index.html                  # Single source of truth — serves both dynamic and stable
 ├── server.js                   # Local dev server (not used on Netlify)
-├── netlify.toml                # Netlify routing config
-│
-├── stable/
-│   └── index.html              # Stable baseline version → served at /stable
+├── netlify.toml                # Netlify routing — /stable rewrites to index.html
 │
 ├── css/
 │   ├── env-simulator.css
@@ -61,6 +58,8 @@ Then open:
     └── sampleFile.jpeg
 ```
 
+> There is **no separate stable HTML file**. Both `/` and `/stable` serve the same `index.html`. The page detects its own URL and switches behaviour accordingly (see How Stable Mode Works below).
+
 ---
 
 ## Sections & What They Test
@@ -79,6 +78,27 @@ Then open:
 
 ---
 
+## How Stable Mode Works
+
+Both `/` and `/stable` serve the same `index.html`. The very first script in `<head>` sets a global flag:
+
+```js
+window.STABLE_MODE = window.location.pathname.startsWith('/stable');
+```
+
+Every JS file and inline script checks this flag before running any chaos. No build step, no separate file to maintain — add a feature once and it automatically works in both modes.
+
+| File | What it does in stable mode |
+|---|---|
+| `dynamic-elements.js` | Skips `DynamicLab.init()` entirely |
+| `dynamic-text.js` | Shows a fixed representative string per dropdown option — no timers |
+| `iframe-loader.js` | Returns immediately — no attribute mutation or ID randomisation |
+| `iframe-context.js` | Returns immediately — no auto-reload or frame spawning |
+| `shadow-dom.js` | Uses a plain `<div>` instead of a shadow root for all 10 scenarios |
+| `index.html` (inline) | Hides real `<iframe>` and shows inlined Level 1 / 2 / 3 content as divs |
+
+---
+
 ## Stable vs Dynamic — Key Differences
 
 The stable version (`/stable`) is **identical in structure and labels** to the dynamic version but with all chaos removed. Use it to write your baseline tests, then run the same tests against the dynamic version to verify your self-healing automation.
@@ -93,20 +113,20 @@ The stable version (`/stable`) is **identical in structure and labels** to the d
 | iFrames | 3 levels deep, IDs change, auto-reload | Zero iframes — content inlined as `<div>` |
 | Dynamic Text output | Timers, intervals, random values | Fixed representative string per mode |
 | Shadow DOM | Actual shadow roots | Plain DOM elements, same labels |
-| Form next-button | Randomly hidden among duplicates | All next buttons always visible |
-| Chaos JS loaded | `dynamic-elements.js`, `iframe-loader.js`, `iframe-context.js`, `dynamic-text.js`, `shadow-dom.js` | None of these |
+| Form next-button (Stage 1) | Hidden until username + password fields are valid | Always **visible** — disabled until valid, never hidden |
+| Form next-button (randomised) | Randomly hidden among duplicate buttons | All next buttons always visible |
 
 ---
 
 ## Netlify Deployment
 
-Deploys automatically on every push to `main`. No build command required.
+Deploys automatically on every push. No build command required.
 
-The `netlify.toml` at the repo root handles routing:
-- `/` → `index.html` (dynamic)
-- `/stable` → `stable/index.html` (stable)
+The `netlify.toml` rewrites both routes to the same `index.html`:
+- `/` → dynamic mode (`window.STABLE_MODE = false`)
+- `/stable` → stable mode (`window.STABLE_MODE = true`)
 
-The `stable/index.html` contains `<base href="/">` so all shared CSS and JS resolve correctly from the site root.
+To add a new feature, edit `index.html` and/or the relevant JS file once. Gate any chaos behaviour behind `if (!window.STABLE_MODE)` and it will automatically be suppressed at `/stable`.
 
 ---
 

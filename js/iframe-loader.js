@@ -170,6 +170,9 @@
   ---------------------------------- */
   function init() {
 
+    // In stable mode skip all chaos — IDs, attributes, and buttons stay fixed
+    if (window.STABLE_MODE) return;
+
     randomizeFrameIds();
     simulateSlowFrames();
     dynamicButtons();
