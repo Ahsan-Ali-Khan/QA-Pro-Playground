@@ -10,10 +10,8 @@ Built for QA engineers and SDETs who want to practise, test, or demo self-healin
 
 | Version | URL | Purpose |
 |---|---|---|
-| **Dynamic** | `yoursite.netlify.app/` | Full chaos — random IDs, nested iframes, timers |
-| **Stable** | `yoursite.netlify.app/stable` | Fixed locators — use this to create baseline tests |
-
-> Replace `yoursite.netlify.app` with your actual Netlify domain.
+| **Dynamic** | [qa-pro-playground-dev.netlify.app/](https://qa-pro-playground-dev.netlify.app/) | Full chaos — random IDs, nested iframes, timers |
+| **Stable** | [qa-pro-playground-dev.netlify.app/stable](https://qa-pro-playground-dev.netlify.app/stable) | Fixed locators — use this to create baseline tests |
 
 ---
 
