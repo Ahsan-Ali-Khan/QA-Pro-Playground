@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Level 2 Workspace</title>
+  <link rel="stylesheet" href="../css/frame-styles.css">
+</head>
+
+<body>
+
+<main class="container">
+
+<section class="card">
+
+<!-- ================= HEADER ================= -->
+
+<header class="card-header">
+  <h2>⚙️ Automation Workspace</h2>
+  <p class="subtitle">
+    Configure environment, skills and testing preferences.
+  </p>
+</header>
+
+
+<!-- ================= PROFILE SUMMARY ================= -->
+
+<section class="info-banner">
+
+  <div class="avatar">QA</div>
+
+  <div>
+    <strong>Automation User</strong>
+    <p class="muted">Workspace Configuration Panel</p>
+  </div>
+
+</section>
+
+
+<!-- ================= TAB NAVIGATION ================= -->
+
+<nav class="tabs">
+  <button class="tab active">Profile</button>
+  <button class="tab">Skills</button>
+  <button class="tab">Environment</button>
+</nav>
+
+
+<!-- ================= CONTENT AREA ================= -->
+
+<form class="form grid-2">
+
+  <!-- EMAIL -->
+  <div class="form-group">
+    <label for="emailInput">Email Address</label>
+    <input id="emailInput"
+           type="email"
+           placeholder="automation@test.com">
+  </div>
+
+  <!-- ROLE -->
+  <div class="form-group">
+    <label for="roleSelect">Role</label>
+    <select id="roleSelect">
+      <option>QA Engineer</option>
+      <option>SDET</option>
+      <option>Automation Architect</option>
+    </select>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="form-group full">
+    <label for="skillsSelect">Automation Skills</label>
+
+    <select id="skillsSelect" multiple size="5">
+      <option>Selenium</option>
+      <option>Playwright</option>
+      <option>Cypress</option>
+      <option>REST API Testing</option>
+      <option>Performance Testing</option>
+    </select>
+
+    <small class="help-text">
+      Multi-select simulates complex locator interaction.
+    </small>
+  </div>
+
+</form>
+
+
+<!-- ================= TOGGLES ================= -->
+
+<section class="settings-panel">
+
+  <h3>Environment Settings</h3>
+
+  <label class="toggle">
+    <input type="checkbox">
+    Enable Smart Waiting
+  </label>
+
+  <label class="toggle">
+    <input type="checkbox">
+    Self-Healing Locators
+  </label>
+
+  <label class="toggle">
+    <input type="checkbox">
+    AI Element Detection
+  </label>
+
+</section>
+
+
+<!-- ================= ACTION BAR ================= -->
+
+<div class="form-actions sticky">
+
+  <button class="btn btn-primary">
+    Save Workspace
+  </button>
+
+  <button class="btn btn-secondary">
+    Cancel
+  </button>
+
+</div>
+
+
+<!-- ================= NESTED FRAME ================= -->
+
+<section class="frame-preview">
+
+  <h3>🔽 Deep Interaction Frame</h3>
+
+  <iframe
+    id="frame-level3"
+    title="Level 3 Frame"
+    src="level3.html">
+  </iframe>
+
+</section>
+
+</section>
+
+</main>
+<script src="../js/level2-behavior.js"></script>
+</body>
+</html>

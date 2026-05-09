@@ -1,0 +1,18 @@
+# ─────────────────────────────────────────────────────────────
+# Netlify configuration — QA Pro Automation Playground
+# ─────────────────────────────────────────────────────────────
+
+[build]
+  publish = "."          # serve from repo root (where index.html lives)
+
+# /stable  →  stable/index.html  (200 = serve, not redirect — URL stays the same)
+[[redirects]]
+  from   = "/stable"
+  to     = "/stable/index.html"
+  status = 200
+
+# /stable/ (trailing slash) → same thing
+[[redirects]]
+  from   = "/stable/"
+  to     = "/stable/index.html"
+  status = 200
