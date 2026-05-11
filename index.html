@@ -6,10 +6,33 @@
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/env-simulator.css">
   <title>QA Pro Automation Playground - Advanced</title>
-  <!-- STABLE MODE: must be first script — sets flag before any other JS runs -->
+  <!-- STABLE MODE + DOM utilities — must be first, before any other JS -->
   <script>
     window.STABLE_MODE = window.location.pathname.startsWith('/stable');
     if (window.STABLE_MODE) document.title = 'QA Pro Automation Playground - STABLE';
+
+    // domHide: fully removes element from DOM (automation tools can no longer find it)
+    // domShow: restores it to its original position
+    // domToggle: convenience wrapper
+    window.domHide = function(el) {
+      if (!el || el._domRemoved) return;
+      el._domParent  = el.parentNode;
+      el._domNext    = el.nextSibling;
+      if (el.parentNode) el.parentNode.removeChild(el);
+      el._domRemoved = true;
+    };
+    window.domShow = function(el) {
+      if (!el || !el._domRemoved) return;
+      if (el._domNext && el._domNext.parentNode === el._domParent) {
+        el._domParent.insertBefore(el, el._domNext);
+      } else if (el._domParent) {
+        el._domParent.appendChild(el);
+      }
+      el._domRemoved = false;
+    };
+    window.domToggle = function(el, show) {
+      show ? window.domShow(el) : window.domHide(el);
+    };
   </script>
   <style>
     /* =========================
@@ -1641,11 +1664,11 @@
             </div>
             <div style="margin-bottom:12px;">
               <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
-                <input type="checkbox" id="l1-toggleAddress" onchange="document.getElementById('l1-addressBox').classList.toggle('hidden',!this.checked)">
+                <input type="checkbox" id="l1-toggleAddress" onchange="domToggle(window._l1AddrBox, this.checked)">
                 Enable Address
               </label>
             </div>
-            <div id="l1-addressBox" class="hidden" style="margin-bottom:12px;">
+            <div id="l1-addressBox" style="margin-bottom:12px;">
               <label for="l1-address" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Address</label>
               <textarea id="l1-address" placeholder="Enter address" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;max-width:320px;"></textarea>
             </div>
@@ -1875,10 +1898,26 @@
   </div>
 
   <script>
-    // NAV
+    // =============================================================
+    // PRE-CAPTURED ELEMENT REFERENCES
+    // Must be captured BEFORE initDomRemoval() removes them from DOM.
+    // getElementById/querySelectorAll only search the live DOM,
+    // so we store references now while everything is still attached.
+    // =============================================================
+    let _allSections, _allFormStages, _allSubcontents;
+
+    // Captured in initCapture() which runs at end of this script block
+    let _filterPopup, _modalOverlay, _settingsEl,
+        _dataCard, _spinnerOverlay,
+        _alertOverlay, _alertInput, _alertCancel;
+
+    // NAV — uses stored _allSections so removed sections are still reachable
     function show(section) {
-      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-      document.getElementById(section).classList.remove('hidden');
+      if (_allSections) _allSections.forEach(s => domHide(s));
+      const target = _allSections
+        ? _allSections.find(s => s.id === section)
+        : document.getElementById(section);
+      if (target) domShow(target);
     }
 
     // =========================
@@ -1967,14 +2006,16 @@
         return;
       }
 
-      // Hide all stages
-      document.querySelectorAll('.form-stage')
-        .forEach(s => s.classList.add('hidden'));
+      // Remove all stages from DOM, then restore the target stage
+      if (_allFormStages) _allFormStages.forEach(s => domHide(s));
 
-      const nextStageEl = document.getElementById('stage' + n);
+      // Stages are stored on _allFormStages; getElementById won't find removed elements
+      const nextStageEl = _allFormStages
+        ? _allFormStages.find(s => s.id === 'stage' + n)
+        : document.getElementById('stage' + n);
       if (!nextStageEl) return;
 
-      nextStageEl.classList.remove('hidden');
+      domShow(nextStageEl);
 
       visitedStages.add(currentStage);
       currentStage = n;
@@ -2078,23 +2119,24 @@
     }
 
     function randomizeNextButtons(stage) {
-      const btns = stage.querySelectorAll('.next-btn');
+      // Use pre-captured references — querySelectorAll won't find removed elements
+      const btns = stage._nextBtns || Array.from(stage.querySelectorAll('.next-btn'));
 
-      // Stable mode: always show all next buttons — no random hiding
+      // Stable mode: always restore all next buttons — never hidden
       if (window.STABLE_MODE) {
-        btns.forEach(b => b.classList.remove('hidden'));
+        btns.forEach(b => domShow(b));
         return;
       }
 
       if (btns.length <= 1) {
-        btns.forEach(b => b.classList.remove('hidden'));
+        btns.forEach(b => domShow(b));
         return;
       }
 
-      btns.forEach(b => b.classList.add('hidden'));
+      btns.forEach(b => domHide(b));
 
       const index = Math.floor(Math.random() * btns.length);
-      btns[index].classList.remove('hidden');
+      domShow(btns[index]);
     }
 
     function handleStage1Inputs() {
@@ -2170,11 +2212,13 @@
       tabEl.addEventListener('click', function () {
         const tab = this.textContent.toLowerCase();
 
-        document.querySelectorAll('.subcontent')
-          .forEach(s => s.classList.add('hidden'));
+        // Use pre-captured refs — removed elements not found by querySelectorAll
+        if (_allSubcontents) _allSubcontents.forEach(s => domHide(s));
 
-        document.getElementById(tab)
-          .classList.remove('hidden');
+        const target = _allSubcontents
+          ? _allSubcontents.find(s => s.id === tab)
+          : document.getElementById(tab);
+        if (target) domShow(target);
 
         document.querySelectorAll('.subtab')
           .forEach(t => t.classList.remove('active'));
@@ -2286,9 +2330,9 @@
 
       currentFilterCol = col;
 
-      const popup = document.getElementById('filterPopup');
+      const popup = _filterPopup;
       popup.innerHTML = '';
-      popup.classList.remove('hidden');
+      domShow(popup);
 
       const rect = anchor.getBoundingClientRect();
 
@@ -2376,18 +2420,18 @@
     }
 
     document.addEventListener('click', (e) => {
-      const popup = document.getElementById('filterPopup');
+      const popup = _filterPopup;
 
-      if (!popup || popup.classList.contains('hidden')) return;
+      if (!popup || popup._domRemoved) return; // not currently shown
 
       if (popup.contains(e.target)) return;
 
-      popup.classList.add('hidden');
+      domHide(popup);
     });
 
     function closeFilterPopup() {
-      const popup = document.getElementById('filterPopup');
-      popup.classList.add('hidden');
+      const popup = _filterPopup;
+      domHide(popup);
       popup.innerHTML = ''; // reset UI (prevents stale values)
       currentFilterCol = null;
     }
@@ -2750,19 +2794,12 @@
     }
 
     function openAddModal() {
-
-      document
-        .getElementById('modalOverlay')
-        .classList.remove('hidden');
-
+      domShow(_modalOverlay);
       clearModal();
     }
 
     function closeAddModal() {
-
-      document
-        .getElementById('modalOverlay')
-        .classList.add('hidden');
+      domHide(_modalOverlay);
     }
 
     function clearModal() {
@@ -2900,9 +2937,16 @@
     // =========================
     function toggleSettings() {
 
-      const s = document.getElementById('settings');
+      const s = _settingsEl;
 
-      s.classList.toggle('hidden');
+      // Toggle: if removed from DOM → restore; if in DOM → remove
+      if (s._domRemoved) {
+        s.innerHTML = '';
+        domShow(s);
+      } else {
+        domHide(s);
+        return; // no need to rebuild content when hiding
+      }
 
       s.innerHTML = '';
 
@@ -2994,11 +3038,11 @@
     ===================================== */
 
     function showSpinner() {
-      overlay.classList.remove("hidden");
+      domShow(overlay);
     }
 
     function hideSpinner() {
-      overlay.classList.add("hidden");
+      domHide(overlay);
     }
 
 
@@ -3069,14 +3113,14 @@
 
     function showData() {
 
-      dataCard.classList.remove("hidden");
+      domShow(dataCard);
 
       statusBox.textContent = "Status: Data received";
 
       // disappears after 10 sec
       setTimeout(() => {
 
-        dataCard.classList.add("hidden");
+        domHide(dataCard);
 
         statusBox.textContent =
           "Status: Response expired";
@@ -3100,38 +3144,40 @@
 
       open({ title, message, type = "info", onOk, onCancel }) {
 
-        const overlay = document.getElementById("customAlertOverlay");
-        const titleEl = document.getElementById("alertTitle");
-        const msgEl = document.getElementById("alertMessage");
-        const inputEl = document.getElementById("alertInput");
-        const okBtn = document.getElementById("alertOk");
-        const cancelBtn = document.getElementById("alertCancel");
+        // Use pre-captured refs — these elements may have been removed from DOM
+        const overlay   = _alertOverlay;
+        const titleEl   = document.getElementById("alertTitle");
+        const msgEl     = document.getElementById("alertMessage");
+        const inputEl   = _alertInput;
+        const okBtn     = document.getElementById("alertOk");
+        const cancelBtn = _alertCancel;
 
         titleEl.textContent = title;
         msgEl.textContent = message;
 
-        inputEl.classList.add("hidden");
-        cancelBtn.classList.add("hidden");
+        // Always start with input and cancel fully removed
+        domHide(inputEl);
+        domHide(cancelBtn);
 
         if (type === "prompt") {
           inputEl.value = "";
-          inputEl.classList.remove("hidden");
+          domShow(inputEl);
         }
 
         if (type === "confirm") {
-          cancelBtn.classList.remove("hidden");
+          domShow(cancelBtn);
         }
 
-        overlay.classList.remove("hidden");
+        domShow(overlay);
 
         okBtn.onclick = () => {
-          overlay.classList.add("hidden");
+          domHide(overlay);
           const value = type === "prompt" ? inputEl.value : true;
           onOk?.(value);
         };
 
         cancelBtn.onclick = () => {
-          overlay.classList.add("hidden");
+          domHide(overlay);
           onCancel?.();
         };
       }
@@ -3212,6 +3258,97 @@
           : "Custom Alerts Enabled"
       );
     }
+
+    // ================================================================
+    // initCapture — store references while ALL elements are in the DOM.
+    // Must run BEFORE initDomRemoval removes anything.
+    // ================================================================
+    function initCapture() {
+      // Page sections — strip CSS 'hidden' class so DOM removal is the sole mechanism
+      _allSections    = Array.from(document.querySelectorAll('.section'));
+      _allSections.forEach(s => s.classList.remove('hidden'));
+
+      // Form stages — strip hidden class, capture next-buttons
+      _allFormStages  = Array.from(document.querySelectorAll('.form-stage'));
+      _allFormStages.forEach(stage => {
+        stage.classList.remove('hidden');
+        stage._nextBtns = Array.from(stage.querySelectorAll('.next-btn'));
+      });
+
+      // Sub-tab content panels — strip hidden class
+      _allSubcontents = Array.from(document.querySelectorAll('.subcontent'));
+      _allSubcontents.forEach(s => s.classList.remove('hidden'));
+
+      // One-off elements referenced inside functions called after init
+      // Strip 'hidden' class from each so DOM removal is the sole visibility mechanism
+      _filterPopup    = document.getElementById('filterPopup');
+      _modalOverlay   = document.getElementById('modalOverlay');
+      _settingsEl     = document.getElementById('settings');
+      _dataCard       = document.getElementById('dataCard');
+      _spinnerOverlay = document.getElementById('spinnerOverlay');
+      _alertOverlay   = document.getElementById('customAlertOverlay');
+      _alertInput     = document.getElementById('alertInput');
+      _alertCancel    = document.getElementById('alertCancel');
+
+      [_filterPopup, _modalOverlay, _settingsEl, _dataCard,
+       _spinnerOverlay, _alertOverlay, _alertInput, _alertCancel]
+        .forEach(el => el && el.classList.remove('hidden'));
+
+      // Expose delayed-btn ref so dynamic-elements.js can domShow it after timeout
+      window._delayedBtn = document.getElementById('delayed-btn');
+      if (window._delayedBtn) window._delayedBtn.classList.remove('hidden');
+
+      // Expose l1-addressBox ref so the onchange handler can find it after DOM removal
+      window._l1AddrBox = document.getElementById('l1-addressBox');
+    }
+
+    // ================================================================
+    // initDomRemoval — remove hidden elements from DOM so automation
+    // tools cannot locate them. Call AFTER initCapture and all other
+    // init code so element references are valid before removal.
+    // ================================================================
+    function initDomRemoval() {
+      // Sections: keep dynamicElements (default), remove the rest
+      _allSections.forEach(s => {
+        if (s.id !== 'dynamicElements') domHide(s);
+      });
+
+      // Form stages: keep stage1, remove 2-4
+      _allFormStages.forEach(s => {
+        if (s.id !== 'stage1') domHide(s);
+      });
+
+      // Sub-tab panels: keep address (default), remove preferences
+      _allSubcontents.forEach(s => {
+        if (s.id !== 'address') domHide(s);
+      });
+
+      // Dynamic elements section
+      domHide(window._delayedBtn);
+
+      // Tables section
+      domHide(_filterPopup);
+      domHide(_settingsEl);
+
+      // Modal
+      domHide(_modalOverlay);
+
+      // Slow & disappearing
+      domHide(_dataCard);
+      domHide(_spinnerOverlay);
+
+      // Alerts
+      domHide(_alertOverlay);
+      domHide(_alertInput);
+      domHide(_alertCancel);
+
+      // Stable frames: address box starts removed (use captured ref — getElementById won't find it after removal)
+      if (window._l1AddrBox) domHide(window._l1AddrBox);
+    }
+
+    // Run capture first, then removal
+    initCapture();
+    initDomRemoval();
 
   </script>
   <script src="js/dynamic-elements.js"></script>
