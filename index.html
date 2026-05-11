@@ -3010,8 +3010,9 @@
 
       let progress = 0;
 
-      // Random total duration (10–40 sec)
-      const totalDuration = random(10000, 40000);
+      // Random total duration (10–20 sec) in case of stable mode, otherwise 40–50 sec to increase chances of spinner still being visible after 30 sec
+
+      const totalDuration = window.STABLE_MODE ? random(10000, 20000) : random(40000, 50000);
 
       const intervalTime = 200;
       const steps = totalDuration / intervalTime;
