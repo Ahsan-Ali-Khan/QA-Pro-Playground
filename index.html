@@ -1191,6 +1191,10 @@
         <tbody class="body"></tbody>
       </table>
 
+      <script>
+        if (window.STABLE_MODE) document.getElementById('table1').remove();
+      </script>
+
       <!-- Active Table -->
       <table id="table2" class="active">
         <thead>
@@ -1290,7 +1294,7 @@
           </div>
 
           <div class="form-group">
-            <label for="dob">Date of Birth *</label>
+            <label for="dob">Date of Birth</label>
             <input id="dob" type="date">
           </div>
 
@@ -2020,7 +2024,6 @@
       if (stage === 1) {
 
         const name = document.getElementById('name').value.trim();
-        const dob = document.getElementById('dob').value;
         const gender = document.getElementById('gender').value;
 
         const username = document.getElementById('username').value.trim();
@@ -2036,7 +2039,6 @@
         termsError.style.display = 'none';
 
         if (!name) return errorBox.innerText = "Name is required", false;
-        if (!dob) return errorBox.innerText = "DOB is required", false;
         if (!gender) return errorBox.innerText = "Gender is required", false;
 
         if (!username) return errorBox.innerText = "Username is required", false;
