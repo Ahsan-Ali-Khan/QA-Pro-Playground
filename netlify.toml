@@ -5,14 +5,14 @@
 [build]
   publish = "."          # serve from repo root (where index.html lives)
 
-# /stable  →  stable/index.html  (200 = serve, not redirect — URL stays the same)
+# /stable and /stable/ → serve the same index.html (URL stays /stable in the browser)
+# window.STABLE_MODE is set by detecting the pathname — no separate HTML file needed
 [[redirects]]
   from   = "/stable"
-  to     = "/stable/index.html"
+  to     = "/index.html"
   status = 200
 
-# /stable/ (trailing slash) → same thing
 [[redirects]]
   from   = "/stable/"
-  to     = "/stable/index.html"
+  to     = "/index.html"
   status = 200

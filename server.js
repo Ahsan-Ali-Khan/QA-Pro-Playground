@@ -1,9 +1,12 @@
 /**
  * QA Pro Automation Playground — Dev Server
  *
+ * Both routes serve the same index.html.
+ * The page detects its own URL and sets window.STABLE_MODE accordingly.
+ *
  * Routes:
- *   /         → dynamic version (index.html + all chaos JS)
- *   /stable   → stable version  (stable/index.html — no dynamic JS, iframes inlined)
+ *   /         → index.html  (window.STABLE_MODE = false — full chaos)
+ *   /stable   → index.html  (window.STABLE_MODE = true  — stable baseline)
  *
  * Run:   node server.js
  * Then open:
@@ -55,23 +58,9 @@ const server = http.createServer((req, res) => {
   // Strip query string and decode URI
   let urlPath = decodeURIComponent(req.url.split('?')[0]);
 
-  /* ─── /stable route ──────────────────────────────────── */
+  /* ─── /stable route — serve the same index.html, URL stays /stable ── */
   if (urlPath === '/stable' || urlPath === '/stable/') {
-    return serveFile(res, path.join(ROOT, 'stable', 'index.html'));
-  }
-
-  if (urlPath.startsWith('/stable/')) {
-    // Assets requested by stable page (e.g. /stable/css/env-simulator.css)
-    const relative = urlPath.slice('/stable/'.length);  // "css/env-simulator.css"
-    const inStable = path.join(ROOT, 'stable', relative);
-    const inRoot   = path.join(ROOT, relative);
-
-    // Prefer a file inside stable/, fall back to the shared root asset
-    fs.access(inStable, fs.constants.F_OK, (err) => {
-      if (!err) return serveFile(res, inStable);
-      serveFile(res, inRoot);
-    });
-    return;
+    return serveFile(res, path.join(ROOT, 'index.html'));
   }
 
   /* ─── Default (dynamic) route ────────────────────────── */

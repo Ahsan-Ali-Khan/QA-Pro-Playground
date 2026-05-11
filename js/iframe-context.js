@@ -96,6 +96,9 @@ function controls(){
 -------------------------*/
 function init(){
 
+  // In stable mode the real iframe is hidden — nothing to wire up
+  if (window.STABLE_MODE) return;
+
   const frame =
     document.querySelector("#iframeSec iframe");
 

@@ -82,7 +82,7 @@
       el().textContent = `Status: ${states[i++]}`;
       if (i >= states.length)
         clearInterval(dynamicInterval);
-    }, 2500);
+    }, 45000);
   }
 
   function flickerMessage() {
@@ -206,12 +206,42 @@
      Auto Init
   ------------------------- */
 
+  /* -------------------------
+     Static text map for stable mode
+  ------------------------- */
+  const stableTexts = {
+    counter:         "Counter: 1",
+    population:      "World Population: 8,000,000,000",
+    randomValue:     "Temperature: 22°C",
+    apiDelay:        "User: John Doe",
+    typing:          "Generating AI Report...",
+    statusFlow:      "Status: Completed",
+    flicker:         "Saved Successfully ✅",
+    visibilityDelay: "Now Visible!",
+    partial:         "Order #12345 created",
+    retry:           "Connected",
+    aiFlow:          "Done ✅",
+    randomResult:    "Payment Successful ✅",
+    dateTime:        "ISO: 2024-01-01T00:00:00.000Z | Local: 1/1/2024, 12:00:00 AM",
+  };
+
   function init() {
 
     const dropdown =
       document.getElementById(modeId);
 
     if (!dropdown) return;
+
+    if (window.STABLE_MODE) {
+      // Show fixed text for whichever option is selected — no timers
+      const showStatic = () => {
+        const out = el();
+        if (out) out.textContent = stableTexts[dropdown.value] || "Stable Output";
+      };
+      dropdown.addEventListener("change", showStatic);
+      showStatic();
+      return;
+    }
 
     dropdown.addEventListener(
       "change",

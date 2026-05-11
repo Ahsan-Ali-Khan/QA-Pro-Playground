@@ -87,16 +87,26 @@ const DynamicLab = (() => {
   /* ===============================
      3. Flaky Visibility
   ===============================*/
-  function visibility(){
+  function visibility() {
+    if (window.STABLE_MODE) {
+      interval(() => {
+        const el = document.querySelector('#toggle-btn');
+        if (!el) return;
 
-    interval(()=>{
-      const el=document.querySelector('#toggle-btn');
-      if(!el) return;
+        el.style.display =
+          Math.random() > 0.5 ? 'none' : 'inline-block';
 
-      el.style.display=
-        Math.random()>0.5?'none':'inline-block';
+      }, 4000);
+    } else {
+      interval(() => {
+        const el = document.querySelector('#toggle-btn');
+        if (!el) return;
 
-    },4000);
+        el.style.display =
+          Math.random() > 0.5 ? 'none' : 'inline-block';
+
+      }, 40000);
+    }
   }
 
 
@@ -243,7 +253,6 @@ function createBaseButton(container) {
 })();
 
 
-document.addEventListener(
-  "DOMContentLoaded",
-  DynamicLab.init
-);
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.STABLE_MODE) DynamicLab.init();
+});

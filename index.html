@@ -6,6 +6,11 @@
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/env-simulator.css">
   <title>QA Pro Automation Playground - Advanced</title>
+  <!-- STABLE MODE: must be first script — sets flag before any other JS runs -->
+  <script>
+    window.STABLE_MODE = window.location.pathname.startsWith('/stable');
+    if (window.STABLE_MODE) document.title = 'QA Pro Automation Playground - STABLE';
+  </script>
   <style>
     /* =========================
    GLOBAL
@@ -1008,6 +1013,27 @@
 
 <body>
 
+  <!-- ===== STABLE MODE BANNER (hidden in dynamic mode) ===== -->
+  <div id="stable-banner" style="
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: white; text-align: center;
+    padding: 6px 12px; font-size: 13px; font-weight: 700;
+    letter-spacing: 0.4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  ">
+    ✅ STABLE MODE — Fixed locators · No dynamic chaos · iFrames inlined · Baseline ready
+  </div>
+  <script>
+    if (window.STABLE_MODE) {
+      document.getElementById('stable-banner').style.display = 'block';
+      // Push content down so banner doesn't overlap sidebar/content
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.style.paddingTop = '30px';
+      });
+    }
+  </script>
+
   <div id="sidebar">
     <div onclick="show('dynamicElements')">Dynamic Elements</div>
     <div onclick="show('tables')">Dynamic Tables</div>
@@ -1165,6 +1191,10 @@
         <tbody class="body"></tbody>
       </table>
 
+      <script>
+        if (window.STABLE_MODE) document.getElementById('table1').remove();
+      </script>
+
       <!-- Active Table -->
       <table id="table2" class="active">
         <thead>
@@ -1264,7 +1294,7 @@
           </div>
 
           <div class="form-group">
-            <label for="dob">Date of Birth *</label>
+            <label for="dob">Date of Birth</label>
             <input id="dob" type="date">
           </div>
 
@@ -1589,9 +1619,146 @@
         <button id="spawnFrameBtn">Spawn New Frame</button>
       </div>
 
-      <!-- IFRAME -->
+      <!-- IFRAME (dynamic mode) -->
       <iframe id="frame0" src="frames/level1.html" class="playground-frame">
       </iframe>
+
+      <!-- STABLE MODE: iframes replaced with inlined divs (no real iframes) -->
+      <div id="stable-frames" style="display:none; border:2px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-top:16px;">
+
+        <!-- ── LEVEL 1 ── -->
+        <div id="stable-level1" style="padding:24px; background:#fff;">
+          <h3 style="color:#6366f1; margin-bottom:4px;">🧩 Level 1 Frame</h3>
+          <p style="color:#6b7280; font-size:13px; margin-bottom:18px;">Enter user details and preview nested frame behaviour.</p>
+          <form onsubmit="return false;">
+            <div style="margin-bottom:12px;">
+              <label for="l1-name" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Name</label>
+              <input id="l1-name" type="text" placeholder="Enter your name" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;max-width:320px;">
+            </div>
+            <div style="margin-bottom:12px;">
+              <label for="l1-password" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Password</label>
+              <input id="l1-password" type="password" placeholder="Enter password" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;max-width:320px;">
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
+                <input type="checkbox" id="l1-toggleAddress" onchange="document.getElementById('l1-addressBox').classList.toggle('hidden',!this.checked)">
+                Enable Address
+              </label>
+            </div>
+            <div id="l1-addressBox" class="hidden" style="margin-bottom:12px;">
+              <label for="l1-address" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Address</label>
+              <textarea id="l1-address" placeholder="Enter address" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;max-width:320px;"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px;">
+              <button type="button" style="padding:10px 18px;background:#6366f1;color:#fff;border:none;border-radius:10px;cursor:pointer;">Save Details</button>
+              <button type="reset" style="padding:10px 18px;background:#e5e7eb;color:#374151;border:none;border-radius:10px;cursor:pointer;">Reset</button>
+            </div>
+          </form>
+
+          <!-- ── LEVEL 2 (inlined inside level 1) ── -->
+          <div id="stable-level2" style="margin-top:24px;border:2px solid #c7d2fe;border-radius:12px;overflow:hidden;">
+            <div style="background:#6366f1;color:#fff;padding:10px 18px;font-weight:700;font-size:14px;">⚙️ Automation Workspace — Level 2 Frame</div>
+            <div style="padding:20px;background:#f8fafc;">
+
+              <div style="display:flex;align-items:center;gap:14px;background:#e0e7ff;border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">QA</div>
+                <div>
+                  <strong>Automation User</strong>
+                  <p style="color:#6b7280;font-size:12px;margin:0;">Workspace Configuration Panel</p>
+                </div>
+              </div>
+
+              <form style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" onsubmit="return false;">
+                <div>
+                  <label for="l2-email" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Email Address</label>
+                  <input id="l2-email" type="email" placeholder="automation@test.com" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;">
+                </div>
+                <div>
+                  <label for="l2-role" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Role</label>
+                  <select id="l2-role" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;">
+                    <option>QA Engineer</option>
+                    <option>SDET</option>
+                    <option>Automation Architect</option>
+                  </select>
+                </div>
+                <div style="grid-column:span 2;">
+                  <label for="l2-skills" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Automation Skills</label>
+                  <select id="l2-skills" multiple size="4" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;">
+                    <option>Selenium</option>
+                    <option>Playwright</option>
+                    <option>Cypress</option>
+                    <option>REST API Testing</option>
+                    <option>Performance Testing</option>
+                  </select>
+                </div>
+              </form>
+
+              <div style="padding:14px;background:#fff;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:14px;">
+                <h4 style="font-size:14px;margin-bottom:10px;">Environment Settings</h4>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer;"><input type="checkbox" id="l2-smartWait"> Enable Smart Waiting</label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer;"><input type="checkbox" id="l2-selfHeal"> Self-Healing Locators</label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" id="l2-aiDetect"> AI Element Detection</label>
+              </div>
+
+              <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <button id="l2-saveBtn" style="padding:10px 18px;background:#6366f1;color:#fff;border:none;border-radius:10px;cursor:pointer;">Save Workspace</button>
+                <button style="padding:10px 18px;background:#e5e7eb;color:#374151;border:none;border-radius:10px;cursor:pointer;">Cancel</button>
+              </div>
+
+              <!-- ── LEVEL 3 (inlined inside level 2) ── -->
+              <div id="stable-level3" style="border:2px solid #a5b4fc;border-radius:10px;overflow:hidden;">
+                <div style="background:#818cf8;color:#fff;padding:8px 16px;font-weight:700;font-size:13px;">🧩 Level 3 Frame — Deep Interaction Layer</div>
+                <div style="padding:18px;background:#fafafa;">
+                  <form onsubmit="return false;">
+                    <div style="margin-bottom:10px;">
+                      <label for="l3-search" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Search</label>
+                      <input id="l3-search" type="search" placeholder="Search something..." style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;max-width:300px;">
+                    </div>
+                    <div style="margin-bottom:10px;">
+                      <label for="l3-date" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Select Date</label>
+                      <input id="l3-date" type="date" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;max-width:300px;">
+                    </div>
+                    <div style="margin-bottom:10px;">
+                      <label for="l3-time" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Select Time</label>
+                      <input id="l3-time" type="time" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;max-width:300px;">
+                    </div>
+                    <div style="margin-bottom:10px;">
+                      <label for="l3-comments" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Comments</label>
+                      <textarea id="l3-comments" placeholder="Enter your comments here..." style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;max-width:300px;"></textarea>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:12px;">
+                      <button type="submit" id="l3-submitBtn" style="padding:10px 18px;background:#6366f1;color:#fff;border:none;border-radius:10px;cursor:pointer;">✅ Submit Form</button>
+                      <button type="reset" style="padding:10px 18px;background:#e5e7eb;color:#374151;border:none;border-radius:10px;cursor:pointer;">Reset</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <!-- end level 3 -->
+
+            </div>
+          </div>
+          <!-- end level 2 -->
+
+        </div>
+        <!-- end level 1 -->
+      </div>
+      <!-- end stable-frames -->
+
+      <script>
+        (function () {
+          if (window.STABLE_MODE) {
+            var real = document.getElementById('frame0');
+            var stable = document.getElementById('stable-frames');
+            if (real) real.style.display = 'none';
+            if (stable) stable.style.display = 'block';
+            // Also hide the status panel and action buttons (only useful with real iframe)
+            var controls = document.querySelector('#iframeSec .controls');
+            var statusBox = document.querySelector('#iframeSec .status-box');
+            if (controls) controls.style.display = 'none';
+            if (statusBox) statusBox.style.display = 'none';
+          }
+        })();
+      </script>
 
     </div>
 
@@ -1857,7 +2024,6 @@
       if (stage === 1) {
 
         const name = document.getElementById('name').value.trim();
-        const dob = document.getElementById('dob').value;
         const gender = document.getElementById('gender').value;
 
         const username = document.getElementById('username').value.trim();
@@ -1873,7 +2039,6 @@
         termsError.style.display = 'none';
 
         if (!name) return errorBox.innerText = "Name is required", false;
-        if (!dob) return errorBox.innerText = "DOB is required", false;
         if (!gender) return errorBox.innerText = "Gender is required", false;
 
         if (!username) return errorBox.innerText = "Username is required", false;
@@ -1915,8 +2080,14 @@
     function randomizeNextButtons(stage) {
       const btns = stage.querySelectorAll('.next-btn');
 
+      // Stable mode: always show all next buttons — no random hiding
+      if (window.STABLE_MODE) {
+        btns.forEach(b => b.classList.remove('hidden'));
+        return;
+      }
+
       if (btns.length <= 1) {
-        btns.forEach(b => b.classList.remove('hidden')); // don't hide single button
+        btns.forEach(b => b.classList.remove('hidden'));
         return;
       }
 
@@ -1943,7 +2114,10 @@
 
         btns.forEach(b => {
           b.disabled = !valid;
-          b.style.display = valid ? 'inline-block' : 'none';
+          // Stable mode: button stays visible but disabled — never hidden
+          if (!window.STABLE_MODE) {
+            b.style.display = valid ? 'inline-block' : 'none';
+          }
         });
       }
 
@@ -2836,8 +3010,9 @@
 
       let progress = 0;
 
-      // Random total duration (10–40 sec)
-      const totalDuration = random(10000, 40000);
+      // Random total duration (10–20 sec) in case of stable mode, otherwise 40–50 sec to increase chances of spinner still being visible after 30 sec
+
+      const totalDuration = window.STABLE_MODE ? random(10000, 20000) : random(40000, 50000);
 
       const intervalTime = 200;
       const steps = totalDuration / intervalTime;
