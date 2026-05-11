@@ -1917,7 +1917,14 @@
       const target = _allSections
         ? _allSections.find(s => s.id === section)
         : document.getElementById(section);
-      if (target) domShow(target);
+      if (target) {
+        domShow(target);
+        // Dynamic Text init is deferred until the section is first shown
+        // (the section is removed from DOM at page load so DOMContentLoaded init bails out)
+        if (section === 'dynamicText' && window.initDynamicText) {
+          window.initDynamicText();
+        }
+      }
     }
 
     // =========================

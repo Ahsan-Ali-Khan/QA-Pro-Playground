@@ -77,9 +77,9 @@ const DynamicLab = (() => {
   function delayed(){
 
     timeout(()=>{
-      document
-        .querySelector('#delayed-btn')
-        ?.classList.remove('hidden');
+      // Element was removed from DOM by initDomRemoval — use stored reference
+      const btn = window._delayedBtn;
+      if (btn) domShow(btn);
     },5000);
   }
 
@@ -88,25 +88,19 @@ const DynamicLab = (() => {
      3. Flaky Visibility
   ===============================*/
   function visibility() {
-    if (window.STABLE_MODE) {
-      interval(() => {
-        const el = document.querySelector('#toggle-btn');
-        if (!el) return;
+    // Capture reference once — querySelector returns null once element is removed from DOM
+    const el = document.querySelector('#toggle-btn');
+    if (!el) return;
 
-        el.style.display =
-          Math.random() > 0.5 ? 'none' : 'inline-block';
+    const delay = window.STABLE_MODE ? 4000 : 40000;
 
-      }, 4000);
-    } else {
-      interval(() => {
-        const el = document.querySelector('#toggle-btn');
-        if (!el) return;
-
-        el.style.display =
-          Math.random() > 0.5 ? 'none' : 'inline-block';
-
-      }, 40000);
-    }
+    interval(() => {
+      if (Math.random() > 0.5) {
+        domHide(el);
+      } else {
+        domShow(el);
+      }
+    }, delay);
   }
 
 

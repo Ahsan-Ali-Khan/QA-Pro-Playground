@@ -42,8 +42,8 @@
           </label>
         </div>
 
-        <!-- ADDRESS -->
-        <div id="addressBox" class="hidden form-group">
+        <!-- ADDRESS (starts removed from DOM) -->
+        <div id="addressBox" class="form-group">
           <label for="addressInput">Address</label>
           <textarea id="addressInput" placeholder="Enter address"></textarea>
         </div>
@@ -76,12 +76,30 @@
   </main>
 
   <script>
+    // Local dom utilities (iframe has its own window, no access to parent's)
+    function domHide(el) {
+      if (!el || el._domRemoved) return;
+      el._domParent = el.parentNode;
+      el._domNext   = el.nextSibling;
+      if (el.parentNode) el.parentNode.removeChild(el);
+      el._domRemoved = true;
+    }
+    function domShow(el) {
+      if (!el || !el._domRemoved) return;
+      if (el._domNext && el._domNext.parentNode === el._domParent)
+        el._domParent.insertBefore(el, el._domNext);
+      else if (el._domParent)
+        el._domParent.appendChild(el);
+      el._domRemoved = false;
+    }
+
+    const _addressBox = document.getElementById("addressBox");
+    domHide(_addressBox); // remove from DOM on load
+
     document
       .getElementById("toggleAddress")
       .addEventListener("change", function () {
-        document
-          .getElementById("addressBox")
-          .classList.toggle("hidden", !this.checked);
+        this.checked ? domShow(_addressBox) : domHide(_addressBox);
       });
   </script>
 
