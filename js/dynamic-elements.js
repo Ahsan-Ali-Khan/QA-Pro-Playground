@@ -88,20 +88,28 @@ const DynamicLab = (() => {
      3. Flaky Visibility
   ===============================*/
   function visibility() {
-    // Capture reference once — querySelector returns null once element is removed from DOM
-    const el = document.querySelector('#toggle-btn');
-    if (!el) return;
 
-    const delay = window.STABLE_MODE ? 4000 : 40000;
+  const el = document.querySelector('#toggle-btn');
+  if (!el) return;
+  domShow(el);
+
+  const delay = window.STABLE_MODE ? 4000 : 40000;
+
+  // Hide after 5 seconds
+  setTimeout(() => {
     domHide(el);
-    interval(() => {
+
+    // Start random toggle AFTER first hide
+    setInterval(() => {
       if (Math.random() > 0.5) {
         domShow(el);
       } else {
         domHide(el);
       }
     }, delay);
-  }
+
+  }, 5000);
+}
 
 
   /* ===============================
