@@ -77,12 +77,19 @@
     ];
 
     let i = 0;
-
-    dynamicInterval = setInterval(() => {
-      el().textContent = `Status: ${states[i++]}`;
-      if (i >= states.length)
-        clearInterval(dynamicInterval);
-    }, 2500);
+    if (window.STABLE_MODE) {
+      dynamicInterval = setInterval(() => {
+        el().textContent = `Status: ${states[i++]}`;
+        if (i >= states.length)
+          clearInterval(dynamicInterval);
+      }, 4500);
+    } else {
+      dynamicInterval = setInterval(() => {
+        el().textContent = `Status: ${states[i++]}`;
+        if (i >= states.length)
+          clearInterval(dynamicInterval);
+      }, 45000);
+    }
   }
 
   function flickerMessage() {
