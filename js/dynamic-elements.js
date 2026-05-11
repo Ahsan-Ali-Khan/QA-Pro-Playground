@@ -93,12 +93,12 @@ const DynamicLab = (() => {
     if (!el) return;
 
     const delay = window.STABLE_MODE ? 4000 : 40000;
-
+    domHide(el);
     interval(() => {
       if (Math.random() > 0.5) {
-        domHide(el);
-      } else {
         domShow(el);
+      } else {
+        domHide(el);
       }
     }, delay);
   }
@@ -144,7 +144,7 @@ const DynamicLab = (() => {
       const clone=btn.cloneNode(true);
       btn.replaceWith(clone);
 
-    },9000);
+    },100);
   }
 
 
