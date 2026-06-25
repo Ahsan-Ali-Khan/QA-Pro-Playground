@@ -6,10 +6,33 @@
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/env-simulator.css">
   <title>QA Pro Automation Playground - Advanced</title>
-  <!-- STABLE MODE: must be first script — sets flag before any other JS runs -->
+  <!-- STABLE MODE + DOM utilities — must be first, before any other JS -->
   <script>
     window.STABLE_MODE = window.location.pathname.startsWith('/stable');
     if (window.STABLE_MODE) document.title = 'QA Pro Automation Playground - STABLE';
+
+    // domHide: fully removes element from DOM (automation tools can no longer find it)
+    // domShow: restores it to its original position
+    // domToggle: convenience wrapper
+    window.domHide = function(el) {
+      if (!el || el._domRemoved) return;
+      el._domParent  = el.parentNode;
+      el._domNext    = el.nextSibling;
+      if (el.parentNode) el.parentNode.removeChild(el);
+      el._domRemoved = true;
+    };
+    window.domShow = function(el) {
+      if (!el || !el._domRemoved) return;
+      if (el._domNext && el._domNext.parentNode === el._domParent) {
+        el._domParent.insertBefore(el, el._domNext);
+      } else if (el._domParent) {
+        el._domParent.appendChild(el);
+      }
+      el._domRemoved = false;
+    };
+    window.domToggle = function(el, show) {
+      show ? window.domShow(el) : window.domHide(el);
+    };
   </script>
   <style>
     /* =========================
@@ -1044,6 +1067,15 @@
     <div onclick="show('iframeSec')">iFrame</div>
     <div onclick="show('shadow')">Shadow DOM</div>
     <div onclick="show('env')">Environment/Locale/Browser Change</div>
+    <div onclick="show('offscreen')">Offscreen Elements</div>
+    <div onclick="show('invisible')">Invisible but Present</div>
+    <div onclick="show('dynamicDropdown')">Dynamic Dropdown</div>
+    <div onclick="show('autocomplete')">Autocomplete</div>
+    <div onclick="show('darkMode')">Dark Mode Impact</div>
+    <div onclick="show('framesetSec')">Frameset / Multi-Frame</div>
+    <div onclick="show('adOverlay')">Ad / Banner Overlay</div>
+    <div onclick="show('zoomImpact')">Zoom Level Impact</div>
+    <div onclick="show('webComponents')">Custom Web Components</div>
   </div>
 
   <div id="content">
@@ -1641,11 +1673,11 @@
             </div>
             <div style="margin-bottom:12px;">
               <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
-                <input type="checkbox" id="l1-toggleAddress" onchange="document.getElementById('l1-addressBox').classList.toggle('hidden',!this.checked)">
+                <input type="checkbox" id="l1-toggleAddress" onchange="domToggle(window._l1AddrBox, this.checked)">
                 Enable Address
               </label>
             </div>
-            <div id="l1-addressBox" class="hidden" style="margin-bottom:12px;">
+            <div id="l1-addressBox" style="margin-bottom:12px;">
               <label for="l1-address" style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Address</label>
               <textarea id="l1-address" placeholder="Enter address" style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;width:100%;max-width:320px;"></textarea>
             </div>
@@ -1861,6 +1893,327 @@
       <div id="env-host" class="env-container"></div>
 </div>
 
+    <!-- OFFSCREEN ELEMENTS -->
+    <div id="offscreen" class="section hidden">
+      <h2>Offscreen Elements</h2>
+      <div class="note">
+        <b>Reproduce:</b> Elements exist in the DOM but are positioned outside the visible viewport.
+        Automation tools that rely on visibility checks or viewport intersection will fail to locate or interact with them.
+        <br><br>
+        <b>Category:</b> Viewport Intersection • Scroll-Dependent Locators • Hidden by Position
+      </div>
+      <button onclick="document.getElementById('offscreen-target').scrollIntoView({behavior:'smooth'})">
+        Scroll to Target Button
+      </button>
+      <button onclick="document.getElementById('offscreen-container').scrollTop=0" style="margin-left:8px;">
+        Scroll Back to Top
+      </button>
+      <div id="offscreen-container" style="height:300px;overflow-y:auto;border:2px dashed #e5e7eb;border-radius:10px;padding:16px;margin-top:16px;position:relative;">
+        <p style="color:#6b7280;font-size:13px;">⬆ Visible area starts here. The target button is 1500px below.</p>
+        <div style="height:1500px;display:flex;align-items:flex-end;">
+          <div style="padding:20px;background:#f0f4ff;border-radius:12px;border:2px solid #6366f1;width:100%;">
+            <p style="color:#374151;margin-bottom:12px;font-weight:600;">🎯 I am offscreen — you had to scroll to find me!</p>
+            <button id="offscreen-target" style="padding:10px 20px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+              Offscreen Button
+            </button>
+            <input id="offscreen-input" type="text" placeholder="Offscreen input field" style="margin-left:10px;padding:10px;border:1px solid #d1d5db;border-radius:8px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVISIBLE BUT PRESENT -->
+    <div id="invisible" class="section hidden">
+      <h2>Invisible but Present</h2>
+      <div class="note">
+        <b>Reproduce:</b> Elements have <code>opacity: 0</code> or <code>visibility: hidden</code> — they occupy space in the DOM and layout, but are not visible to the human eye.
+        Automation tools may interact with them successfully, causing false-positive test passes.
+        <br><br>
+        <b>Category:</b> CSS Visibility Trap • False Positive Locators • Opacity Zero
+      </div>
+      <div style="margin-top:16px;">
+        <div style="background:#f8fafc;border:2px dashed #e5e7eb;border-radius:12px;padding:24px;">
+          <p style="font-weight:600;margin-bottom:12px;">Elements below are in the DOM but invisible:</p>
+
+          <div style="margin-bottom:16px;padding:12px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;">
+            <span style="color:#6b7280;font-size:13px;">Button (opacity: 0) — exists in DOM, invisible to user:</span><br>
+            <div style="height:44px;margin-top:8px;position:relative;">
+              <button id="opacity-btn" style="opacity:0;padding:10px 20px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+                I am invisible (opacity:0)
+              </button>
+              <span style="position:absolute;left:0;top:0;height:44px;width:200px;border:2px dashed #ef4444;border-radius:8px;pointer-events:none;"></span>
+              <span style="color:#ef4444;font-size:12px;margin-left:8px;">← red outline shows element bounds</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px;padding:12px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;">
+            <span style="color:#6b7280;font-size:13px;">Input field (visibility: hidden) — present in DOM, not visible:</span><br>
+            <div style="height:44px;margin-top:8px;position:relative;">
+              <input id="visibility-input" type="text" placeholder="Hidden input" style="visibility:hidden;padding:10px;border:1px solid #d1d5db;border-radius:8px;width:200px;">
+              <span style="position:absolute;left:0;top:0;height:44px;width:200px;border:2px dashed #ef4444;border-radius:8px;pointer-events:none;"></span>
+              <span style="color:#ef4444;font-size:12px;margin-left:8px;">← element is here but invisible</span>
+            </div>
+          </div>
+
+          <div style="padding:12px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;">
+            <span style="color:#6b7280;font-size:13px;">Text (color: transparent) — present, occupies space, not visible:</span><br>
+            <p id="transparent-text" style="color:transparent;font-weight:600;font-size:16px;margin-top:8px;background:linear-gradient(90deg,#f0f4ff,#e0e7ff);border-radius:6px;padding:8px;">
+              This text is transparent but selectable
+            </p>
+          </div>
+        </div>
+        <button onclick="document.getElementById('opacity-btn').style.opacity='1';document.getElementById('visibility-input').style.visibility='visible';document.getElementById('transparent-text').style.color='#374151';"
+          style="margin-top:12px;padding:8px 18px;background:#10b981;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+          Reveal All Elements
+        </button>
+        <button onclick="document.getElementById('opacity-btn').style.opacity='0';document.getElementById('visibility-input').style.visibility='hidden';document.getElementById('transparent-text').style.color='transparent';"
+          style="margin-top:12px;margin-left:8px;padding:8px 18px;background:#6b7280;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+          Hide Again
+        </button>
+      </div>
+    </div>
+
+    <!-- DYNAMIC DROPDOWN -->
+    <div id="dynamicDropdown" class="section hidden">
+      <h2>Dropdown with Dynamic Options</h2>
+      <div class="note">
+        <b>Reproduce:</b> Dropdown options are fetched from a simulated API and change on each fetch.
+        Automation that hardcodes option values or counts will break when the list refreshes.
+        <br><br>
+        <b>Category:</b> API-Driven UI • Dynamic Option Lists • Select Locator Instability
+      </div>
+      <div style="margin-top:16px;">
+        <button id="fetchCountriesBtn" onclick="fetchCountries()" style="padding:10px 20px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+          Fetch Countries
+        </button>
+        <span id="fetchStatus" style="margin-left:12px;color:#6b7280;font-size:13px;"></span>
+        <br><br>
+        <label style="font-weight:600;">Select Country:</label><br>
+        <select id="countryDropdown" style="margin-top:8px;padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;min-width:220px;font-size:14px;">
+          <option value="">-- fetch to load options --</option>
+        </select>
+        <br><br>
+        <div id="countryResult" style="padding:12px;background:#f0f4ff;border-radius:8px;display:none;margin-top:8px;font-weight:600;color:#374151;"></div>
+      </div>
+    </div>
+
+    <!-- AUTOCOMPLETE -->
+    <div id="autocomplete" class="section hidden">
+      <h2>Autocomplete Suggestions</h2>
+      <div class="note">
+        <b>Reproduce:</b> Suggestions appear dynamically as the user types. The suggestion list changes with each keystroke,
+        and disappears when the input is cleared or focus is lost. Automation must handle the async appearance and DOM insertion of the list.
+        <br><br>
+        <b>Category:</b> Dynamic DOM Insertion • Keystroke-Triggered UI • Suggestion List Locators
+      </div>
+      <div style="margin-top:16px;position:relative;display:inline-block;">
+        <input id="acInput" type="text" placeholder="Type a country name..." autocomplete="off"
+          style="padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;width:280px;font-size:14px;"
+          oninput="handleAcInput(this.value)"
+          onblur="setTimeout(()=>clearAcSuggestions(),200)">
+        <div id="acList" style="position:absolute;top:100%;left:0;width:280px;background:#fff;border:1px solid #d1d5db;border-radius:0 0 8px 8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:100;display:none;"></div>
+      </div>
+      <div id="acSelected" style="margin-top:14px;font-weight:600;color:#374151;"></div>
+    </div>
+
+    <!-- DARK MODE IMPACT -->
+    <div id="darkMode" class="section hidden">
+      <h2>Dark Mode DOM/Style Impact</h2>
+      <div class="note">
+        <b>Reproduce:</b> An icon/element is hidden in light mode but becomes visible in dark mode via CSS.
+        Automation using only element presence checks (without checking computed styles) will incorrectly report elements as visible in light mode.
+        <br><br>
+        <b>Category:</b> CSS Theme-Dependent Visibility • Dark Mode • Computed Style Locators
+      </div>
+      <div style="margin-top:16px;">
+        <label style="display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer;margin-bottom:20px;">
+          <input type="checkbox" id="darkModeToggle" onchange="applyDarkMode(this.checked)" style="width:18px;height:18px;">
+          Enable Dark Mode
+        </label>
+        <div id="darkModePreview" style="padding:24px;border-radius:14px;border:2px solid #e5e7eb;background:#fff;transition:background .3s,color .3s;">
+          <p style="margin-bottom:12px;">The warning icon below is <strong>only visible in dark mode</strong>:</p>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <button id="darkModeBtn" style="padding:10px 20px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+              Main Action
+            </button>
+            <span id="darkOnlyIcon" style="font-size:24px;opacity:0;transition:opacity .3s;" title="Dark mode warning">⚠️</span>
+            <span id="darkOnlyBadge" style="padding:4px 12px;background:#ef4444;color:#fff;border-radius:20px;font-size:12px;font-weight:700;opacity:0;transition:opacity .3s;">
+              DARK MODE ONLY
+            </span>
+          </div>
+          <p id="darkModeStatus" style="margin-top:14px;color:#6b7280;font-size:13px;">Current mode: Light</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FRAMESET / MULTI-FRAME -->
+    <div id="framesetSec" class="section hidden">
+      <h2>Elements Inside Frameset</h2>
+      <div class="note">
+        <b>Reproduce:</b> Content is loaded inside multiple independent frames arranged in a frameset-like layout.
+        Each frame has its own document context. Automation must switch frame context to interact with elements.
+        <br><br>
+        <b>Category:</b> Multi-Frame Context • Frame Switching • Cross-Document Locators
+      </div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="border:2px solid #6366f1;border-radius:10px;overflow:hidden;">
+          <div style="background:#6366f1;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame A — Login Form</div>
+          <div style="padding:16px;background:#f8fafc;" id="frameA">
+            <label style="font-size:13px;font-weight:600;">Username</label><br>
+            <input id="fa-username" type="text" placeholder="Enter username" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;width:100%;margin:6px 0 10px;box-sizing:border-box;">
+            <label style="font-size:13px;font-weight:600;">Password</label><br>
+            <input id="fa-password" type="password" placeholder="Enter password" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;width:100%;margin:6px 0 10px;box-sizing:border-box;">
+            <button onclick="frameLogin()" style="padding:8px 18px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;width:100%;">Login</button>
+          </div>
+        </div>
+        <div style="border:2px solid #10b981;border-radius:10px;overflow:hidden;">
+          <div style="background:#10b981;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame B — Dashboard</div>
+          <div style="padding:16px;background:#f0fdf4;" id="frameB">
+            <p id="frameB-status" style="color:#6b7280;font-size:13px;margin-bottom:12px;">Waiting for login from Frame A...</p>
+            <div id="frameB-content" style="display:none;">
+              <p style="font-weight:600;color:#065f46;">✅ Logged in successfully!</p>
+              <button id="frameB-action" onclick="frameBAction()" style="margin-top:8px;padding:8px 16px;background:#10b981;color:#fff;border:none;border-radius:6px;cursor:pointer;">
+                Perform Action
+              </button>
+              <div id="frameB-result" style="margin-top:8px;font-size:13px;color:#374151;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="border:2px solid #f59e0b;border-radius:10px;overflow:hidden;">
+          <div style="background:#f59e0b;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame C — Data Table</div>
+          <div style="padding:16px;background:#fffbeb;" id="frameC">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead><tr style="background:#fef3c7;">
+                <th style="padding:6px 10px;border:1px solid #fcd34d;text-align:left;">#</th>
+                <th style="padding:6px 10px;border:1px solid #fcd34d;text-align:left;">Item</th>
+                <th style="padding:6px 10px;border:1px solid #fcd34d;text-align:left;">Value</th>
+              </tr></thead>
+              <tbody>
+                <tr><td style="padding:6px 10px;border:1px solid #fcd34d;">1</td><td style="padding:6px 10px;border:1px solid #fcd34d;">Alpha</td><td style="padding:6px 10px;border:1px solid #fcd34d;">$120</td></tr>
+                <tr><td style="padding:6px 10px;border:1px solid #fcd34d;">2</td><td style="padding:6px 10px;border:1px solid #fcd34d;">Beta</td><td style="padding:6px 10px;border:1px solid #fcd34d;">$85</td></tr>
+                <tr><td style="padding:6px 10px;border:1px solid #fcd34d;">3</td><td style="padding:6px 10px;border:1px solid #fcd34d;">Gamma</td><td style="padding:6px 10px;border:1px solid #fcd34d;">$200</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="border:2px solid #8b5cf6;border-radius:10px;overflow:hidden;">
+          <div style="background:#8b5cf6;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame D — Actions</div>
+          <div style="padding:16px;background:#faf5ff;" id="frameD">
+            <button id="fd-btn1" onclick="frameDAction('export')" style="padding:8px 14px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;cursor:pointer;margin:4px;display:block;width:100%;">Export Report</button>
+            <button id="fd-btn2" onclick="frameDAction('refresh')" style="padding:8px 14px;background:#7c3aed;color:#fff;border:none;border-radius:6px;cursor:pointer;margin:4px;display:block;width:100%;">Refresh Data</button>
+            <div id="frameD-result" style="margin-top:8px;font-size:13px;color:#374151;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AD / BANNER OVERLAY -->
+    <div id="adOverlay" class="section hidden">
+      <h2>Ads / Banner Overlays</h2>
+      <div class="note">
+        <b>Reproduce:</b> An advertisement overlay randomly appears and covers target elements.
+        Automation must detect and dismiss the overlay before interacting with the underlying button.
+        <br><br>
+        <b>Category:</b> Overlay Interception • Ad Blocking • Element Coverage • Click Interception
+      </div>
+      <div style="margin-top:16px;position:relative;">
+        <div style="padding:24px;background:#f8fafc;border-radius:14px;border:2px solid #e5e7eb;">
+          <h3 style="margin-bottom:12px;">Page Content</h3>
+          <p style="color:#6b7280;margin-bottom:16px;">This is the main content area with important buttons below. An ad overlay may appear and block interaction.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button id="ad-submit-btn" onclick="this.textContent='Clicked! ✅'" style="padding:10px 24px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:15px;">
+              Submit Order
+            </button>
+            <button id="ad-checkout-btn" onclick="this.textContent='Checked out! ✅'" style="padding:10px 24px;background:#10b981;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:15px;">
+              Checkout
+            </button>
+          </div>
+        </div>
+        <!-- The Ad Banner (starts hidden) -->
+        <div id="adBanner" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.97);border-radius:14px;border:3px solid #f59e0b;z-index:10;padding:24px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.15);">
+          <div style="font-size:28px;margin-bottom:8px;">🎉</div>
+          <p style="font-weight:700;font-size:18px;color:#92400e;margin-bottom:4px;">SPECIAL OFFER!</p>
+          <p style="color:#6b7280;font-size:14px;margin-bottom:16px;">You've been selected for an exclusive deal. Don't miss out!</p>
+          <button onclick="dismissAd()" id="adCloseBtn" style="padding:10px 28px;background:#f59e0b;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;">
+            ✕ Close Ad
+          </button>
+          <p style="color:#9ca3af;font-size:11px;margin-top:12px;" id="adCountdown"></p>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:10px;">
+        <button onclick="showAd()" style="padding:8px 18px;background:#f59e0b;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+          Trigger Ad Now
+        </button>
+        <button onclick="startAdLoop()" style="padding:8px 18px;background:#374151;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+          Start Auto Ad Loop
+        </button>
+        <button onclick="stopAdLoop()" style="padding:8px 18px;background:#6b7280;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+          Stop Loop
+        </button>
+      </div>
+    </div>
+
+    <!-- ZOOM LEVEL IMPACT -->
+    <div id="zoomImpact" class="section hidden">
+      <h2>Zoom Level Impact</h2>
+      <div class="note">
+        <b>Reproduce:</b> At 100% zoom all elements are visible. At 200% zoom, some elements are pushed off-screen or clipped by overflow.
+        Automation that doesn't account for zoom level will fail to locate elements or get wrong coordinates.
+        <br><br>
+        <b>Category:</b> Viewport Scaling • Coordinate Drift • Zoom-Dependent Layout
+      </div>
+      <div style="margin-top:16px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+          <button onclick="setZoom(100)" style="padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;">100% Zoom (Normal)</button>
+          <button onclick="setZoom(150)" style="padding:8px 16px;background:#f59e0b;color:#fff;border:none;border-radius:8px;cursor:pointer;">150% Zoom</button>
+          <button onclick="setZoom(200)" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;">200% Zoom</button>
+          <span id="zoomLabel" style="font-weight:700;color:#374151;">Current zoom: 100%</span>
+        </div>
+        <div id="zoom-container" style="overflow:hidden;border:2px solid #e5e7eb;border-radius:12px;padding:24px;">
+          <div id="zoom-content" style="transform-origin:top left;transition:transform .3s;">
+            <div style="display:flex;gap:12px;flex-wrap:nowrap;align-items:flex-start;">
+              <div style="background:#f0f4ff;border-radius:10px;padding:20px;min-width:200px;">
+                <p style="font-weight:600;margin-bottom:10px;">Always Visible</p>
+                <button id="zoom-btn-visible" style="padding:10px 20px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+                  Primary Action
+                </button>
+              </div>
+              <div style="background:#fef3c7;border-radius:10px;padding:20px;min-width:200px;">
+                <p style="font-weight:600;margin-bottom:10px;">May Go Off-Screen at High Zoom</p>
+                <button id="zoom-btn-offscreen" style="padding:10px 20px;background:#f59e0b;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+                  Secondary Action
+                </button>
+              </div>
+              <div style="background:#fce7f3;border-radius:10px;padding:20px;min-width:200px;">
+                <p style="font-weight:600;margin-bottom:10px;">Hidden at 200% Zoom</p>
+                <button id="zoom-btn-hidden" style="padding:10px 20px;background:#ec4899;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+                  Hidden Action
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOM WEB COMPONENTS -->
+    <div id="webComponents" class="section hidden">
+      <h2>Custom Web Components</h2>
+      <div class="note">
+        <b>Reproduce:</b> Elements use custom HTML tags registered via <code>customElements.define()</code>.
+        Their internals live inside a shadow DOM. Standard CSS selectors cannot pierce the shadow boundary.
+        Automation must use <code>shadowRoot</code> traversal or special locator strategies.
+        <br><br>
+        <b>Category:</b> Custom Elements • Shadow DOM Encapsulation • Non-Standard Tag Locators
+      </div>
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:16px;">
+        <qa-button data-testid="wc-primary-btn"></qa-button>
+        <qa-input data-testid="wc-name-input" label="Full Name" placeholder="Enter name"></qa-input>
+        <qa-card data-testid="wc-status-card"></qa-card>
+        <qa-counter data-testid="wc-counter"></qa-counter>
+      </div>
+    </div>
+
     <!-- BOOKSTORE -->
     <div id="bookstore" class="section hidden">
       <h2>API + Delay</h2>
@@ -1875,10 +2228,34 @@
   </div>
 
   <script>
-    // NAV
+    // =============================================================
+    // PRE-CAPTURED ELEMENT REFERENCES
+    // Must be captured BEFORE initDomRemoval() removes them from DOM.
+    // getElementById/querySelectorAll only search the live DOM,
+    // so we store references now while everything is still attached.
+    // =============================================================
+    let _allSections, _allFormStages, _allSubcontents;
+
+    // Captured in initCapture() which runs at end of this script block
+    let _filterPopup, _modalOverlay, _settingsEl,
+        _dataCard, _spinnerOverlay,
+        _alertOverlay, _alertInput, _alertCancel,
+        _alertTitle, _alertMsg, _alertOk;
+
+    // NAV — uses stored _allSections so removed sections are still reachable
     function show(section) {
-      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-      document.getElementById(section).classList.remove('hidden');
+      if (_allSections) _allSections.forEach(s => domHide(s));
+      const target = _allSections
+        ? _allSections.find(s => s.id === section)
+        : document.getElementById(section);
+      if (target) {
+        domShow(target);
+        // Dynamic Text init is deferred until the section is first shown
+        // (the section is removed from DOM at page load so DOMContentLoaded init bails out)
+        if (section === 'dynamicText' && window.initDynamicText) {
+          window.initDynamicText();
+        }
+      }
     }
 
     // =========================
@@ -1967,14 +2344,16 @@
         return;
       }
 
-      // Hide all stages
-      document.querySelectorAll('.form-stage')
-        .forEach(s => s.classList.add('hidden'));
+      // Remove all stages from DOM, then restore the target stage
+      if (_allFormStages) _allFormStages.forEach(s => domHide(s));
 
-      const nextStageEl = document.getElementById('stage' + n);
+      // Stages are stored on _allFormStages; getElementById won't find removed elements
+      const nextStageEl = _allFormStages
+        ? _allFormStages.find(s => s.id === 'stage' + n)
+        : document.getElementById('stage' + n);
       if (!nextStageEl) return;
 
-      nextStageEl.classList.remove('hidden');
+      domShow(nextStageEl);
 
       visitedStages.add(currentStage);
       currentStage = n;
@@ -2078,23 +2457,24 @@
     }
 
     function randomizeNextButtons(stage) {
-      const btns = stage.querySelectorAll('.next-btn');
+      // Use pre-captured references — querySelectorAll won't find removed elements
+      const btns = stage._nextBtns || Array.from(stage.querySelectorAll('.next-btn'));
 
-      // Stable mode: always show all next buttons — no random hiding
+      // Stable mode: always restore all next buttons — never hidden
       if (window.STABLE_MODE) {
-        btns.forEach(b => b.classList.remove('hidden'));
+        btns.forEach(b => domShow(b));
         return;
       }
 
       if (btns.length <= 1) {
-        btns.forEach(b => b.classList.remove('hidden'));
+        btns.forEach(b => domShow(b));
         return;
       }
 
-      btns.forEach(b => b.classList.add('hidden'));
+      btns.forEach(b => domHide(b));
 
       const index = Math.floor(Math.random() * btns.length);
-      btns[index].classList.remove('hidden');
+      domShow(btns[index]);
     }
 
     function handleStage1Inputs() {
@@ -2170,11 +2550,13 @@
       tabEl.addEventListener('click', function () {
         const tab = this.textContent.toLowerCase();
 
-        document.querySelectorAll('.subcontent')
-          .forEach(s => s.classList.add('hidden'));
+        // Use pre-captured refs — removed elements not found by querySelectorAll
+        if (_allSubcontents) _allSubcontents.forEach(s => domHide(s));
 
-        document.getElementById(tab)
-          .classList.remove('hidden');
+        const target = _allSubcontents
+          ? _allSubcontents.find(s => s.id === tab)
+          : document.getElementById(tab);
+        if (target) domShow(target);
 
         document.querySelectorAll('.subtab')
           .forEach(t => t.classList.remove('active'));
@@ -2286,9 +2668,9 @@
 
       currentFilterCol = col;
 
-      const popup = document.getElementById('filterPopup');
+      const popup = _filterPopup;
       popup.innerHTML = '';
-      popup.classList.remove('hidden');
+      domShow(popup);
 
       const rect = anchor.getBoundingClientRect();
 
@@ -2376,18 +2758,18 @@
     }
 
     document.addEventListener('click', (e) => {
-      const popup = document.getElementById('filterPopup');
+      const popup = _filterPopup;
 
-      if (!popup || popup.classList.contains('hidden')) return;
+      if (!popup || popup._domRemoved) return; // not currently shown
 
       if (popup.contains(e.target)) return;
 
-      popup.classList.add('hidden');
+      domHide(popup);
     });
 
     function closeFilterPopup() {
-      const popup = document.getElementById('filterPopup');
-      popup.classList.add('hidden');
+      const popup = _filterPopup;
+      domHide(popup);
       popup.innerHTML = ''; // reset UI (prevents stale values)
       currentFilterCol = null;
     }
@@ -2750,19 +3132,12 @@
     }
 
     function openAddModal() {
-
-      document
-        .getElementById('modalOverlay')
-        .classList.remove('hidden');
-
+      domShow(_modalOverlay);
       clearModal();
     }
 
     function closeAddModal() {
-
-      document
-        .getElementById('modalOverlay')
-        .classList.add('hidden');
+      domHide(_modalOverlay);
     }
 
     function clearModal() {
@@ -2900,9 +3275,16 @@
     // =========================
     function toggleSettings() {
 
-      const s = document.getElementById('settings');
+      const s = _settingsEl;
 
-      s.classList.toggle('hidden');
+      // Toggle: if removed from DOM → restore; if in DOM → remove
+      if (s._domRemoved) {
+        s.innerHTML = '';
+        domShow(s);
+      } else {
+        domHide(s);
+        return; // no need to rebuild content when hiding
+      }
 
       s.innerHTML = '';
 
@@ -2994,11 +3376,11 @@
     ===================================== */
 
     function showSpinner() {
-      overlay.classList.remove("hidden");
+      domShow(overlay);
     }
 
     function hideSpinner() {
-      overlay.classList.add("hidden");
+      domHide(overlay);
     }
 
 
@@ -3069,14 +3451,14 @@
 
     function showData() {
 
-      dataCard.classList.remove("hidden");
+      domShow(dataCard);
 
       statusBox.textContent = "Status: Data received";
 
       // disappears after 10 sec
       setTimeout(() => {
 
-        dataCard.classList.add("hidden");
+        domHide(dataCard);
 
         statusBox.textContent =
           "Status: Response expired";
@@ -3100,38 +3482,40 @@
 
       open({ title, message, type = "info", onOk, onCancel }) {
 
-        const overlay = document.getElementById("customAlertOverlay");
-        const titleEl = document.getElementById("alertTitle");
-        const msgEl = document.getElementById("alertMessage");
-        const inputEl = document.getElementById("alertInput");
-        const okBtn = document.getElementById("alertOk");
-        const cancelBtn = document.getElementById("alertCancel");
+        // Use pre-captured refs — elements inside overlay are removed from live DOM
+        const overlay   = _alertOverlay;
+        const titleEl   = _alertTitle;
+        const msgEl     = _alertMsg;
+        const inputEl   = _alertInput;
+        const okBtn     = _alertOk;
+        const cancelBtn = _alertCancel;
 
         titleEl.textContent = title;
         msgEl.textContent = message;
 
-        inputEl.classList.add("hidden");
-        cancelBtn.classList.add("hidden");
+        // Always start with input and cancel fully removed
+        domHide(inputEl);
+        domHide(cancelBtn);
 
         if (type === "prompt") {
           inputEl.value = "";
-          inputEl.classList.remove("hidden");
+          domShow(inputEl);
         }
 
         if (type === "confirm") {
-          cancelBtn.classList.remove("hidden");
+          domShow(cancelBtn);
         }
 
-        overlay.classList.remove("hidden");
+        domShow(overlay);
 
         okBtn.onclick = () => {
-          overlay.classList.add("hidden");
+          domHide(overlay);
           const value = type === "prompt" ? inputEl.value : true;
           onOk?.(value);
         };
 
         cancelBtn.onclick = () => {
-          overlay.classList.add("hidden");
+          domHide(overlay);
           onCancel?.();
         };
       }
@@ -3212,6 +3596,370 @@
           : "Custom Alerts Enabled"
       );
     }
+
+    // ================================================================
+    // NEW SECTION SCRIPTS
+    // ================================================================
+
+    /* ---------- DYNAMIC DROPDOWN ---------- */
+    const _allCountries = [
+      "Afghanistan","Albania","Algeria","Argentina","Australia","Austria","Bangladesh",
+      "Belgium","Brazil","Canada","Chile","China","Colombia","Croatia","Czech Republic",
+      "Denmark","Egypt","Ethiopia","Finland","France","Germany","Ghana","Greece","Hungary",
+      "India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Japan","Jordan","Kenya",
+      "Malaysia","Mexico","Morocco","Netherlands","New Zealand","Nigeria","Norway","Pakistan",
+      "Peru","Philippines","Poland","Portugal","Romania","Russia","Saudi Arabia","South Africa",
+      "South Korea","Spain","Sweden","Switzerland","Thailand","Turkey","Ukraine","United Kingdom",
+      "United States","Vietnam","Zimbabwe"
+    ];
+    function fetchCountries() {
+      const btn = document.getElementById('fetchCountriesBtn');
+      const status = document.getElementById('fetchStatus');
+      const sel = document.getElementById('countryDropdown');
+      btn.disabled = true;
+      status.textContent = 'Fetching from API...';
+      sel.innerHTML = '<option value="">Loading...</option>';
+      const delay = 1500 + Math.random() * 2000;
+      setTimeout(() => {
+        // Return random subset (15–25 countries) — list changes each fetch
+        const shuffled = [..._allCountries].sort(() => Math.random() - 0.5);
+        const subset = shuffled.slice(0, Math.floor(Math.random() * 11) + 15);
+        subset.sort();
+        sel.innerHTML = '<option value="">-- select a country --</option>';
+        subset.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c; opt.textContent = c;
+          sel.appendChild(opt);
+        });
+        status.textContent = `Loaded ${subset.length} countries`;
+        btn.disabled = false;
+      }, delay);
+    }
+    document.addEventListener('change', e => {
+      if (e.target.id === 'countryDropdown' && e.target.value) {
+        const r = document.getElementById('countryResult');
+        r.textContent = `Selected: ${e.target.value}`;
+        r.style.display = 'block';
+      }
+    });
+
+    /* ---------- AUTOCOMPLETE ---------- */
+    const _acData = [
+      "Afghanistan","Albania","Algeria","Argentina","Australia","Austria","Azerbaijan",
+      "Bangladesh","Belgium","Bolivia","Brazil","Bulgaria","Cambodia","Canada","Chile",
+      "China","Colombia","Croatia","Cuba","Czech Republic","Denmark","Ecuador","Egypt",
+      "Ethiopia","Finland","France","Georgia","Germany","Ghana","Greece","Guatemala",
+      "Hungary","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica",
+      "Japan","Jordan","Kazakhstan","Kenya","Kuwait","Kyrgyzstan","Latvia","Lebanon",
+      "Lithuania","Malaysia","Mexico","Mongolia","Morocco","Nepal","Netherlands",
+      "New Zealand","Nigeria","Norway","Pakistan","Peru","Philippines","Poland",
+      "Portugal","Romania","Russia","Saudi Arabia","Serbia","Singapore","Slovakia",
+      "South Africa","South Korea","Spain","Sri Lanka","Sweden","Switzerland",
+      "Thailand","Tunisia","Turkey","Ukraine","United Arab Emirates",
+      "United Kingdom","United States","Uzbekistan","Venezuela","Vietnam","Zimbabwe"
+    ];
+    function handleAcInput(val) {
+      const list = document.getElementById('acList');
+      if (!val.trim()) { list.style.display = 'none'; list.innerHTML = ''; return; }
+      const matches = _acData.filter(c => c.toLowerCase().startsWith(val.toLowerCase())).slice(0, 8);
+      if (!matches.length) { list.style.display = 'none'; list.innerHTML = ''; return; }
+      list.innerHTML = matches.map(m =>
+        `<div onclick="selectAc('${m}')" style="padding:9px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #f3f4f6;"
+          onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''">${m}</div>`
+      ).join('');
+      list.style.display = 'block';
+    }
+    function selectAc(val) {
+      document.getElementById('acInput').value = val;
+      document.getElementById('acList').style.display = 'none';
+      document.getElementById('acSelected').textContent = `✅ Selected: ${val}`;
+    }
+    function clearAcSuggestions() {
+      const list = document.getElementById('acList');
+      if (list) list.style.display = 'none';
+    }
+
+    /* ---------- DARK MODE ---------- */
+    function applyDarkMode(on) {
+      const preview = document.getElementById('darkModePreview');
+      const icon    = document.getElementById('darkOnlyIcon');
+      const badge   = document.getElementById('darkOnlyBadge');
+      const status  = document.getElementById('darkModeStatus');
+      if (on) {
+        preview.style.background = '#1f2937';
+        preview.style.color      = '#f9fafb';
+        preview.style.borderColor= '#374151';
+        icon.style.opacity  = '1';
+        badge.style.opacity = '1';
+        status.textContent  = 'Current mode: Dark';
+        status.style.color  = '#9ca3af';
+      } else {
+        preview.style.background = '#fff';
+        preview.style.color      = '';
+        preview.style.borderColor= '#e5e7eb';
+        icon.style.opacity  = '0';
+        badge.style.opacity = '0';
+        status.textContent  = 'Current mode: Light';
+        status.style.color  = '#6b7280';
+      }
+    }
+
+    /* ---------- FRAMESET ---------- */
+    function frameLogin() {
+      const u = document.getElementById('fa-username').value.trim();
+      const p = document.getElementById('fa-password').value.trim();
+      if (!u || !p) { alert('Enter username and password'); return; }
+      const status  = document.getElementById('frameB-status');
+      const content = document.getElementById('frameB-content');
+      status.textContent = `Logged in as: ${u}`;
+      content.style.display = 'block';
+    }
+    function frameBAction() {
+      const r = document.getElementById('frameB-result');
+      r.textContent = '✅ Action executed successfully at ' + new Date().toLocaleTimeString();
+    }
+    function frameDAction(type) {
+      const r = document.getElementById('frameD-result');
+      r.textContent = type === 'export'
+        ? '📁 Report exported at ' + new Date().toLocaleTimeString()
+        : '🔄 Data refreshed at ' + new Date().toLocaleTimeString();
+    }
+
+    /* ---------- AD OVERLAY ---------- */
+    let _adLoopTimer = null;
+    let _adCountTimer = null;
+    function showAd() {
+      const banner = document.getElementById('adBanner');
+      const countdown = document.getElementById('adCountdown');
+      if (!banner) return;
+      banner.style.display = 'flex';
+      banner.style.flexDirection = 'column';
+      banner.style.justifyContent = 'center';
+      banner.style.alignItems = 'center';
+      let secs = 5;
+      countdown.textContent = `Auto-closes in ${secs}s`;
+      clearInterval(_adCountTimer);
+      _adCountTimer = setInterval(() => {
+        secs--;
+        if (secs <= 0) { clearInterval(_adCountTimer); dismissAd(); }
+        else countdown.textContent = `Auto-closes in ${secs}s`;
+      }, 1000);
+    }
+    function dismissAd() {
+      const banner = document.getElementById('adBanner');
+      if (banner) banner.style.display = 'none';
+      clearInterval(_adCountTimer);
+    }
+    function startAdLoop() {
+      stopAdLoop();
+      showAd();
+      _adLoopTimer = setInterval(showAd, 20000);
+    }
+    function stopAdLoop() {
+      clearInterval(_adLoopTimer);
+      _adLoopTimer = null;
+      dismissAd();
+    }
+
+    /* ---------- ZOOM IMPACT ---------- */
+    function setZoom(pct) {
+      const content = document.getElementById('zoom-content');
+      const label   = document.getElementById('zoomLabel');
+      const scale   = pct / 100;
+      content.style.transform = `scale(${scale})`;
+      label.textContent = `Current zoom: ${pct}%`;
+      // At 200% hide the third card via overflow clipping
+      const container = document.getElementById('zoom-container');
+      container.style.overflow = pct >= 200 ? 'hidden' : 'hidden';
+    }
+
+    /* ---------- CUSTOM WEB COMPONENTS ---------- */
+    // qa-button
+    if (!customElements.get('qa-button')) {
+      customElements.define('qa-button', class extends HTMLElement {
+        connectedCallback() {
+          const shadow = this.attachShadow({ mode: 'open' });
+          shadow.innerHTML = `
+            <style>
+              button { padding:10px 24px;background:#6366f1;color:#fff;border:none;border-radius:8px;
+                       cursor:pointer;font-size:14px;font-family:inherit; }
+              button:hover { background:#4f46e5; }
+              .result { margin-top:8px;font-size:13px;color:#374151; }
+            </style>
+            <button id="wc-btn">QA Custom Button</button>
+            <div class="result" id="wc-result"></div>`;
+          shadow.getElementById('wc-btn').addEventListener('click', () => {
+            shadow.getElementById('wc-result').textContent = '✅ Custom button clicked at ' + new Date().toLocaleTimeString();
+          });
+        }
+      });
+    }
+    // qa-input
+    if (!customElements.get('qa-input')) {
+      customElements.define('qa-input', class extends HTMLElement {
+        connectedCallback() {
+          const label = this.getAttribute('label') || 'Field';
+          const ph    = this.getAttribute('placeholder') || '';
+          const shadow = this.attachShadow({ mode: 'open' });
+          shadow.innerHTML = `
+            <style>
+              label { display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:#374151; }
+              input { padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;width:280px;font-size:14px;font-family:inherit; }
+              input:focus { outline:none;border-color:#6366f1;box-shadow:0 0 0 3px #e0e7ff; }
+            </style>
+            <label>${label}</label>
+            <input id="wc-input" type="text" placeholder="${ph}">`;
+        }
+      });
+    }
+    // qa-card
+    if (!customElements.get('qa-card')) {
+      customElements.define('qa-card', class extends HTMLElement {
+        connectedCallback() {
+          const shadow = this.attachShadow({ mode: 'open' });
+          const statuses = ['Active', 'Pending', 'Inactive'];
+          const colors   = ['#10b981', '#f59e0b', '#ef4444'];
+          let idx = 0;
+          shadow.innerHTML = `
+            <style>
+              .card { padding:16px 20px;background:#f8fafc;border-radius:10px;border:2px solid #e5e7eb;display:flex;align-items:center;gap:14px; }
+              .dot  { width:12px;height:12px;border-radius:50%;flex-shrink:0; }
+              .lbl  { font-weight:600;font-size:14px; }
+              button{ margin-left:auto;padding:6px 14px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px; }
+            </style>
+            <div class="card">
+              <span class="dot" id="dot" style="background:#10b981;"></span>
+              <span class="lbl" id="lbl">Status: Active</span>
+              <button id="cyc">Cycle Status</button>
+            </div>`;
+          shadow.getElementById('cyc').addEventListener('click', () => {
+            idx = (idx + 1) % 3;
+            shadow.getElementById('dot').style.background = colors[idx];
+            shadow.getElementById('lbl').textContent = `Status: ${statuses[idx]}`;
+          });
+        }
+      });
+    }
+    // qa-counter
+    if (!customElements.get('qa-counter')) {
+      customElements.define('qa-counter', class extends HTMLElement {
+        connectedCallback() {
+          const shadow = this.attachShadow({ mode: 'open' });
+          let count = 0;
+          shadow.innerHTML = `
+            <style>
+              .wrap { display:flex;align-items:center;gap:12px; }
+              button { width:36px;height:36px;border:none;border-radius:50%;background:#6366f1;color:#fff;font-size:18px;cursor:pointer;line-height:1; }
+              .val  { font-size:22px;font-weight:700;min-width:40px;text-align:center;color:#374151; }
+            </style>
+            <div class="wrap">
+              <button id="dec">−</button>
+              <span class="val" id="val">0</span>
+              <button id="inc">+</button>
+            </div>`;
+          shadow.getElementById('inc').addEventListener('click', () => {
+            shadow.getElementById('val').textContent = ++count;
+          });
+          shadow.getElementById('dec').addEventListener('click', () => {
+            shadow.getElementById('val').textContent = --count;
+          });
+        }
+      });
+    }
+
+    // ================================================================
+    // initCapture — store references while ALL elements are in the DOM.
+    // Must run BEFORE initDomRemoval removes anything.
+    // ================================================================
+    function initCapture() {
+      // Page sections — strip CSS 'hidden' class so DOM removal is the sole mechanism
+      _allSections    = Array.from(document.querySelectorAll('.section'));
+      _allSections.forEach(s => s.classList.remove('hidden'));
+
+      // Form stages — strip hidden class, capture next-buttons
+      _allFormStages  = Array.from(document.querySelectorAll('.form-stage'));
+      _allFormStages.forEach(stage => {
+        stage.classList.remove('hidden');
+        stage._nextBtns = Array.from(stage.querySelectorAll('.next-btn'));
+      });
+
+      // Sub-tab content panels — strip hidden class
+      _allSubcontents = Array.from(document.querySelectorAll('.subcontent'));
+      _allSubcontents.forEach(s => s.classList.remove('hidden'));
+
+      // One-off elements referenced inside functions called after init
+      // Strip 'hidden' class from each so DOM removal is the sole visibility mechanism
+      _filterPopup    = document.getElementById('filterPopup');
+      _modalOverlay   = document.getElementById('modalOverlay');
+      _settingsEl     = document.getElementById('settings');
+      _dataCard       = document.getElementById('dataCard');
+      _spinnerOverlay = document.getElementById('spinnerOverlay');
+      _alertOverlay   = document.getElementById('customAlertOverlay');
+      _alertInput     = document.getElementById('alertInput');
+      _alertCancel    = document.getElementById('alertCancel');
+      _alertTitle     = document.getElementById('alertTitle');
+      _alertMsg       = document.getElementById('alertMessage');
+      _alertOk        = document.getElementById('alertOk');
+
+      [_filterPopup, _modalOverlay, _settingsEl, _dataCard,
+       _spinnerOverlay, _alertOverlay, _alertInput, _alertCancel]
+        .forEach(el => el && el.classList.remove('hidden'));
+
+      // Expose delayed-btn ref so dynamic-elements.js can domShow it after timeout
+      window._delayedBtn = document.getElementById('delayed-btn');
+      if (window._delayedBtn) window._delayedBtn.classList.remove('hidden');
+
+      // Expose l1-addressBox ref so the onchange handler can find it after DOM removal
+      window._l1AddrBox = document.getElementById('l1-addressBox');
+    }
+
+    // ================================================================
+    // initDomRemoval — remove hidden elements from DOM so automation
+    // tools cannot locate them. Call AFTER initCapture and all other
+    // init code so element references are valid before removal.
+    // ================================================================
+    function initDomRemoval() {
+      // Sections: keep dynamicElements (default), remove the rest
+      _allSections.forEach(s => {
+        if (s.id !== 'dynamicElements') domHide(s);
+      });
+
+      // Form stages: keep stage1, remove 2-4
+      _allFormStages.forEach(s => {
+        if (s.id !== 'stage1') domHide(s);
+      });
+
+      // Sub-tab panels: keep address (default), remove preferences
+      _allSubcontents.forEach(s => {
+        if (s.id !== 'address') domHide(s);
+      });
+
+      // Dynamic elements section
+      domHide(window._delayedBtn);
+
+      // Tables section
+      domHide(_filterPopup);
+      domHide(_settingsEl);
+
+      // Modal
+      domHide(_modalOverlay);
+
+      // Slow & disappearing
+      domHide(_dataCard);
+      domHide(_spinnerOverlay);
+
+      // Alerts
+      domHide(_alertOverlay);
+      domHide(_alertInput);
+      domHide(_alertCancel);
+
+      // Stable frames: address box starts removed (use captured ref — getElementById won't find it after removal)
+      if (window._l1AddrBox) domHide(window._l1AddrBox);
+    }
+
+    // Run capture first, then removal
+    initCapture();
+    initDomRemoval();
 
   </script>
   <script src="js/dynamic-elements.js"></script>

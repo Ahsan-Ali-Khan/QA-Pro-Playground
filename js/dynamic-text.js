@@ -20,7 +20,11 @@
 
   function clearDynamic() {
     clearInterval(dynamicInterval);
-    if (el()) el().style.display = "block";
+    const out = el();
+    if (out) {
+      out.style.display = "block";
+      out.textContent = "";
+    }
   }
 
   /* -------------------------
@@ -29,25 +33,27 @@
 
   function autoCounter() {
     let count = 0;
-    dynamicInterval = setInterval(() => {
-      el().textContent = `Counter: ${++count}`;
-    }, 2000);
+    const tick = () => { el().textContent = `Counter: ${++count}`; };
+    tick();
+    dynamicInterval = setInterval(tick, 2000);
   }
 
   function increasingPopulation() {
     let pop = 8000000000;
-    dynamicInterval = setInterval(() => {
+    const tick = () => {
       pop += Math.floor(Math.random() * 5);
-      el().textContent =
-        `World Population: ${pop.toLocaleString()}`;
-    }, 1500);
+      el().textContent = `World Population: ${pop.toLocaleString()}`;
+    };
+    tick();
+    dynamicInterval = setInterval(tick, 1500);
   }
 
   function randomValue() {
-    dynamicInterval = setInterval(() => {
-      el().textContent =
-        `Temperature: ${Math.floor(Math.random() * 40)}°C`;
-    }, 2000);
+    const tick = () => {
+      el().textContent = `Temperature: ${Math.floor(Math.random() * 40)}°C`;
+    };
+    tick();
+    dynamicInterval = setInterval(tick, 2000);
   }
 
   function apiDelay() {
@@ -78,6 +84,8 @@
 
     let i = 0;
 
+    el().textContent = `Status: ${states[i++]}`;
+
     dynamicInterval = setInterval(() => {
       el().textContent = `Status: ${states[i++]}`;
       if (i >= states.length)
@@ -102,12 +110,12 @@
   }
 
   function partialDynamic() {
-    dynamicInterval = setInterval(() => {
-      const id = Math.floor(
-        Math.random() * 90000 + 10000
-      );
+    const tick = () => {
+      const id = Math.floor(Math.random() * 90000 + 10000);
       el().textContent = `Order #${id} created`;
-    }, 2500);
+    };
+    tick();
+    dynamicInterval = setInterval(tick, 2500);
   }
 
   function retryLoop() {
@@ -119,6 +127,8 @@
     ];
 
     let i = 0;
+
+    el().textContent = msgs[i++];
 
     dynamicInterval = setInterval(() => {
       el().textContent = msgs[i++];
@@ -138,6 +148,8 @@
 
     let i = 0;
 
+    el().textContent = flow[i++];
+
     dynamicInterval = setInterval(() => {
       el().textContent = flow[i++];
       if (i >= flow.length)
@@ -155,10 +167,8 @@
   }
 
   function liveDateTime() {
-    dynamicInterval = setInterval(() => {
-
+    const tick = () => {
       const now = new Date();
-
       el().innerHTML = `
         ISO: ${now.toISOString()} <br>
         Local: ${now.toLocaleString()} <br>
@@ -166,8 +176,9 @@
         Date Only: ${now.toLocaleDateString()} <br>
         Time Only: ${now.toLocaleTimeString()}
       `;
-
-    }, 1000);
+    };
+    tick();
+    dynamicInterval = setInterval(tick, 1000);
   }
 
   /* -------------------------
@@ -225,12 +236,15 @@
     dateTime:        "ISO: 2024-01-01T00:00:00.000Z | Local: 1/1/2024, 12:00:00 AM",
   };
 
+  let _initialized = false;
+
   function init() {
+    if (_initialized) return;
 
-    const dropdown =
-      document.getElementById(modeId);
+    const dropdown = document.getElementById(modeId);
+    if (!dropdown) return;   // section still removed from DOM — will retry when shown
 
-    if (!dropdown) return;
+    _initialized = true;
 
     if (window.STABLE_MODE) {
       // Show fixed text for whichever option is selected — no timers
@@ -243,17 +257,16 @@
       return;
     }
 
-    dropdown.addEventListener(
-      "change",
-      startDynamicMode
-    );
-
+    dropdown.addEventListener("change", startDynamicMode);
     startDynamicMode();
   }
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    init
-  );
+  // Expose globally so show() in index.html can trigger init when the section is opened
+  window.initDynamicText   = init;
+  // Also expose startDynamicMode for the onchange attribute on the <select>
+  window.startDynamicMode  = startDynamicMode;
+
+  // Try on DOMContentLoaded too (works when section is not DOM-removed, e.g. first nav click timing)
+  document.addEventListener("DOMContentLoaded", init);
 
 })();

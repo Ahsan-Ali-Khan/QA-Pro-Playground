@@ -4,12 +4,30 @@
 
 (function () {
 
+  // Local dom utilities (level2 runs in its own iframe window)
+  function domHide(el) {
+    if (!el || el._domRemoved) return;
+    el._domParent = el.parentNode;
+    el._domNext   = el.nextSibling;
+    if (el.parentNode) el.parentNode.removeChild(el);
+    el._domRemoved = true;
+  }
+  function domShow(el) {
+    if (!el || !el._domRemoved) return;
+    if (el._domNext && el._domNext.parentNode === el._domParent)
+      el._domParent.insertBefore(el, el._domNext);
+    else if (el._domParent)
+      el._domParent.appendChild(el);
+    el._domRemoved = false;
+  }
+
   /* -----------------------------
      TAB SWITCHING (DOM SWAP)
   ----------------------------- */
   function activateTabs() {
 
-    const tabs = document.querySelectorAll(".tab");
+    const tabs        = document.querySelectorAll(".tab");
+    const settingsPanel = document.querySelector(".settings-panel");
 
     tabs.forEach(tab => {
 
@@ -18,9 +36,10 @@
         tabs.forEach(t => t.classList.remove("active"));
         tab.classList.add("active");
 
-        // simulate SPA re-render
-        document.querySelector(".settings-panel")
-          ?.classList.toggle("hidden");
+        // simulate SPA re-render — toggle settings-panel in/out of DOM
+        if (settingsPanel) {
+          settingsPanel._domRemoved ? domShow(settingsPanel) : domHide(settingsPanel);
+        }
 
       });
     });

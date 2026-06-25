@@ -105,7 +105,7 @@
     if (!toggle || !box) return;
 
     toggle.addEventListener("change", function () {
-      box.classList.toggle("hidden", !this.checked);
+      window.domToggle(box, this.checked);
     });
   }
 
