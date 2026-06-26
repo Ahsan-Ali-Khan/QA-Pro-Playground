@@ -2050,60 +2050,23 @@
     <div id="framesetSec" class="section hidden">
       <h2>Elements Inside Frameset</h2>
       <div class="note">
-        <b>Reproduce:</b> Content is loaded inside multiple independent frames arranged in a frameset-like layout.
-        Each frame has its own document context. Automation must switch frame context to interact with elements.
+        <b>Reproduce:</b> Content is loaded inside a real HTML <code>&lt;frameset&gt;</code> with four
+        <code>&lt;frame&gt;</code> tags (frameA–frameD), each with its own document context.
+        Automation must switch frame context to reach elements. Frame A login unlocks Frame B dashboard.
         <br><br>
-        <b>Category:</b> Multi-Frame Context • Frame Switching • Cross-Document Locators
+        <b>Category:</b> Frameset • Multi-Frame Context • Frame Switching • Cross-Document Locators
       </div>
-      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div style="border:2px solid #6366f1;border-radius:10px;overflow:hidden;">
-          <div style="background:#6366f1;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame A — Login Form</div>
-          <div style="padding:16px;background:#f8fafc;" id="frameA">
-            <label style="font-size:13px;font-weight:600;">Username</label><br>
-            <input id="fa-username" type="text" placeholder="Enter username" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;width:100%;margin:6px 0 10px;box-sizing:border-box;">
-            <label style="font-size:13px;font-weight:600;">Password</label><br>
-            <input id="fa-password" type="password" placeholder="Enter password" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;width:100%;margin:6px 0 10px;box-sizing:border-box;">
-            <button onclick="frameLogin()" style="padding:8px 18px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;width:100%;">Login</button>
-          </div>
+      <div style="margin-top:16px;">
+        <div style="margin-bottom:10px;font-size:13px;color:#6b7280;">
+          Structure: <code>frameset rows="50%,50%"</code> → top row: frameA + frameB &nbsp;|&nbsp; bottom row: frameC + frameD
         </div>
-        <div style="border:2px solid #10b981;border-radius:10px;overflow:hidden;">
-          <div style="background:#10b981;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame B — Dashboard</div>
-          <div style="padding:16px;background:#f0fdf4;" id="frameB">
-            <p id="frameB-status" style="color:#6b7280;font-size:13px;margin-bottom:12px;">Waiting for login from Frame A...</p>
-            <div id="frameB-content" style="display:none;">
-              <p style="font-weight:600;color:#065f46;">✅ Logged in successfully!</p>
-              <button id="frameB-action" onclick="frameBAction()" style="margin-top:8px;padding:8px 16px;background:#10b981;color:#fff;border:none;border-radius:6px;cursor:pointer;">
-                Perform Action
-              </button>
-              <div id="frameB-result" style="margin-top:8px;font-size:13px;color:#374151;"></div>
-            </div>
-          </div>
-        </div>
-        <div style="border:2px solid #f59e0b;border-radius:10px;overflow:hidden;">
-          <div style="background:#f59e0b;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame C — Data Table</div>
-          <div style="padding:16px;background:#fffbeb;" id="frameC">
-            <table style="width:100%;border-collapse:collapse;font-size:13px;">
-              <thead><tr style="background:#fef3c7;">
-                <th style="padding:6px 10px;border:1px solid #fcd34d;text-align:left;">#</th>
-                <th style="padding:6px 10px;border:1px solid #fcd34d;text-align:left;">Item</th>
-                <th style="padding:6px 10px;border:1px solid #fcd34d;text-align:left;">Value</th>
-              </tr></thead>
-              <tbody>
-                <tr><td style="padding:6px 10px;border:1px solid #fcd34d;">1</td><td style="padding:6px 10px;border:1px solid #fcd34d;">Alpha</td><td style="padding:6px 10px;border:1px solid #fcd34d;">$120</td></tr>
-                <tr><td style="padding:6px 10px;border:1px solid #fcd34d;">2</td><td style="padding:6px 10px;border:1px solid #fcd34d;">Beta</td><td style="padding:6px 10px;border:1px solid #fcd34d;">$85</td></tr>
-                <tr><td style="padding:6px 10px;border:1px solid #fcd34d;">3</td><td style="padding:6px 10px;border:1px solid #fcd34d;">Gamma</td><td style="padding:6px 10px;border:1px solid #fcd34d;">$200</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div style="border:2px solid #8b5cf6;border-radius:10px;overflow:hidden;">
-          <div style="background:#8b5cf6;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame D — Actions</div>
-          <div style="padding:16px;background:#faf5ff;" id="frameD">
-            <button id="fd-btn1" onclick="frameDAction('export')" style="padding:8px 14px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;cursor:pointer;margin:4px;display:block;width:100%;">Export Report</button>
-            <button id="fd-btn2" onclick="frameDAction('refresh')" style="padding:8px 14px;background:#7c3aed;color:#fff;border:none;border-radius:6px;cursor:pointer;margin:4px;display:block;width:100%;">Refresh Data</button>
-            <div id="frameD-result" style="margin-top:8px;font-size:13px;color:#374151;"></div>
-          </div>
-        </div>
+        <!-- Single iframe that loads the real <frameset> document -->
+        <iframe
+          id="framesetHost"
+          src="frames/frameset.html"
+          style="width:100%;height:500px;border:2px solid #d1d5db;border-radius:12px;"
+          title="Frameset Playground">
+        </iframe>
       </div>
     </div>
 
@@ -3705,25 +3668,8 @@
     }
 
     /* ---------- FRAMESET ---------- */
-    function frameLogin() {
-      const u = document.getElementById('fa-username').value.trim();
-      const p = document.getElementById('fa-password').value.trim();
-      if (!u || !p) { alert('Enter username and password'); return; }
-      const status  = document.getElementById('frameB-status');
-      const content = document.getElementById('frameB-content');
-      status.textContent = `Logged in as: ${u}`;
-      content.style.display = 'block';
-    }
-    function frameBAction() {
-      const r = document.getElementById('frameB-result');
-      r.textContent = '✅ Action executed successfully at ' + new Date().toLocaleTimeString();
-    }
-    function frameDAction(type) {
-      const r = document.getElementById('frameD-result');
-      r.textContent = type === 'export'
-        ? '📁 Report exported at ' + new Date().toLocaleTimeString()
-        : '🔄 Data refreshed at ' + new Date().toLocaleTimeString();
-    }
+    // All frame logic lives in the individual frame documents (fset-*.html).
+    // No helper functions needed in the parent page.
 
     /* ---------- AD OVERLAY ---------- */
     let _adLoopTimer = null;
