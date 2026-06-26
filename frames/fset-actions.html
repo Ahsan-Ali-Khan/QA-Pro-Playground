@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Frame D — Actions</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#faf5ff; padding:18px; box-sizing:border-box; }
+    h3 { margin:0 0 10px; color:#8b5cf6; font-size:15px; }
+    button { display:block; width:100%; padding:9px 14px; margin-bottom:8px;
+             border:none; border-radius:6px; cursor:pointer; font-size:13px;
+             font-weight:600; color:#fff; text-align:left; }
+    #fd-export  { background:#8b5cf6; }
+    #fd-refresh { background:#7c3aed; }
+    #fd-reset   { background:#6d28d9; }
+    button:hover { opacity:.88; }
+    #result { font-size:12px; color:#374151; margin-top:4px; min-height:18px; }
+  </style>
+</head>
+<body>
+  <h3>⚡ Frame D — Actions</h3>
+  <button id="fd-export"  onclick="frameAction('export')">📁 Export Report</button>
+  <button id="fd-refresh" onclick="frameAction('refresh')">🔄 Refresh Data</button>
+  <button id="fd-reset"   onclick="frameAction('reset')">♻️ Reset State</button>
+  <div id="result"></div>
+
+  <script>
+    function frameAction(type) {
+      const msgs = {
+        export:  '📁 Report exported',
+        refresh: '🔄 Data refreshed',
+        reset:   '♻️ State reset'
+      };
+      document.getElementById('result').textContent =
+        msgs[type] + ' at ' + new Date().toLocaleTimeString();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Frame C — Data Table</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#fffbeb; padding:18px; box-sizing:border-box; }
+    h3 { margin:0 0 10px; color:#d97706; font-size:15px; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th { background:#fef3c7; padding:7px 10px; border:1px solid #fcd34d; text-align:left; font-weight:700; color:#92400e; }
+    td { padding:7px 10px; border:1px solid #fcd34d; color:#374151; }
+    tr:nth-child(even) td { background:#fffde7; }
+    button { margin-top:10px; padding:7px 14px; background:#f59e0b; color:#fff;
+             border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; }
+    #msg { font-size:12px; color:#374151; margin-top:6px; }
+  </style>
+</head>
+<body>
+  <h3>📋 Frame C — Data Table</h3>
+  <table id="tbl">
+    <thead>
+      <tr><th>#</th><th>Item</th><th>Value</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Alpha</td><td>$120</td><td>Active</td></tr>
+      <tr><td>2</td><td>Beta</td><td>$85</td><td>Pending</td></tr>
+      <tr><td>3</td><td>Gamma</td><td>$200</td><td>Active</td></tr>
+      <tr><td>4</td><td>Delta</td><td>$55</td><td>Inactive</td></tr>
+    </tbody>
+  </table>
+  <button onclick="addRow()">+ Add Row</button>
+  <div id="msg"></div>
+
+  <script>
+    let rowCount = 4;
+    const items = ['Epsilon','Zeta','Eta','Theta','Iota'];
+    function addRow() {
+      rowCount++;
+      const tb = document.querySelector('#tbl tbody');
+      const tr = document.createElement('tr');
+      const item = items[Math.floor(Math.random() * items.length)];
+      const val  = '$' + (Math.floor(Math.random() * 300) + 20);
+      const st   = ['Active','Pending','Inactive'][Math.floor(Math.random() * 3)];
+      tr.innerHTML = `<td>${rowCount}</td><td>${item}</td><td>${val}</td><td>${st}</td>`;
+      tb.appendChild(tr);
+      document.getElementById('msg').textContent = 'Row added at ' + new Date().toLocaleTimeString();
+    }
+  </script>
+</body>
+</html>
