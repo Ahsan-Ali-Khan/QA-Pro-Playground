@@ -1190,6 +1190,10 @@
     <div onclick="show('captchaSection')">🤖 CAPTCHA Lab</div>
     <div onclick="show('keyboardNav')">⌨️ Keyboard Nav</div>
     <div onclick="show('dashboardSection')">📡 Live Dashboard</div>
+    <div onclick="show('toastMessages')">🍞 Toast Messages</div>
+    <a href="locator-break-reproduction-guide.html" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#9ca3af;text-decoration:none;font-size:13px;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px;transition:color .2s;" onmouseover="this.style.color='#f9fafb'" onmouseout="this.style.color='#9ca3af'">
+      <span style="font-size:15px;">📖</span> Locator Break Guide
+    </a>
   </div>
 
   <div id="content">
@@ -2742,6 +2746,92 @@
       </div>
       <div style="margin-top:20px;">
         <button onclick="_pushNotif('Manual test notification — Dashboard','info')">Push Test Notification</button>
+      </div>
+    </div>
+
+    <!-- TOAST MESSAGES (#34) -->
+    <div id="toastMessages" class="section hidden">
+      <h2>Toast Messages</h2>
+      <div class="note">
+        <b>Reproduce:</b> Toasts are injected into <code>#toast-container</code> (fixed, top-right, z-index:9999)
+        and <b>auto-removed from DOM</b> after their timeout — they are never just hidden.
+        Each toast gets a unique runtime ID (<code>toast-&lt;timestamp&gt;</code>), so static ID locators always fail.
+        Multiple toasts stack vertically; clicking a toast dismisses it early.
+        <br><br>
+        <b>Category:</b> Dynamic DOM Injection • Auto-Dismiss • Ephemeral Elements • Dynamic ID • Stacked Overlays • Async Trigger
+      </div>
+
+      <!-- Type buttons -->
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;">
+        <button id="toast-btn-success" onclick="showToast('success')"
+          style="background:#10b981;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ✅ Success Toast
+        </button>
+        <button id="toast-btn-error" onclick="showToast('error')"
+          style="background:#ef4444;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ❌ Error Toast
+        </button>
+        <button id="toast-btn-info" onclick="showToast('info')"
+          style="background:#6366f1;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ℹ️ Info Toast
+        </button>
+        <button id="toast-btn-warning" onclick="showToast('warning')"
+          style="background:#f59e0b;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ⚠️ Warning Toast
+        </button>
+      </div>
+
+      <!-- Custom message -->
+      <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input id="toast-custom-msg" type="text" placeholder="Enter custom toast message…"
+          style="padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;width:300px;">
+        <select id="toast-custom-type"
+          style="padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;">
+          <option value="success">Success</option>
+          <option value="error">Error</option>
+          <option value="info">Info</option>
+          <option value="warning">Warning</option>
+        </select>
+        <button id="toast-btn-custom"
+          style="background:#6366f1;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          Send Custom
+        </button>
+      </div>
+
+      <!-- Special scenarios -->
+      <div style="margin-top:24px;display:flex;flex-wrap:wrap;gap:10px;">
+        <button id="toast-btn-rapid"
+          style="background:#374151;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ⚡ Rapid Fire (3 toasts)
+        </button>
+        <button id="toast-btn-delayed"
+          style="background:#7c3aed;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ⏳ Delayed Toast (2 s)
+        </button>
+        <button id="toast-btn-long"
+          style="background:#0284c7;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          📜 Long-lived Toast (8 s)
+        </button>
+        <button id="toast-btn-persistent"
+          style="background:#b45309;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          📌 Persistent Toast (no auto-dismiss)
+        </button>
+      </div>
+
+      <!-- Status panel -->
+      <div style="margin-top:24px;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e5e7eb;">
+        <p style="font-size:13px;font-weight:700;margin-bottom:8px;color:#374151;">Live Status</p>
+        <p style="font-size:13px;color:#6b7280;">
+          Active toasts: <strong id="toast-active-count" data-count="0">0</strong>
+          &nbsp;|&nbsp;
+          Total fired: <strong id="toast-total-count" data-count="0">0</strong>
+          &nbsp;|&nbsp;
+          Last type: <span id="toast-last-type" data-type="">—</span>
+        </p>
+        <p style="font-size:12px;color:#9ca3af;margin-top:6px;">
+          Toasts appear top-right. Each has a unique <code>id="toast-&lt;timestamp&gt;"</code>
+          and <code>data-toast-type</code> attribute. Click any toast to dismiss early.
+        </p>
       </div>
     </div>
 

@@ -78,12 +78,68 @@ window.showToast=function(type,msg,ms){
   t.textContent=msg||labels[type];
   t.onclick=()=>dismissToast(t);
   c.appendChild(t);
-  setTimeout(()=>dismissToast(t),ms);
+  // update status panel if visible
+  _toastUpdateStatus(type);
+  if(ms>0)setTimeout(()=>dismissToast(t),ms);
+  return t;
 };
 function dismissToast(t){
   if(!t||!t.parentNode)return;
   t.style.cssText+=';opacity:0;transform:translateX(120%);transition:all .3s ease;';
-  setTimeout(()=>t.parentNode&&t.parentNode.removeChild(t),300);
+  setTimeout(()=>{
+    if(t.parentNode)t.parentNode.removeChild(t);
+    _toastRefreshCount();
+  },300);
+}
+function _toastUpdateStatus(type){
+  const total=document.getElementById('toast-total-count');
+  const last=document.getElementById('toast-last-type');
+  if(total){const n=(+total.getAttribute('data-count')||0)+1;total.textContent=n;total.setAttribute('data-count',n);}
+  if(last){last.textContent=type;last.setAttribute('data-type',type);}
+  _toastRefreshCount();
+}
+function _toastRefreshCount(){
+  const active=document.getElementById('toast-active-count');
+  if(!active)return;
+  const c=document.getElementById('toast-container');
+  const n=c?c.children.length:0;
+  active.textContent=n;active.setAttribute('data-count',n);
+}
+
+/* ================================================================
+   #34b — TOAST SECTION INIT
+================================================================ */
+function initToastSection(){
+  // Custom message button
+  document.getElementById('toast-btn-custom')?.addEventListener('click',()=>{
+    const msg=document.getElementById('toast-custom-msg')?.value.trim();
+    const type=document.getElementById('toast-custom-type')?.value||'success';
+    showToast(type, msg||undefined);
+  });
+  // Rapid fire — 3 toasts 300 ms apart
+  document.getElementById('toast-btn-rapid')?.addEventListener('click',()=>{
+    const types=['success','info','warning'];
+    types.forEach((tp,i)=>setTimeout(()=>showToast(tp),i*300));
+  });
+  // Delayed toast — fires after 2 s
+  document.getElementById('toast-btn-delayed')?.addEventListener('click',()=>{
+    showToast('info','⏳ This toast was triggered 2 seconds ago…');
+    // show placeholder status immediately, actual toast delayed
+    const btn=document.getElementById('toast-btn-delayed');
+    if(btn){btn.disabled=true;btn.textContent='Waiting…';}
+    setTimeout(()=>{
+      showToast('success','✅ Delayed toast arrived after 2 s!',3000);
+      if(btn){btn.disabled=false;btn.textContent='⏳ Delayed Toast (2 s)';}
+    },2000);
+  });
+  // Long-lived toast — 8 s timeout
+  document.getElementById('toast-btn-long')?.addEventListener('click',()=>{
+    showToast('warning','⚠️ This toast lives for 8 seconds — try to catch it!',8000);
+  });
+  // Persistent toast — ms=0 means no auto-dismiss
+  document.getElementById('toast-btn-persistent')?.addEventListener('click',()=>{
+    showToast('error','📌 Persistent toast — click to dismiss manually.',0);
+  });
 }
 
 /* ================================================================
@@ -860,6 +916,7 @@ function initKeyboardNav(){
     sliderControls:()=>SliderControls.init(),
     keyboardNav:()=>initKeyboardNav(),
     dashboardSection:()=>{initDashboard();initNotifications();},
+    toastMessages:()=>initToastSection(),
     lazyLoadSection:()=>LazyLoad.init(),
     canvasChart:()=>CanvasChart.init(),
     svgGraph:()=>SvgGraph.init(),
