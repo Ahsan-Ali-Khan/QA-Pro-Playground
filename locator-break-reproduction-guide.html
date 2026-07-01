@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>QA Pro Playground — Locator Break Reproduction Guide</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Inter, Segoe UI, sans-serif; background: #f4f7fb; color: #1f2937; font-size: 13px; }
+  h1 { background: linear-gradient(135deg,#111827,#1e3a5f); color: #fff; padding: 22px 32px; font-size: 20px; letter-spacing: .3px; }
+  h1 span { color: #6366f1; }
+  .subtitle { background: #1f2937; color: #94a3b8; padding: 8px 32px 12px; font-size: 12px; }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 32px; background: #fff; border-bottom: 1px solid #e5e7eb; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #374151; font-weight: 600; }
+  .dot { width: 12px; height: 12px; border-radius: 3px; }
+  .wrap { padding: 20px 24px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,.06); }
+  thead th { background: #111827; color: #e5e7eb; padding: 12px 14px; text-align: left; font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
+  th:first-child { width: 42px; text-align: center; }
+  th:nth-child(2) { width: 260px; }
+  th:nth-child(3) { width: 180px; }
+  tbody tr { border-bottom: 1px solid #f1f5f9; transition: background .15s; }
+  tbody tr:hover { background: #f8faff; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 10px 14px; vertical-align: top; line-height: 1.55; }
+  td:first-child { text-align: center; color: #9ca3af; font-weight: 700; font-size: 11px; }
+  .cat { font-weight: 700; font-size: 12px; color: #1f2937; }
+  .sec { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  ol { padding-left: 16px; }
+  ol li { margin-bottom: 3px; color: #374151; }
+  code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 3px; padding: 1px 5px; font-size: 11px; font-family: 'Cascadia Code', Consolas, monospace; color: #6366f1; }
+  /* Group row */
+  .group-row td { background: #f0f4ff; color: #3730a3; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 7px 14px; border-bottom: 2px solid #c7d2fe; }
+
+  /* Section badge colors */
+  .s-dyn    { background:#ede9fe; color:#5b21b6; }
+  .s-tbl    { background:#dbeafe; color:#1e40af; }
+  .s-frm    { background:#d1fae5; color:#065f46; }
+  .s-slow   { background:#fee2e2; color:#991b1b; }
+  .s-alrt   { background:#fef3c7; color:#92400e; }
+  .s-txt    { background:#e0f2fe; color:#0c4a6e; }
+  .s-ifr    { background:#fce7f3; color:#9d174d; }
+  .s-shd    { background:#f0fdf4; color:#14532d; }
+  .s-env    { background:#fff7ed; color:#9a3412; }
+  .s-off    { background:#f5f3ff; color:#4c1d95; }
+  .s-inv    { background:#ecfdf5; color:#065f46; }
+  .s-drop   { background:#fef9c3; color:#713f12; }
+  .s-auto   { background:#f0f9ff; color:#0369a1; }
+  .s-dark   { background:#1e293b; color:#e2e8f0; }
+  .s-fset   { background:#fdf4ff; color:#701a75; }
+  .s-ad     { background:#fff1f2; color:#881337; }
+  .s-zoom   { background:#f0fdfa; color:#134e4a; }
+  .s-wc     { background:#f8fafc; color:#334155; }
+  .s-bk     { background:#fffbeb; color:#78350f; }
+  .s-lazy   { background:#e0f2fe; color:#075985; }
+  .s-inf    { background:#f0fdf4; color:#166534; }
+  .s-acc    { background:#fdf2f8; color:#86198f; }
+  .s-tree   { background:#ecfdf5; color:#065f46; }
+  .s-hov    { background:#fefce8; color:#854d0e; }
+  .s-anim   { background:#fff7ed; color:#c2410c; }
+  .s-dd     { background:#ede9fe; color:#4f46e5; }
+  .s-sld    { background:#f0f4ff; color:#3730a3; }
+  .s-cvs    { background:#fef3c7; color:#92400e; }
+  .s-svg    { background:#ecfeff; color:#164e63; }
+  .s-chat   { background:#f0f9ff; color:#0369a1; }
+  .s-cap    { background:#fdf2f8; color:#9d174d; }
+  .s-kb     { background:#f5f3ff; color:#4c1d95; }
+  .s-dash   { background:#f0fdfa; color:#134e4a; }
+  .s-na     { background:#f1f5f9; color:#64748b; }
+</style>
+</head>
+<body>
+
+<h1>QA Pro Automation Playground — <span>Locator Break Reproduction Guide</span></h1>
+<div class="subtitle">157 categories · Manual steps mapped to live playground sections · URL: index.html</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot" style="background:#5b21b6"></div>Dynamic Elements</div>
+  <div class="legend-item"><div class="dot" style="background:#1e40af"></div>Tables</div>
+  <div class="legend-item"><div class="dot" style="background:#065f46"></div>Forms</div>
+  <div class="legend-item"><div class="dot" style="background:#991b1b"></div>Slow &amp; Disappearing</div>
+  <div class="legend-item"><div class="dot" style="background:#92400e"></div>Alerts</div>
+  <div class="legend-item"><div class="dot" style="background:#9d174d"></div>iFrame</div>
+  <div class="legend-item"><div class="dot" style="background:#14532d"></div>Shadow DOM</div>
+  <div class="legend-item"><div class="dot" style="background:#0369a1"></div>Autocomplete / Dropdown</div>
+  <div class="legend-item"><div class="dot" style="background:#4c1d95"></div>Keyboard Nav</div>
+  <div class="legend-item"><div class="dot" style="background:#134e4a"></div>Dashboard / Chat / Slider</div>
+  <div class="legend-item"><div class="dot" style="background:#0369a1"></div>Toast Messages</div>
+  <div class="legend-item"><div class="dot" style="background:#166534"></div>Lazy Load / Infinite Scroll</div>
+  <div class="legend-item"><div class="dot" style="background:#86198f"></div>Accordion / Tree / Hover</div>
+</div>
+
+<div class="wrap">
+<table>
+<thead>
+  <tr>
+    <th>#</th>
+    <th>Locator Break Category</th>
+    <th>Section</th>
+    <th>Manual Steps to Reproduce</th>
+  </tr>
+</thead>
+<tbody>
+
+<!-- ===== GROUP: LOCATOR TYPE CHANGES ===== -->
+<tr class="group-row"><td colspan="4">A — Locator Type Changes</td></tr>
+
+<tr><td>1</td>
+<td class="cat">Locator type change – tag</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> in sidebar.</li><li>Observe the <i>Dynamic Attributes</i> card — button has <code>&lt;button id="btn-click"&gt;</code>.</li><li>Wait 5–10 s (auto-mutation cycle) — the element tag may change to <code>&lt;div&gt;</code> or <code>&lt;span&gt;</code> with same text.</li><li>A locator using <code>//button[@id='btn-click']</code> or <code>button#btn-click</code> now fails.</li></ol></td></tr>
+
+<tr><td>2</td>
+<td class="cat">Locator type change – id</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>In the <i>Dynamic Attributes</i> card, observe <code>id="btn-click"</code>.</li><li>Wait for auto-mutation or click <b>Reset Playground</b> and watch — the ID rotates (e.g., <code>btn-click-1</code>, <code>btn-click-a3f</code>).</li><li>Any locator using <code>#btn-click</code> or <code>By.id("btn-click")</code> breaks.</li></ol></td></tr>
+
+<tr><td>3</td>
+<td class="cat">Locator type change – class</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Button starts with <code>class="btn dyn-class"</code>.</li><li>Wait 5–10 s — the class mutates (e.g., <code>dyn-class-a4b2</code>).</li><li>A locator like <code>.dyn-class</code> or <code>By.className("dyn-class")</code> now returns no element.</li></ol></td></tr>
+
+<tr><td>4</td>
+<td class="cat">Locator type change – dynamic attribute</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Open browser DevTools → inspect <code>#btn-click</code>.</li><li>Wait 8 s — <code>data-reactid</code>, <code>data-v-XXXXXX</code>, and <code>__reactFiber$XXXXXXXX</code> all change value.</li><li>A locator using <code>[@data-reactid='0.1.2']</code> or <code>[data-v-abc123]</code> breaks on next cycle.</li></ol></td></tr>
+
+<tr><td>5</td>
+<td class="cat">Locator type change – name</td>
+<td><span class="sec s-frm">Forms</span></td>
+<td><ol><li>Click <b>Forms</b>.</li><li>In Stage 1, locate <code>&lt;input id="name"&gt;</code>, <code>&lt;input id="phone"&gt;</code> etc.</li><li>These inputs have no <code>name</code> attribute — a locator using <code>By.name("name")</code> fails immediately.</li><li>Alternatively, navigate to Stage 2 Preferences subtab — <code>select#language</code> has no <code>name</code> attr.</li></ol></td></tr>
+
+<tr><td>6</td>
+<td class="cat">Locator type change – regex/text contains</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b>.</li><li>Select <b>Partial Dynamic Text</b> from the dropdown — the output box shows a sentence where only part of the text changes.</li><li>A locator using <code>contains(text(),'fixed-prefix')</code> passes only when prefix matches; if prefix rotates, it breaks.</li><li>Switch to <b>Full Replacement</b> mode — entire text changes every few seconds.</li></ol></td></tr>
+
+<tr><td>7</td>
+<td class="cat">Locator type change – css</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Note the CSS selector <code>button.btn.dyn-class[data-testid="stableBtn"]</code> at page load.</li><li>Wait 8 s — class changes to a generated hash; the CSS selector no longer matches.</li><li>Also click <b>Dynamic Tables → ⚙ → uncheck a column</b>: <code>td:nth-child(3)</code> selectors shift.</li></ol></td></tr>
+
+<tr><td>8</td>
+<td class="cat">Locator type change – xpath</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Record XPath: <code>//div[@id='lab-attributes']/button</code>.</li><li>Click <b>Reset Playground</b> — the inner structure rebuilds; absolute XPath may shift by one node.</li><li>Also try <b>Dynamic Tables → Add Record</b>, then delete a row: <code>//table[@id='table2']/tbody/tr[2]/td[1]</code> now points to a different record.</li></ol></td></tr>
+
+<tr><td>9</td>
+<td class="cat">Locator type change – linkText (Selenium)</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b>.</li><li>Select <b>Full Replacement</b> mode — anchor text in the output changes each cycle.</li><li>A Selenium <code>By.linkText("Visit our Docs")</code> locator breaks when text rotates to a new phrase.</li></ol></td></tr>
+
+<tr><td>10</td>
+<td class="cat">Locator type change – partialLinkText (Selenium)</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b>.</li><li>Select <b>Partial Dynamic Text</b> — prefix is stable, suffix changes.</li><li>A <code>By.partialLinkText("Visit")</code> locator passes initially.</li><li>Switch to <b>Special Characters</b> mode — partial text now includes symbols that invalidate the match.</li></ol></td></tr>
+
+<tr><td>11</td>
+<td class="cat">Locator type change – getByRole (Playwright)</td>
+<td><span class="sec s-wc">Web Components</span></td>
+<td><ol><li>Click <b>Custom Web Components</b>.</li><li>Inspect <code>&lt;qa-button&gt;</code> — its shadow DOM renders an inner button; the ARIA role may differ from a native <code>&lt;button&gt;</code>.</li><li><code>getByRole('button', {name:'Click Me'})</code> fails if the shadow root doesn't expose the role to Playwright's accessibility tree.</li></ol></td></tr>
+
+<tr><td>12</td>
+<td class="cat">Locator type change – getByText (Playwright)</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b>.</li><li>Select <b>Full Replacement</b> — text in <code>#dynamicOutput</code> replaces every few seconds.</li><li><code>getByText('Loading dashboard...')</code> only matches during one cycle; next cycle the text is different.</li></ol></td></tr>
+
+<tr><td>13</td>
+<td class="cat">Locator type change – getByLabel (Playwright)</td>
+<td><span class="sec s-frm">Forms</span></td>
+<td><ol><li>Click <b>Forms</b> → Stage 1.</li><li>Labels like <b>Full Name</b>, <b>Phone</b>, <b>Date of Birth</b> are present.</li><li>Click <b>Next</b> to Stage 2 → click <b>Preferences</b> subtab — the label text changes context.</li><li><code>getByLabel('Full Name')</code> on Stage 2 finds nothing; if the label changes locale (Environment section), it also breaks.</li></ol></td></tr>
+
+<tr><td>14</td>
+<td class="cat">Locator type change – getByPlaceholder (Playwright)</td>
+<td><span class="sec s-auto">Autocomplete</span></td>
+<td><ol><li>Click <b>Autocomplete</b>.</li><li>Observe <code>&lt;input placeholder="Type a country name..."&gt;</code>.</li><li>Click <b>Environment</b> → change locale to a non-English option — the placeholder text may shift.</li><li><code>getByPlaceholder('Type a country name...')</code> no longer matches after locale change.</li></ol></td></tr>
+
+<tr><td>15</td>
+<td class="cat">Locator type change – getByAltText (Playwright)</td>
+<td><span class="sec s-lazy">Lazy Load</span></td>
+<td><ol><li>Click <b>Lazy Load Images</b>.</li><li>Scroll down inside the grid — images load with <code>alt="Mountain Vista"</code> etc.</li><li>Trigger a section reset (navigate away and back) — alt text is regenerated from the PICS array; if order changes, <code>getByAltText('Mountain Vista')</code> targets the wrong card.</li></ol></td></tr>
+
+<tr><td>16</td>
+<td class="cat">Locator type change – getByTitle (Playwright)</td>
+<td><span class="sec s-fset">Frameset</span></td>
+<td><ol><li>Click <b>Frameset / Multi-Frame</b>.</li><li>The embedded <code>&lt;iframe title="Frameset Playground"&gt;</code> is found by <code>getByTitle('Frameset Playground')</code>.</li><li>Click <b>Spawn New Frame</b> in the iFrame section — a new frame is created without a title; the original title locator now matches the wrong frame.</li></ol></td></tr>
+
+<tr><td>17</td>
+<td class="cat">Locator type change – getByTestId (Playwright)</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Button starts with <code>data-testid="stableBtn"</code>.</li><li>Wait 8 s for auto-mutation — the <code>data-testid</code> rotates to a generated value like <code>stableBtn-4f2a</code>.</li><li><code>getByTestId('stableBtn')</code> returns no match.</li></ol></td></tr>
+
+<tr><td>18</td>
+<td class="cat">Locator type change – frameLocator</td>
+<td><span class="sec s-ifr">iFrame</span></td>
+<td><ol><li>Click <b>iFrame</b>.</li><li>The active frame is <code>id="frame0"</code>. Note the Frame ID shown in the status box.</li><li>Click <b>Spawn New Frame</b> — a second iframe is added with a new incremental ID (<code>frame1</code>).</li><li>Click <b>Reload Frame</b> — the reload counter increments; if frame ID is rebuilt, <code>frameLocator('#frame0')</code> may point to a stale handle.</li></ol></td></tr>
+
+<tr><td>19</td>
+<td class="cat">Locator type change – shadow DOM</td>
+<td><span class="sec s-shd">Shadow DOM</span></td>
+<td><ol><li>Click <b>Shadow DOM</b>.</li><li>Select mode <b>Open</b> — a shadow root is attached to <code>#shadow-host</code>.</li><li>Switch to <b>Nested</b> mode — a shadow inside a shadow is created.</li><li>Locators using standard <code>driver.findElement(By.css('qa-input input'))</code> fail without shadow-piercing syntax.</li></ol></td></tr>
+
+<tr><td>20</td>
+<td class="cat">Locator type change – nth/first/last</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Note the first row's data.</li><li>Click <b>+ Add Record</b>, fill the modal, click <b>Save</b> — new row appears at top or bottom.</li><li><code>tr:first-child</code>, <code>tr:last-child</code>, or <code>tr:nth-child(2)</code> now points to a different record.</li></ol></td></tr>
+
+<tr><td>21</td>
+<td class="cat">Locator type change – relative locator</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Locate the <i>Catch Me If You Can</i> card — the button randomly repositions.</li><li>A relative locator like <i>"button near label X"</i> breaks when the button moves to a different card.</li></ol></td></tr>
+
+<tr><td>22</td>
+<td class="cat">Locator type change – parent-child</td>
+<td><span class="sec s-acc">Accordion</span></td>
+<td><ol><li>Click <b>Accordion</b>.</li><li>All but the first <code>.acc-body</code> are DOM-removed (not hidden — physically absent).</li><li>A locator like <code>.acc-item &gt; .acc-body</code> returns <code>NoSuchElementException</code> for collapsed items.</li><li>Click a header to expand — the body is re-inserted; click another header — the first body is removed again.</li></ol></td></tr>
+
+<tr><td>23</td>
+<td class="cat">Locator type change – ancestor-descendant</td>
+<td><span class="sec s-tree">Tree Menu</span></td>
+<td><ol><li>Click <b>Tree Menu</b>.</li><li>All sub-lists (<code>ul</code>) are DOM-removed on init; only toggles are visible.</li><li>An XPath like <code>//li[.//span='Selenium']//ul/li</code> returns nothing (ul is detached).</li><li>Click the toggle next to <b>Selenium</b> to expand it — the <code>ul</code> re-enters DOM and descendant locators work again.</li></ol></td></tr>
+
+<tr><td>24</td>
+<td class="cat">Locator type change – sibling locator</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Click <b>⚙ (gear icon)</b> → uncheck a column (e.g., <b>Date</b>).</li><li>The column is removed from DOM — <code>following-sibling::td[2]</code> now refers to a different column.</li><li>Re-check the column — column re-inserts but may be at a different position in the sibling chain.</li></ol></td></tr>
+
+<tr><td>25</td>
+<td class="cat">Locator type change – multi-attribute</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Button starts with <code>id="btn-click" class="btn dyn-class" data-testid="stableBtn"</code>.</li><li>Wait 8 s — all three attributes mutate simultaneously.</li><li>An XPath like <code>//button[@id='btn-click' and @class='btn dyn-class' and @data-testid='stableBtn']</code> fails.</li></ol></td></tr>
+
+<tr><td>26</td>
+<td class="cat">Locator type change – indexed locator</td>
+<td><span class="sec s-inf">Infinite Scroll</span></td>
+<td><ol><li>Click <b>Infinite Scroll</b>.</li><li>Scroll to the bottom of the table — a new batch of 15 rows appends.</li><li>A locator using <code>tr[data-row-id='5']</code> or row index 5 in the tbody now points to a different logical position after more rows load.</li></ol></td></tr>
+
+<!-- ===== GROUP: TEXT & FORMATTING ===== -->
+<tr class="group-row"><td colspan="4">B — Text, Formatting &amp; Attribute Changes</td></tr>
+
+<tr><td>27</td>
+<td class="cat">Whitespace/text formatting changes</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b>.</li><li>Select <b>Whitespace Chaos</b> from the dropdown.</li><li>The output text gains leading/trailing spaces and internal double spaces.</li><li>A locator using <code>normalize-space(.)='Expected Text'</code> is required; a plain <code>text()='Expected Text'</code> breaks.</li></ol></td></tr>
+
+<tr><td>28</td>
+<td class="cat">Changing DOM structure</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → click <b>Reset Playground</b>.</li><li>The entire lab section rebuilds — card order, IDs, and nesting depth may shift.</li><li>Any absolute XPath recorded before reset now fails.</li></ol></td></tr>
+
+<tr><td>29</td>
+<td class="cat">Dynamic class name</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Inspect <code>#btn-click</code> — class is <code>btn dyn-class</code>.</li><li>Wait 8 s — class becomes <code>btn dyn-class-a4b2c1</code> (hash appended).</li><li>CSS selector <code>.dyn-class</code> no longer matches; also fails for Java/Python class-based locators.</li></ol></td></tr>
+
+<tr><td>30</td>
+<td class="cat">Wrong Syntax</td>
+<td><span class="sec s-na">Any Section</span></td>
+<td><ol><li>Attempt to locate any element using an invalid XPath such as <code>//button[id='btn-click']</code> (missing <code>@</code> before <code>id</code>).</li><li>Or use CSS selector <code>button..dyn-class</code> (double dot).</li><li>Driver raises <code>InvalidSelectorException</code> immediately regardless of element presence.</li><li>Use <b>Dynamic Elements</b> as a controlled target to test your selector syntax.</li></ol></td></tr>
+
+<tr><td>31</td>
+<td class="cat">Missing attributes</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Wait 8 s for mutation — the <code>data-testid</code> attribute is removed entirely from <code>#btn-click</code>.</li><li>A locator <code>[data-testid]</code> or <code>[@data-testid='stableBtn']</code> throws <code>NoSuchElementException</code>.</li></ol></td></tr>
+
+<tr><td>32</td>
+<td class="cat">Dynamic ID</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Inspect button in <i>Dynamic Attributes</i> card — initial ID: <code>btn-click</code>.</li><li>Wait 8 s — ID changes to a timestamped/random variant (e.g., <code>btn-1720000000</code>).</li><li><code>By.id("btn-click")</code> returns nothing.</li></ol></td></tr>
+
+<tr><td>33</td>
+<td class="cat">Dynamic text</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b>.</li><li>Select <b>Full Replacement</b> — the text in <code>#dynamicOutput</code> changes every 2 s.</li><li>A locator using <code>getByText('Loading...')</code> or <code>contains(text(),'Loading')</code> only intermittently matches.</li></ol></td></tr>
+
+<tr><td>34</td>
+<td class="cat">Dynamic placeholder</td>
+<td><span class="sec s-auto">Autocomplete</span></td>
+<td><ol><li>Click <b>Autocomplete</b>.</li><li>Input shows <code>placeholder="Type a country name..."</code>.</li><li>Navigate to <b>Environment</b> → change locale → return to Autocomplete — placeholder may change language.</li><li><code>getByPlaceholder('Type a country name...')</code> breaks after locale change.</li></ol></td></tr>
+
+<tr><td>35</td>
+<td class="cat">Randomized attributes</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Open DevTools on <code>#btn-click</code> — notice <code>data-v-XXXXXX</code>, <code>__reactFiber$XXXXXXXX</code>, <code>data-component-id</code> all random.</li><li>These regenerate every 8 s — any locator using exact values of these attrs will break.</li></ol></td></tr>
+
+<tr><td>36</td>
+<td class="cat">Auto-generated attributes</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Open DevTools — <code>data-reactid="0.3.42"</code> is auto-generated by the framework simulator.</li><li>Record the value. Wait 8 s — value changes to <code>0.7.15</code>.</li><li>Any locator binding to the exact generated value will immediately become stale.</li></ol></td></tr>
+
+<tr><td>37</td>
+<td class="cat">Case-sensitive text changes</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b>.</li><li>Select <b>Case Chaos</b> — text alternates between UPPERCASE, lowercase, and Mixed Case.</li><li>A locator using exact <code>text()='click here'</code> fails when text is rendered as <code>CLICK HERE</code>.</li></ol></td></tr>
+
+<tr><td>38</td>
+<td class="cat">Special characters in text</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b>.</li><li>Select <b>Special Characters</b> mode — output contains <code>&amp;</code>, <code>&lt;&gt;</code>, <code>"'</code>, emojis, or unicode characters.</li><li>XPath using <code>text()='Price &lt; $10'</code> fails due to unescaped special chars; CSS-by-text locators also fail.</li></ol></td></tr>
+
+<!-- ===== GROUP: DOM & STRUCTURE ===== -->
+<tr class="group-row"><td colspan="4">C — DOM Structure &amp; Hierarchy</td></tr>
+
+<tr><td>39</td>
+<td class="cat">Deep DOM hierarchy</td>
+<td><span class="sec s-shd">Shadow DOM</span></td>
+<td><ol><li>Click <b>Shadow DOM</b> → select <b>Nested</b> mode.</li><li>A shadow host contains a shadow root, which contains another custom element with its own shadow root.</li><li>Standard <code>driver.findElement(By.css('input'))</code> finds nothing — requires JS executor to pierce each shadow boundary.</li></ol></td></tr>
+
+<tr><td>40</td>
+<td class="cat">Sibling dependency</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Click <b>⚙</b> → uncheck the <b>Status</b> column — the TD disappears from DOM.</li><li>A locator like <code>td + td + td</code> (adjacent sibling chain) now maps to the wrong cell.</li><li>Re-check Status — the column re-inserts; sibling positions shift again.</li></ol></td></tr>
+
+<tr><td>41</td>
+<td class="cat">Element index changes</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Note row order. Click a column header to sort — rows reorder.</li><li>Use <b>Global Search</b> to filter — visible row indices change.</li><li><code>tr:nth-child(3)</code> or <code>tbody/tr[3]</code> now points to a different record.</li></ol></td></tr>
+
+<tr><td>42</td>
+<td class="cat">Nested elements</td>
+<td><span class="sec s-ifr">iFrame</span></td>
+<td><ol><li>Click <b>iFrame</b>.</li><li>The page contains <code>iframe#frame0</code> which loads <code>frames/level1.html</code>, which embeds <code>frames/level2.html</code>.</li><li>To access a button in Level 2, automation must switch context twice: <code>driver.switchTo().frame("frame0")</code> then <code>driver.switchTo().frame(level2_iframe)</code>.</li></ol></td></tr>
+
+<tr><td>43</td>
+<td class="cat">Parent-child dependency</td>
+<td><span class="sec s-acc">Accordion</span></td>
+<td><ol><li>Click <b>Accordion</b>.</li><li>The <code>.acc-body</code> of a collapsed item is physically removed from DOM (not hidden).</li><li><code>driver.findElement(By.css('.acc-item:nth-child(2) .acc-body'))</code> throws <code>NoSuchElementException</code>.</li><li>Click the item's header to expand — body re-enters DOM and becomes locatable.</li></ol></td></tr>
+
+<tr><td>44</td>
+<td class="cat">Iframe</td>
+<td><span class="sec s-ifr">iFrame</span></td>
+<td><ol><li>Click <b>iFrame</b>.</li><li>Elements inside <code>#frame0</code> (e.g., the login form in Level 1) cannot be reached without <code>driver.switchTo().frame("frame0")</code>.</li><li>Without frame switch, any locator for inner elements returns <code>NoSuchElementException</code>.</li></ol></td></tr>
+
+<tr><td>45</td>
+<td class="cat">Nested iframe</td>
+<td><span class="sec s-ifr">iFrame</span></td>
+<td><ol><li>Click <b>iFrame</b>.</li><li>Level 1 frame embeds a Level 2 iframe, which embeds a Level 3 iframe.</li><li>To reach Level 3 elements, switch frame context three times; missing one switch yields <code>NoSuchElementException</code> in the wrong frame.</li></ol></td></tr>
+
+<tr><td>46</td>
+<td class="cat">Shadow DOM</td>
+<td><span class="sec s-shd">Shadow DOM</span></td>
+<td><ol><li>Click <b>Shadow DOM</b> → select <b>Open</b> mode.</li><li>The <code>#shadow-host</code> element gets a shadow root containing inputs and buttons.</li><li><code>driver.findElement(By.css('#shadow-host input'))</code> fails — must use JS executor: <code>driver.executeScript("return arguments[0].shadowRoot.querySelector('input')", host)</code>.</li></ol></td></tr>
+
+<tr><td>47</td>
+<td class="cat">Nested shadow DOM</td>
+<td><span class="sec s-shd">Shadow DOM</span></td>
+<td><ol><li>Click <b>Shadow DOM</b> → select <b>Nested</b> mode.</li><li>Inner custom element has its own shadow root inside the outer shadow root.</li><li>Must pierce two shadow boundaries via chained JS executor calls; any single-level pierce fails to find the deepest elements.</li></ol></td></tr>
+
+<tr><td>48</td>
+<td class="cat">Duplicate locators</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → find the <i>Duplicate Locator Trap</i> card.</li><li>The <code>#duplicate-box</code> contains multiple <code>&lt;button class="dup"&gt;</code> elements.</li><li>A CSS locator <code>.dup</code> returns a list; clicking index [0] may be wrong if the list order changes.</li><li>Also, a second hidden table (<code>#table1</code>) in the Tables section duplicates structure with the active table.</li></ol></td></tr>
+
+<tr><td>49</td>
+<td class="cat">Ambiguous locators</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>Duplicate Locator Trap</i> card.</li><li>All <code>&lt;button class="dup"&gt;Duplicate&lt;/button&gt;</code> buttons have identical class, text, and no unique ID.</li><li>Any locator resolves to multiple elements — automation must use index or additional context, which itself may be unstable.</li></ol></td></tr>
+
+<tr><td>50</td>
+<td class="cat">Elements with same text</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>Duplicate Locator Trap</i>.</li><li>Multiple buttons read "Duplicate" — <code>getByText('Duplicate')</code> or <code>By.xpath("//button[text()='Duplicate']")</code> matches all of them.</li><li>Playwright throws strict-mode error; Selenium picks the first silently.</li></ol></td></tr>
+
+<tr><td>51</td>
+<td class="cat">Elements with same attributes</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>Duplicate Locator Trap</i>.</li><li>All <code>.dup</code> buttons share identical <code>class</code> attribute with no other distinguishing attribute.</li><li><code>[class='dup']</code> returns multiple nodes; attempting to click raises ambiguity or clicks the wrong button.</li></ol></td></tr>
+
+<!-- ===== GROUP: VISIBILITY & STATE ===== -->
+<tr class="group-row"><td colspan="4">D — Visibility, State &amp; Timing</td></tr>
+
+<tr><td>52</td>
+<td class="cat">Element disappears and reappears</td>
+<td><span class="sec s-slow">Slow &amp; Disappearing</span></td>
+<td><ol><li>Click <b>Slow &amp; Disappearing Elements</b>.</li><li>Click <b>Trigger Process</b> — the <code>#statusBox</code> appears, then disappears after a few seconds.</li><li>A locator timed to catch the element while it is visible fails if it fires before the element appears or after it disappears.</li></ol></td></tr>
+
+<tr><td>53</td>
+<td class="cat">Stale element reference</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>DOM Re-Render</i> card.</li><li>Cache a reference to the <code>#rerender-btn</code> button in your script.</li><li>The button is periodically removed from DOM and re-inserted (rerender) — the cached reference is now stale.</li><li>Attempting to interact with the stale reference raises <code>StaleElementReferenceException</code>.</li></ol></td></tr>
+
+<tr><td>54</td>
+<td class="cat">Delayed rendering</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>Delayed Rendering</i> card.</li><li>The <code>#delayed-btn</code> has <code>class="hidden"</code> on page load — it appears after a 3–5 s delay.</li><li>An automation script that immediately checks for the button before the delay expires gets <code>ElementNotVisibleException</code> or <code>NoSuchElementException</code>.</li></ol></td></tr>
+
+<tr><td>55</td>
+<td class="cat">Lazy loaded elements</td>
+<td><span class="sec s-lazy">Lazy Load</span></td>
+<td><ol><li>Click <b>Lazy Load Images</b>.</li><li>The 12 image cards are rendered but their <code>&lt;img&gt;</code> tags have <code>data-ll-src</code> (not <code>src</code>) — images only start loading when scrolled into view.</li><li>A locator targeting <code>img[src]</code> finds nothing until the card enters the viewport.</li><li>Scroll down inside the grid — after 4–5 s the <code>src</code> is set and the image appears.</li></ol></td></tr>
+
+<tr><td>56</td>
+<td class="cat">Infinite scrolling elements</td>
+<td><span class="sec s-inf">Infinite Scroll</span></td>
+<td><ol><li>Click <b>Infinite Scroll</b>.</li><li>Table loads first 15 rows. Scroll to the bottom — another 15 rows append after ~700 ms.</li><li>A locator for <code>tr[data-row-id='20']</code> returns nothing until that batch loads.</li><li>After second scroll, row 20 exists; before that point it does not.</li></ol></td></tr>
+
+<tr><td>57</td>
+<td class="cat">Hidden elements</td>
+<td><span class="sec s-inv">Invisible but Present</span></td>
+<td><ol><li>Click <b>Invisible but Present</b>.</li><li>Three elements are present in DOM but invisible: one has <code>opacity:0</code>, one has <code>visibility:hidden</code>, one has <code>color:transparent</code>.</li><li>Selenium finds them via <code>findElement</code> but attempting to click raises <code>ElementNotInteractableException</code>.</li><li>Click <b>Make Visible</b> — they become interactable.</li></ol></td></tr>
+
+<tr><td>58</td>
+<td class="cat">Disabled elements</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>Async Enable Button</i> card.</li><li><code>#async-btn</code> is <code>disabled</code> on page load.</li><li>Attempting to click it immediately raises <code>ElementNotInteractableException</code>.</li><li>Wait ~3 s for the async enable — the <code>disabled</code> attribute is removed and the button becomes clickable.</li></ol></td></tr>
+
+<tr><td>59</td>
+<td class="cat">Readonly elements</td>
+<td><span class="sec s-frm">Forms</span></td>
+<td><ol><li>Click <b>Forms</b> → proceed to <b>Stage 4 (Review)</b> by clicking Next three times.</li><li>The review data in <code>#reviewData</code> is read-only text — no input fields to interact with.</li><li>If your automation tries to type into the review summary, it finds no editable input (<code>ElementNotInteractableException</code>).</li></ol></td></tr>
+
+<tr><td>60</td>
+<td class="cat">Collapsed elements</td>
+<td><span class="sec s-acc">Accordion</span></td>
+<td><ol><li>Click <b>Accordion</b>.</li><li>Items 2–4 start collapsed — their <code>.acc-body</code> is physically removed from DOM.</li><li>A locator for <code>.acc-item:nth-child(3) .acc-body</code> raises <code>NoSuchElementException</code>.</li><li>Click item 3's header to expand — body re-enters DOM and becomes locatable.</li></ol></td></tr>
+
+<tr><td>61</td>
+<td class="cat">Expanded elements</td>
+<td><span class="sec s-tree">Tree Menu</span></td>
+<td><ol><li>Click <b>Tree Menu</b>.</li><li>All branches start collapsed (DOM-removed). Click the toggle next to <b>Selenium</b> — child <code>&lt;ul&gt;</code> is inserted with leaf items.</li><li>A locator for <code>.tree-leaf</code> inside the expanded <code>li</code> now finds 3 results.</li><li>Click the toggle again — leaves are removed; locators return 0 results.</li></ol></td></tr>
+
+<tr><td>62</td>
+<td class="cat">Overlapping elements</td>
+<td><span class="sec s-ad">Ad / Banner Overlay</span></td>
+<td><ol><li>Click <b>Ad / Banner Overlay</b>.</li><li>Two target buttons (<code>#ad-submit-btn</code>, <code>#ad-checkout-btn</code>) are visible.</li><li>Click <b>Show Ad</b> — the <code>#adBanner</code> overlay appears covering both buttons.</li><li>Automation attempting to click <code>#ad-submit-btn</code> raises <code>ElementClickInterceptedException</code>.</li><li>Click <b>Dismiss Ad</b> to restore interactability.</li></ol></td></tr>
+
+<tr><td>63</td>
+<td class="cat">Offscreen elements</td>
+<td><span class="sec s-off">Offscreen Elements</span></td>
+<td><ol><li>Click <b>Offscreen Elements</b>.</li><li>Inside the scrollable <code>#offscreen-container</code>, a target element is positioned far below the visible area.</li><li>Automation that checks visibility returns false; clicking without scrolling raises <code>MoveTargetOutOfBoundsException</code>.</li><li>Click <b>Scroll to Target</b> to bring it into view.</li></ol></td></tr>
+
+<tr><td>64</td>
+<td class="cat">Invisible but present elements</td>
+<td><span class="sec s-inv">Invisible but Present</span></td>
+<td><ol><li>Click <b>Invisible but Present</b>.</li><li>The button with <code>opacity:0</code> is in DOM and technically "present" — <code>driver.findElement</code> succeeds.</li><li>But <code>isDisplayed()</code> returns <code>false</code> / <code>element.isVisible()</code> is false in Playwright.</li><li>Test suites checking visibility before acting will skip the element even though it exists.</li></ol></td></tr>
+
+<!-- ===== GROUP: ASYNC & TIMING ===== -->
+<tr class="group-row"><td colspan="4">E — Async, Timing &amp; Loading</td></tr>
+
+<tr><td>65</td>
+<td class="cat">Animation/transition timing</td>
+<td><span class="sec s-anim">CSS Animations</span></td>
+<td><ol><li>Click <b>CSS Animations</b>.</li><li>Click <b>Trigger Animation</b> — a panel slides in over 1.2 s; the action button inside is <code>disabled</code> during animation.</li><li>Automation clicking the button immediately gets <code>ElementNotInteractableException</code>.</li><li>Must wait for <code>animationend</code> event or poll until <code>disabled</code> is removed (~1.2 s).</li></ol></td></tr>
+
+<tr><td>66</td>
+<td class="cat">Hover-dependent elements</td>
+<td><span class="sec s-hov">Hover Menu</span></td>
+<td><ol><li>Click <b>Hover Menu</b>.</li><li>The submenus (<code>.hm-sub</code>) are DOM-removed on init.</li><li>Attempting to locate a submenu item without first hovering the parent raises <code>NoSuchElementException</code>.</li><li>Hover over a top-level menu item — submenu is inserted into DOM with configurable delay (0–600 ms per item).</li></ol></td></tr>
+
+<tr><td>67</td>
+<td class="cat">Focus-dependent elements</td>
+<td><span class="sec s-kb">Keyboard Nav</span></td>
+<td><ol><li>Click <b>Keyboard Nav</b>.</li><li>The <i>secret menu</i> (<code>#kb-secret-menu</code>) is DOM-removed on init and only re-inserted when the <code>#kb-focus-trap</code> gains keyboard focus.</li><li>The modal (<code>#kb-modal</code>) is DOM-removed and only inserted when <code>Enter</code> is pressed on <code>#kb-enter-card</code>.</li><li>Trying to locate these elements without triggering the keyboard event yields <code>NoSuchElementException</code>.</li></ol></td></tr>
+
+<tr><td>68</td>
+<td class="cat">Elements requiring scroll</td>
+<td><span class="sec s-off">Offscreen Elements</span></td>
+<td><ol><li>Click <b>Offscreen Elements</b>.</li><li>The target element is positioned well below the visible scroll area inside <code>#offscreen-container</code>.</li><li>Without scrolling the container, the element is outside the intersection observer's viewport; <code>isInViewport</code> returns false.</li><li>Scroll the container or use <code>scrollIntoView()</code> before interacting.</li></ol></td></tr>
+
+<tr><td>69</td>
+<td class="cat">Sticky/floating elements</td>
+<td><span class="sec s-off">Offscreen Elements</span></td>
+<td><ol><li>Click <b>Offscreen Elements</b>.</li><li>The section header or a sticky button overlaps the target element at certain scroll positions.</li><li>Automation that clicks coordinates for the target may hit the sticky overlay instead, getting <code>ElementClickInterceptedException</code>.</li></ol></td></tr>
+
+<tr><td>70</td>
+<td class="cat">Slow network conditions</td>
+<td><span class="sec s-slow">Slow &amp; Disappearing</span></td>
+<td><ol><li>Click <b>Slow &amp; Disappearing Elements</b>.</li><li>Click <b>Trigger Process</b> — a progress bar increments over ~5 s before <code>#dataCard</code> appears.</li><li>Automation without an explicit wait will attempt to interact with <code>#dataCard</code> before it exists.</li><li>The spinner (<code>#spinnerOverlay</code>) is visible during the wait; automation must wait for it to disappear.</li></ol></td></tr>
+
+<tr><td>71</td>
+<td class="cat">High latency rendering</td>
+<td><span class="sec s-slow">Slow &amp; Disappearing</span></td>
+<td><ol><li>Click <b>Slow &amp; Disappearing Elements</b>.</li><li>Click <b>Trigger Process</b> — the <code>#spinnerStatus</code> text cycles through stages ("Triggered…" → "Loading…" → "Processing…" → "Done").</li><li>Each stage takes 1–2 s. Automation asserting the final text too early captures an intermediate status.</li></ol></td></tr>
+
+<tr><td>72</td>
+<td class="cat">Race condition timing issues</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>Flaky Visibility</i> card.</li><li><code>#toggle-btn</code> alternates between visible and hidden on a random interval.</li><li>Automation may pass or fail depending on which phase it catches — classic race condition.</li><li>Also reproducible in <i>Delayed Rendering</i>: script and element reach ready state at unpredictable order.</li></ol></td></tr>
+
+<tr><td>73</td>
+<td class="cat">Captcha/Bot-detection scripts</td>
+<td><span class="sec s-cap">CAPTCHA Lab</span></td>
+<td><ol><li>Click <b>CAPTCHA Lab</b>.</li><li>A 3×3 image grid is generated — you must select all tiles matching the displayed target category.</li><li>After each verify attempt the grid regenerates with new random tiles and a new target.</li><li>Automation cannot use static locators for tile content; must read <code>data-cat</code> attributes dynamically.</li></ol></td></tr>
+
+<tr><td>74</td>
+<td class="cat">DOM refresh after action</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Click <b>+ Add Record</b> → fill form → Save — a new row is inserted into <code>#table2 tbody</code>.</li><li>Any previously cached row references are potentially stale after the DOM refresh.</li><li>Search/filter the table — rows are re-rendered; indices shift.</li></ol></td></tr>
+
+<tr><td>75</td>
+<td class="cat">Page refresh impact</td>
+<td><span class="sec s-ifr">iFrame</span></td>
+<td><ol><li>Click <b>iFrame</b>.</li><li>Click <b>Reload Frame</b> — the iframe's <code>src</code> is reset, causing a full reload of the embedded page.</li><li>Any element references captured inside the frame before reload are now stale.</li><li>The Reload Counter increments — the frame ID also changes; frame-context locators that use the old ID break.</li></ol></td></tr>
+
+<!-- ===== GROUP: ASYNC & LIVE DATA ===== -->
+<tr class="group-row"><td colspan="4">F — Live Data &amp; Async Updates</td></tr>
+
+<tr><td>76</td>
+<td class="cat">Live updating dashboards</td>
+<td><span class="sec s-dash">Live Dashboard</span></td>
+<td><ol><li>Click <b>Live Dashboard</b>.</li><li>Six KPI cards update on independent intervals (1.5 s – 7 s): Revenue, Users, Orders, Errors, Latency, Uptime.</li><li>Automation asserting an exact value (e.g., <code>assert kpi == "$84,200"</code>) will fail as the value changes within seconds.</li><li>Values flash green/red on change — colour assertions are equally fragile.</li></ol></td></tr>
+
+<tr><td>77</td>
+<td class="cat">Realtime notifications</td>
+<td><span class="sec s-dash">Live Dashboard</span></td>
+<td><ol><li>Click <b>Live Dashboard</b>.</li><li>After 4 s, the first notification fires — <code>#notif-badge</code> shows a count badge on the bell icon.</li><li>Click the bell — <code>#notif-panel</code> appears with notification items; badge resets to 0.</li><li>A new notification fires every 9–14 s — badge count increments again. The locator <code>#notif-badge</code> is only visible when count &gt; 0.</li></ol></td></tr>
+
+<tr><td>78</td>
+<td class="cat">Chat/message streams</td>
+<td><span class="sec s-chat">Chat Stream</span></td>
+<td><ol><li>Click <b>Chat Stream</b>.</li><li>Type a message in <code>#chat-input</code> and click <b>Send</b>.</li><li>A bot reply appears as a series of typing dots first, then the full message arrives word-by-word.</li><li>Automation must wait for a <code>data-role="bot"</code> element whose text stops changing (stable for 500 ms) rather than checking immediately after sending.</li></ol></td></tr>
+
+<tr><td>79</td>
+<td class="cat">Data loaded from APIs</td>
+<td><span class="sec s-drop">Dynamic Dropdown</span></td>
+<td><ol><li>Click <b>Dynamic Dropdown</b>.</li><li>Click <b>Fetch Countries</b> — after ~1 s, a <code>&lt;select&gt;</code> is populated with country options fetched from a simulated API.</li><li>Before the data loads, the <code>&lt;select&gt;</code> is empty or absent — locators for specific options fail.</li><li>Must wait for the loader/spinner to disappear before asserting option count.</li></ol></td></tr>
+
+<tr><td>80</td>
+<td class="cat">Dropdown with dynamic options</td>
+<td><span class="sec s-drop">Dynamic Dropdown</span></td>
+<td><ol><li>Click <b>Dynamic Dropdown</b>.</li><li>Click <b>Fetch Countries</b> — countries populate over ~1 s.</li><li>Each fetch may return a different subset or order of countries (simulated randomness).</li><li><code>select option[value='Canada']</code> may or may not exist depending on the fetch result.</li></ol></td></tr>
+
+<tr><td>81</td>
+<td class="cat">Autocomplete suggestions</td>
+<td><span class="sec s-auto">Autocomplete</span></td>
+<td><ol><li>Click <b>Autocomplete</b>.</li><li>Type <b>"Bra"</b> into <code>#acInput</code> — a suggestion dropdown (<code>#acList</code>) appears with matching countries.</li><li>The <code>#acList</code> is <code>display:none</code> by default — locating its children before typing raises visibility exceptions.</li><li>Clear the input — the list hides again; previously found items are no longer visible/clickable.</li></ol></td></tr>
+
+<tr><td>82</td>
+<td class="cat">Virtualized lists/tables</td>
+<td><span class="sec s-inf">Infinite Scroll</span></td>
+<td><ol><li>Click <b>Infinite Scroll</b>.</li><li>Rows are appended in batches of 15 on each scroll-to-bottom event.</li><li>Row <code>data-row-id="50"</code> does not exist in the DOM until the user has scrolled enough times to trigger its batch.</li><li>Automation must scroll and wait for each batch load before asserting later rows.</li></ol></td></tr>
+
+<tr><td>83</td>
+<td class="cat">Calendar/date picker dynamics</td>
+<td><span class="sec s-frm">Forms</span></td>
+<td><ol><li>Click <b>Forms</b> → Stage 1.</li><li>Locate <code>&lt;input id="dob" type="date"&gt;</code>.</li><li>The browser renders a native date-picker widget — its internal calendar popup elements are browser-generated and not accessible via standard DOM locators.</li><li>Automation must set the value via JS (<code>element.value = '1990-01-15'</code>) and dispatch a change event.</li></ol></td></tr>
+
+<tr><td>84</td>
+<td class="cat">Dynamic validation messages</td>
+<td><span class="sec s-frm">Forms</span></td>
+<td><ol><li>Click <b>Forms</b> → Stage 1.</li><li>Leave all fields empty and click <b>Next</b> — validation error messages appear below fields.</li><li>Fill a field correctly — its error message disappears from DOM.</li><li>Locators targeting <code>#stage1Error</code> or <code>#termsError</code> are only valid after a failed submit attempt.</li></ol></td></tr>
+
+<tr><td>85</td>
+<td class="cat">Toast messages — Dynamic ID</td>
+<td><span class="sec s-chat">Toast Messages</span></td>
+<td><ol><li>Click <b>Toast Messages</b> in the sidebar.</li><li>Click any type button (e.g., <b>✅ Success Toast</b>).</li><li>Inspect the injected element in DevTools — it has <code>id="toast-1720123456789"</code> (current timestamp).</li><li>Click the button again — a new toast appears with a different timestamp ID.</li><li>Any locator using <code>#toast-1720123456789</code> or <code>By.id("toast-...")</code> never matches reliably. Must use <code>[data-toast-type='success']</code> or <code>.qa-toast</code> instead.</li></ol></td></tr>
+
+<tr><td>85b</td>
+<td class="cat">Toast messages — Auto-dismiss (ephemeral)</td>
+<td><span class="sec s-chat">Toast Messages</span></td>
+<td><ol><li>Click <b>Toast Messages</b>.</li><li>Click <b>✅ Success Toast</b> — toast appears top-right.</li><li>Wait 3 s — toast slides out and is <b>removed from DOM</b> (not hidden).</li><li>Any locator asserted after 3 s returns <code>NoSuchElementException</code>.</li><li>Automation must assert within the 3 s window; use an explicit wait for the element to appear, then immediately read its text before it disappears.</li></ol></td></tr>
+
+<tr><td>85c</td>
+<td class="cat">Toast messages — Stacked / Multiple simultaneous</td>
+<td><span class="sec s-chat">Toast Messages</span></td>
+<td><ol><li>Click <b>Toast Messages</b>.</li><li>Click <b>⚡ Rapid Fire (3 toasts)</b> — three toasts appear 300 ms apart (Success, Info, Warning), all stacked vertically in <code>#toast-container</code>.</li><li>A locator <code>.qa-toast</code> now matches 3 elements — automation clicking the first may interact with the wrong toast.</li><li>Use <code>[data-toast-type='warning']</code> to target a specific toast type unambiguously.</li></ol></td></tr>
+
+<tr><td>85d</td>
+<td class="cat">Toast messages — Delayed / Async trigger</td>
+<td><span class="sec s-chat">Toast Messages</span></td>
+<td><ol><li>Click <b>Toast Messages</b>.</li><li>Click <b>⏳ Delayed Toast (2 s)</b> — the trigger button is immediately disabled and shows "Waiting…".</li><li>An info toast fires instantly; 2 s later a success toast appears.</li><li>Automation that checks for the success toast immediately after click finds nothing — must wait for the delayed arrival.</li><li>The trigger button also serves as a wait indicator: poll until <code>#toast-btn-delayed</code> is re-enabled (<code>disabled</code> removed).</li></ol></td></tr>
+
+<tr><td>85e</td>
+<td class="cat">Toast messages — Long-lived (extended window)</td>
+<td><span class="sec s-chat">Toast Messages</span></td>
+<td><ol><li>Click <b>Toast Messages</b>.</li><li>Click <b>📜 Long-lived Toast (8 s)</b> — a warning toast appears with an 8 s lifetime.</li><li>Verify: check <code>#toast-active-count</code> — it shows <b>1</b>. Wait 8 s — count drops to <b>0</b>.</li><li>Automation can use <code>data-count</code> on <code>#toast-active-count</code> to know how many toasts are currently in DOM without querying <code>#toast-container</code> children directly.</li></ol></td></tr>
+
+<tr><td>85f</td>
+<td class="cat">Toast messages — Persistent (no auto-dismiss)</td>
+<td><span class="sec s-chat">Toast Messages</span></td>
+<td><ol><li>Click <b>Toast Messages</b>.</li><li>Click <b>📌 Persistent Toast (no auto-dismiss)</b> — an error toast appears that never auto-dismisses.</li><li>The <code>#toast-active-count</code> stays at <b>1</b> indefinitely.</li><li>To dismiss: click the toast directly (triggers early-dismiss handler), or automation can call <code>element.click()</code> on the <code>.qa-toast</code> element.</li><li>Verify dismissal: after click, the element slides out and is removed from DOM; active count drops to 0.</li></ol></td></tr>
+
+<tr><td>85g</td>
+<td class="cat">Toast messages — Custom message &amp; type</td>
+<td><span class="sec s-chat">Toast Messages</span></td>
+<td><ol><li>Click <b>Toast Messages</b>.</li><li>Type a message into the <b>Custom Message</b> input (<code>#toast-custom-msg</code>).</li><li>Select a type from <code>#toast-custom-type</code>.</li><li>Click <b>Send Custom</b> (<code>#toast-btn-custom</code>) — toast appears with the typed text and chosen colour.</li><li>The <code>data-toast-type</code> attribute reflects the selected type — use it as the locator anchor; the text content is dynamic.</li></ol></td></tr>
+
+<tr><td>85h</td>
+<td class="cat">Toast messages — Live status counters</td>
+<td><span class="sec s-chat">Toast Messages</span></td>
+<td><ol><li>Click <b>Toast Messages</b>.</li><li>Observe the <b>Live Status</b> panel: <code>#toast-active-count</code> (toasts currently in DOM), <code>#toast-total-count</code> (cumulative), <code>#toast-last-type</code> (last triggered type).</li><li>Trigger several toasts — counters update in real time.</li><li>Wait for auto-dismiss — active count decrements; total stays.</li><li>Use <code>data-count</code> attribute on counters for reliable numeric assertions without parsing text.</li></ol></td></tr>
+
+<tr><td>86</td>
+<td class="cat">Tooltip elements</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Hover over any element with a <code>data-tooltip</code> attribute — a <code>#active-tooltip</code> div is injected into <code>&lt;body&gt;</code>.</li><li>The tooltip element does not exist in DOM before hover; locating it before hovering raises <code>NoSuchElementException</code>.</li><li>Move the mouse away — the tooltip is removed from DOM.</li></ol></td></tr>
+
+<tr><td>87</td>
+<td class="cat">React re-rendered elements</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>DOM Re-Render</i> card.</li><li>Click the <b>I become stale</b> button — it simulates a React re-render by removing and reinserting the button node.</li><li>Any reference cached before the click is now stale (<code>StaleElementReferenceException</code>).</li></ol></td></tr>
+
+<tr><td>88</td>
+<td class="cat">Angular dynamic rendering</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>The <code>#btn-click</code> button carries auto-stamped Angular-style attributes (<code>_ngcontent-*</code> simulated via <code>data-v-XXXXXX</code>).</li><li>Wait 8 s — the attribute is replaced with a new hash (simulating Angular's view encapsulation re-stamp on component update).</li></ol></td></tr>
+
+<tr><td>89</td>
+<td class="cat">Vue reactive rendering</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>The <code>#btn-click</code> button has a <code>data-v-XXXXXX</code> attribute (Vue scoped style simulation).</li><li>Wait 8 s — the Vue component ID changes; CSS selectors relying on <code>[data-v-abc123]</code> break.</li></ol></td></tr>
+
+<tr><td>90</td>
+<td class="cat">SPA navigation changes</td>
+<td><span class="sec s-dyn">Any section</span></td>
+<td><ol><li>Click any sidebar item — the URL hash changes (e.g., <code>#dynamicElements</code> → <code>#forms</code>).</li><li>Sections are DOM-removed when hidden and DOM-inserted when shown — elements from a previously visited section are detached.</li><li>A cached reference to an element in Section A is stale after navigating to Section B.</li></ol></td></tr>
+
+<!-- ===== GROUP: ENVIRONMENT & RESPONSIVE ===== -->
+<tr class="group-row"><td colspan="4">G — Environment, Responsive &amp; Browser</td></tr>
+
+<tr><td>91</td>
+<td class="cat">Responsive layout changes</td>
+<td><span class="sec s-env">Environment</span></td>
+<td><ol><li>Click <b>Environment/Locale/Browser Change</b>.</li><li>Select <b>Device</b> → <b>Mobile (375px)</b> — the rendered form inside <code>#env-host</code> switches to a single-column stacked layout.</li><li>Desktop CSS selectors like <code>.grid-2 &gt; .form-group:nth-child(2)</code> now break because the grid collapses to 1 column.</li></ol></td></tr>
+
+<tr><td>92</td>
+<td class="cat">Mobile vs desktop DOM changes</td>
+<td><span class="sec s-env">Environment</span></td>
+<td><ol><li>Click <b>Environment</b>.</li><li>Select <b>Device → Desktop</b> — a full navigation bar is visible.</li><li>Select <b>Device → Mobile</b> — the nav collapses to a hamburger menu; nav items are DOM-removed.</li><li>Locators for nav links fail on mobile layout.</li></ol></td></tr>
+
+<tr><td>93</td>
+<td class="cat">Dark mode DOM/style impact</td>
+<td><span class="sec s-dark">Dark Mode</span></td>
+<td><ol><li>Click <b>Dark Mode Impact</b>.</li><li>Toggle <b>Enable Dark Mode</b> — <code>#darkModePreview</code> background and text colours invert.</li><li>Automation asserting specific colour values (<code>background-color: #ffffff</code>) fails in dark mode (<code>background-color: #111827</code>).</li><li>Some elements also change visibility/opacity under dark mode styles.</li></ol></td></tr>
+
+<tr><td>94</td>
+<td class="cat">Language/localization changes</td>
+<td><span class="sec s-env">Environment</span></td>
+<td><ol><li>Click <b>Environment</b>.</li><li>Change <b>Locale</b> to <b>ar-SA</b> (Arabic) or <b>ja-JP</b> (Japanese) — the form labels inside <code>#env-host</code> render in the selected language.</li><li>Locators using English label text (<code>getByLabel('Full Name')</code>) break immediately.</li></ol></td></tr>
+
+<tr><td>95</td>
+<td class="cat">A/B testing UI variations</td>
+<td><span class="sec s-env">Environment</span></td>
+<td><ol><li>Click <b>Environment</b>.</li><li>Change <b>Feature Flags</b> — different UI variants are rendered inside <code>#env-host</code>: old UI vs new UI, different button positions, or entirely different form layouts.</li><li>A locator valid for variant A may not exist in variant B.</li></ol></td></tr>
+
+<tr><td>96</td>
+<td class="cat">Feature-flag based UI</td>
+<td><span class="sec s-env">Environment</span></td>
+<td><ol><li>Click <b>Environment</b>.</li><li>Select different <b>Feature Flag</b> options from the dropdown — each flag can toggle elements in/out of DOM, add extra form fields, or change button labels.</li><li>Automation tests written for flag=ON fail when flag is set to OFF.</li></ol></td></tr>
+
+<tr><td>97</td>
+<td class="cat">Environment-specific locators</td>
+<td><span class="sec s-env">Environment</span></td>
+<td><ol><li>Click <b>Environment</b>.</li><li>Switch between <b>Production</b>, <b>Staging</b>, and <b>Dev</b> environments — each may render a slightly different form with different field IDs or extra fields.</li><li>A test script hardcoded for Production breaks when run against Staging.</li></ol></td></tr>
+
+<tr><td>98</td>
+<td class="cat">Different browser behavior</td>
+<td><span class="sec s-env">Environment</span></td>
+<td><ol><li>Click <b>Environment</b>.</li><li>Select <b>Browser → Firefox</b> or <b>Browser → Safari</b> — the simulated render changes form layout or hides browser-specific elements.</li><li>A <code>type="date"</code> input renders differently across browsers — Firefox shows a text field, Chrome shows a native date picker.</li></ol></td></tr>
+
+<tr><td>99</td>
+<td class="cat">Cross-browser rendering difference</td>
+<td><span class="sec s-env">Environment</span></td>
+<td><ol><li>Click <b>Environment</b> → switch Browser to <b>IE/Edge</b>.</li><li>The simulated environment renders a legacy form with no <code>placeholder</code> support — placeholder-based locators fail.</li><li>Also: select <code>&lt;input type="range"&gt;</code> in <b>Sliders</b> — rendering differs per browser.</li></ol></td></tr>
+
+<tr><td>100</td>
+<td class="cat">Different screen resolutions</td>
+<td><span class="sec s-zoom">Zoom Impact</span></td>
+<td><ol><li>Click <b>Zoom Level Impact</b>.</li><li>Click <b>Set 200%</b> — the zoom container scales up; some elements overflow or are clipped.</li><li>Coordinate-based locators and element.getBoundingClientRect() return different values at different zoom levels.</li></ol></td></tr>
+
+<tr><td>101</td>
+<td class="cat">Zoom level impact</td>
+<td><span class="sec s-zoom">Zoom Impact</span></td>
+<td><ol><li>Click <b>Zoom Level Impact</b>.</li><li>Click <b>Set 50%</b> — elements shrink; click targets become too small.</li><li>Click <b>Set 200%</b> — elements may overflow the container; automation using pixel coordinates misses the target.</li><li>Locators using CSS <code>transform: scale()</code>-aware coordinates break at non-100% zoom.</li></ol></td></tr>
+
+<tr><td>102</td>
+<td class="cat">Elements inside frameset</td>
+<td><span class="sec s-fset">Frameset</span></td>
+<td><ol><li>Click <b>Frameset / Multi-Frame</b>.</li><li>An embedded <code>&lt;iframe&gt;</code> (or frameset equivalent) contains Frame A (login) and Frame B (dashboard).</li><li>Automation must authenticate in Frame A first — only then does Frame B unlock its dashboard elements.</li><li>Locating Frame B elements without first completing Frame A login fails.</li></ol></td></tr>
+
+<tr><td>103</td>
+<td class="cat">Permission popups</td>
+<td><span class="sec s-alrt">Alerts</span></td>
+<td><ol><li>Click <b>Alerts</b>.</li><li>Toggle <b>Native Alerts Mode ON</b>.</li><li>Click any alert trigger button — a native browser dialog appears (alert/confirm/prompt).</li><li>These are OS-level dialogs that cannot be interacted with via DOM locators; require <code>driver.switchTo().alert()</code>.</li></ol></td></tr>
+
+<tr><td>104</td>
+<td class="cat">Cookie banners</td>
+<td><span class="sec s-ad">Ad / Banner Overlay</span></td>
+<td><ol><li>Click <b>Ad / Banner Overlay</b>.</li><li>Click <b>Start Ad Loop</b> — the ad banner auto-appears every few seconds, covering the page.</li><li>This simulates cookie-consent banners blocking the page content.</li><li>Automation must dismiss the banner (<b>Dismiss Ad</b> button) before interacting with underlying elements.</li></ol></td></tr>
+
+<tr><td>105</td>
+<td class="cat">Ads/banner overlays</td>
+<td><span class="sec s-ad">Ad / Banner Overlay</span></td>
+<td><ol><li>Click <b>Ad / Banner Overlay</b>.</li><li>Click <b>Show Ad</b> — <code>#adBanner</code> appears as a full-section overlay (<code>z-index:10</code>).</li><li><code>#ad-submit-btn</code> and <code>#ad-checkout-btn</code> are blocked by the overlay; clicks raise <code>ElementClickInterceptedException</code>.</li><li>Click <b>Dismiss Ad</b> (<code>#adCloseBtn</code>) to remove the overlay.</li></ol></td></tr>
+
+<!-- ===== GROUP: TABLE & PAGINATION ===== -->
+<tr class="group-row"><td colspan="4">H — Table, Pagination &amp; Grid</td></tr>
+
+<tr><td>106</td>
+<td class="cat">Table row position changes</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Click any column header to sort — all rows reorder.</li><li>A locator like <code>tbody tr:nth-child(1) td:nth-child(2)</code> now references a different record.</li><li>Also add/delete a row — all subsequent row indices shift.</li></ol></td></tr>
+
+<tr><td>107</td>
+<td class="cat">Dynamic table/grid</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Use <b>Global Search</b> to filter — visible rows reduce; their indices change.</li><li>Click <b>⚙</b> → toggle columns — columns are added/removed from DOM; <code>td:nth-child(N)</code> maps to different data.</li><li>Inline-click a cell to edit — the cell changes from <code>&lt;td&gt;</code> to <code>&lt;td&gt;&lt;input&gt;&lt;/td&gt;</code> temporarily.</li></ol></td></tr>
+
+<tr><td>108</td>
+<td class="cat">Pagination changes</td>
+<td><span class="sec s-bk">Bookstore</span></td>
+<td><ol><li>Click <b>Bookstore</b>.</li><li>Books are listed in <code>#books</code>; filter by genre or sort — the visible list changes.</li><li>A locator for <code>li:nth-child(3)</code> points to a different book after sorting/filtering.</li><li>Also applicable in <b>Infinite Scroll</b> — each page load appends new rows, shifting indices.</li></ol></td></tr>
+
+<!-- ===== GROUP: ACCESSIBILITY & ARIA ===== -->
+<tr class="group-row"><td colspan="4">I — Accessibility, ARIA &amp; Custom Components</td></tr>
+
+<tr><td>109</td>
+<td class="cat">Accessibility-based locators</td>
+<td><span class="sec s-wc">Web Components</span></td>
+<td><ol><li>Click <b>Custom Web Components</b>.</li><li>Inspect <code>&lt;qa-button data-testid="wc-primary-btn"&gt;</code> — its shadow DOM may or may not expose <code>role="button"</code> to the accessibility tree.</li><li>A Playwright <code>getByRole('button')</code> locator may miss it if the role is not propagated outside the shadow boundary.</li></ol></td></tr>
+
+<tr><td>110</td>
+<td class="cat">ARIA role changes</td>
+<td><span class="sec s-sld">Sliders</span></td>
+<td><ol><li>Click <b>Sliders</b>.</li><li>The custom slider thumb (<code>#cs-thumb</code>) has <code>role="slider"</code>, <code>aria-valuemin</code>, <code>aria-valuemax</code>, <code>aria-valuenow</code>.</li><li>Drag the thumb — <code>aria-valuenow</code> changes.</li><li>A locator using <code>[aria-valuenow='40']</code> breaks after any drag interaction.</li></ol></td></tr>
+
+<tr><td>111</td>
+<td class="cat">ARIA label changes</td>
+<td><span class="sec s-sld">Sliders</span></td>
+<td><ol><li>Click <b>Sliders</b>.</li><li>The native <code>&lt;input type="range" id="native-slider"&gt;</code> has no explicit <code>aria-label</code>.</li><li>Playwright's <code>getByLabel</code> cannot find it without a visible <code>&lt;label&gt;</code>.</li><li>Dragging the custom slider changes its ARIA attributes — <code>aria-valuenow</code> and potentially <code>aria-label</code> update.</li></ol></td></tr>
+
+<tr><td>112</td>
+<td class="cat">Dynamic test IDs</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Button starts with <code>data-testid="stableBtn"</code>.</li><li>Wait 8 s — it mutates to <code>data-testid="stableBtn-4f2a"</code> or similar generated value.</li><li><code>getByTestId('stableBtn')</code> or <code>[data-testid='stableBtn']</code> returns no match after mutation.</li></ol></td></tr>
+
+<tr><td>113</td>
+<td class="cat">Custom web components</td>
+<td><span class="sec s-wc">Web Components</span></td>
+<td><ol><li>Click <b>Custom Web Components</b>.</li><li>The page contains <code>&lt;qa-button&gt;</code>, <code>&lt;qa-input&gt;</code>, <code>&lt;qa-card&gt;</code>, <code>&lt;qa-counter&gt;</code> — all custom elements.</li><li>Standard locators targeting <code>input</code>, <code>button</code> tags find nothing — the actual elements are inside shadow roots.</li><li>Must use JS shadow-piercing or Playwright's <code>locator('qa-input').locator('input')</code>.</li></ol></td></tr>
+
+<!-- ===== GROUP: CANVAS & SVG ===== -->
+<tr class="group-row"><td colspan="4">J — Canvas, SVG &amp; Special Elements</td></tr>
+
+<tr><td>114</td>
+<td class="cat">Canvas-based elements</td>
+<td><span class="sec s-cvs">Canvas Chart</span></td>
+<td><ol><li>Click <b>Canvas Chart</b>.</li><li>The bar chart is rendered inside <code>&lt;canvas id="bar-chart-canvas"&gt;</code>.</li><li>Individual bars are not DOM elements — they cannot be located by any standard locator.</li><li>Automation must use JS to get canvas pixel data or rely on <code>data-hover-label</code>/<code>data-hover-val</code> attributes set on the canvas during mouseover.</li></ol></td></tr>
+
+<tr><td>115</td>
+<td class="cat">SVG elements</td>
+<td><span class="sec s-svg">SVG Graph</span></td>
+<td><ol><li>Click <b>SVG Graph</b>.</li><li>The network graph is an inline SVG — nodes are <code>&lt;g id="n1"&gt;</code> elements with <code>data-node-id</code> and <code>data-node-type</code>.</li><li>Standard CSS selectors work inside SVG; however, XPath must use SVG namespace.</li><li>Click a node — edges change <code>stroke</code> colour; a colour-based locator now fails for previously highlighted edges.</li></ol></td></tr>
+
+<!-- ===== GROUP: MODALS & POPUPS ===== -->
+<tr class="group-row"><td colspan="4">K — Modals, Dialogs &amp; Overlays</td></tr>
+
+<tr><td>116</td>
+<td class="cat">Content inside modal/dialog</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Click <b>+ Add Record</b> — <code>#modalOverlay</code> becomes visible with inputs <code>#newName</code>, <code>#newDate</code>, <code>#newPrice</code>.</li><li>Before the modal is opened, these inputs are hidden; locating them raises <code>ElementNotVisibleException</code> or returns stale references.</li><li>Close the modal — the inputs revert to hidden; previously found references are no longer interactable.</li></ol></td></tr>
+
+<tr><td>117</td>
+<td class="cat">Keyboard-only interactions</td>
+<td><span class="sec s-kb">Keyboard Nav</span></td>
+<td><ol><li>Click <b>Keyboard Nav</b>.</li><li>Tab to the <i>Enter to Open Modal</i> card (<code>#kb-enter-card</code>) — it has a visible focus ring.</li><li>The modal (<code>#kb-modal</code>) is DOM-removed and only appears when <code>Enter</code> is pressed on the card.</li><li>A mouse-click on the card does nothing — the trigger is keyboard-only. Automation must dispatch a <code>keydown</code> event with <code>key:'Enter'</code>.</li></ol></td></tr>
+
+<tr><td>118</td>
+<td class="cat">Drag-and-drop areas</td>
+<td><span class="sec s-dd">Drag &amp; Drop</span></td>
+<td><ol><li>Click <b>Drag &amp; Drop</b>.</li><li>Drag an item from <code>.dd-items</code> to the <code>#dd-zone</code> drop target — item gains <code>class="dd-dropped"</code>.</li><li>Standard <code>Actions.dragAndDrop()</code> requires the HTML5 <code>DragEvent</code> API — simple click-drag using coordinates may fail.</li><li>Drag back from drop zone to source — verifies bidirectional drop handling.</li></ol></td></tr>
+
+<tr><td>119</td>
+<td class="cat">Slider controls</td>
+<td><span class="sec s-sld">Sliders</span></td>
+<td><ol><li>Click <b>Sliders</b>.</li><li><b>Native slider</b>: <code>&lt;input type="range" id="native-slider"&gt;</code> — set via keyboard (<code>ArrowRight</code>/<code>ArrowLeft</code>) or JS <code>element.value = 75</code> + <code>dispatchEvent('input')</code>.</li><li><b>Custom slider</b>: <code>#cs-thumb</code> with <code>role="slider"</code> — requires mouse-drag simulation or keyboard arrow keys after focus.</li><li>A locator asserting <code>#native-slider-val</code> text breaks after any slider move.</li></ol></td></tr>
+
+<tr><td>120</td>
+<td class="cat">File upload controls</td>
+<td><span class="sec s-frm">Forms</span></td>
+<td><ol><li>Click <b>Forms</b> → click <b>Next</b> twice to reach <b>Stage 3</b>.</li><li>The file input <code>&lt;input type="file" id="fileUpload"&gt;</code> is present but may be visually hidden behind a styled label.</li><li>Standard clicks on the label do not interact with the actual input — must use <code>driver.findElement(By.id("fileUpload")).sendKeys(filePath)</code>.</li></ol></td></tr>
+
+<!-- ===== GROUP: XPATH/CSS COMPLEXITY ===== -->
+<tr class="group-row"><td colspan="4">L — XPath / CSS Complexity</td></tr>
+
+<tr><td>121</td>
+<td class="cat">XPath – absolute xpath</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Record the absolute XPath: <code>/html/body/div[2]/div[2]/div[1]/div[1]/div[1]/button</code>.</li><li>Click <b>Reset Playground</b> — one card is reordered; the absolute path is now off by one index.</li><li>Try clicking the XPath — it targets the wrong element.</li></ol></td></tr>
+
+<tr><td>122</td>
+<td class="cat">XPath – relative xpath</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Use relative XPath: <code>//button[text()='+ Add Record']</code> — works initially.</li><li>Click <b>⚙</b> → table switches to edit mode; the button text changes to <b>Save</b>.</li><li>The relative XPath no longer finds the button.</li></ol></td></tr>
+
+<tr><td>123</td>
+<td class="cat">XPath – contains()</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b> → <b>Partial Dynamic Text</b> mode.</li><li>XPath <code>//p[contains(text(),'static-prefix')]</code> works when text starts with a stable prefix.</li><li>Switch to <b>Full Replacement</b> — the prefix also changes; <code>contains()</code> no longer matches.</li></ol></td></tr>
+
+<tr><td>124</td>
+<td class="cat">XPath – starts-with()</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>XPath <code>//button[starts-with(@id,'btn-')]</code> matches <code>btn-click</code> initially.</li><li>Wait 8 s for ID mutation — ID changes to <code>dyn-3a2f</code> (no longer starts with <code>btn-</code>).</li><li>The <code>starts-with()</code> predicate returns no match.</li></ol></td></tr>
+
+<tr><td>125</td>
+<td class="cat">XPath – normalize-space()</td>
+<td><span class="sec s-txt">Dynamic Text</span></td>
+<td><ol><li>Click <b>Dynamic Text</b> → select <b>Whitespace Chaos</b>.</li><li>The output text gains extra internal/leading spaces: <code>"  Hello   World  "</code>.</li><li>XPath <code>text()='Hello World'</code> fails; <code>normalize-space(.)='Hello World'</code> succeeds.</li><li>Switch to another mode — the value changes; even <code>normalize-space</code> predicate breaks.</li></ol></td></tr>
+
+<tr><td>126</td>
+<td class="cat">XPath – following-sibling</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Build XPath: <code>//th[text()='Name']/following-sibling::th[1]</code> to target the next column header.</li><li>Click <b>⚙</b> → uncheck a column before <b>Name</b> — the following-sibling index shifts by 1.</li><li>The XPath now targets the wrong column.</li></ol></td></tr>
+
+<tr><td>127</td>
+<td class="cat">XPath – preceding-sibling</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>Build XPath: <code>//th[text()='Price']/preceding-sibling::th[1]</code>.</li><li>Click <b>⚙</b> → toggle columns — a column is inserted before Price; <code>preceding-sibling::th[1]</code> now points to the new column.</li></ol></td></tr>
+
+<tr><td>128</td>
+<td class="cat">XPath – ancestor</td>
+<td><span class="sec s-tree">Tree Menu</span></td>
+<td><ol><li>Click <b>Tree Menu</b>.</li><li>Expand the <b>Selenium</b> branch → click <b>WebDriver API</b> leaf.</li><li>XPath: <code>//span[text()='WebDriver API']/ancestor::ul</code> — traverses up to the parent list.</li><li>Collapse the Selenium branch — the <code>ul</code> is removed from DOM; the ancestor traversal fails.</li></ol></td></tr>
+
+<tr><td>129</td>
+<td class="cat">XPath – descendant</td>
+<td><span class="sec s-shd">Shadow DOM</span></td>
+<td><ol><li>Click <b>Shadow DOM</b> → <b>Open</b> mode.</li><li>XPath <code>//div[@id='shadow-host']/descendant::input</code> — this does NOT pierce the shadow boundary in standard XPath.</li><li>The input inside the shadow root is a descendant in the JS tree but not accessible via XPath <code>descendant</code> axis across shadow boundaries.</li></ol></td></tr>
+
+<tr><td>130</td>
+<td class="cat">XPath – parent</td>
+<td><span class="sec s-acc">Accordion</span></td>
+<td><ol><li>Click <b>Accordion</b>.</li><li>Build XPath: <code>//span[@class='acc-icon']/parent::div</code> to get the header div.</li><li>When the <code>.acc-body</code> of item 2 is DOM-removed, the parent structure of item 2 still exists — but if you try <code>//div[@class='acc-body']/parent::div[@class='acc-item']</code> for a collapsed item, the body is gone and the XPath returns nothing.</li></ol></td></tr>
+
+<tr><td>131</td>
+<td class="cat">XPath – position()</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>XPath: <code>//tbody[@class='body']/tr[position()=2]</code> — targets the second row.</li><li>Click <b>+ Add Record</b> → Save — new row inserted; position 2 now holds a different record.</li><li>Sort the table — all positions change.</li></ol></td></tr>
+
+<tr><td>132</td>
+<td class="cat">XPath – last()</td>
+<td><span class="sec s-inf">Infinite Scroll</span></td>
+<td><ol><li>Click <b>Infinite Scroll</b>.</li><li>XPath: <code>//tbody[@id='inf-tbody']/tr[last()]</code> — targets the last loaded row.</li><li>Scroll to bottom — 15 new rows append; <code>last()</code> now returns a different row.</li><li>Automation asserting the last row's content breaks after each scroll batch.</li></ol></td></tr>
+
+<tr><td>133</td>
+<td class="cat">XPath – not()</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>XPath: <code>//button[not(@disabled)]</code> — targets enabled buttons.</li><li>Initially <code>#async-btn</code> is excluded (disabled). After ~3 s it becomes enabled — <code>not(@disabled)</code> now matches it too.</li><li>Assertions relying on <code>not()</code> count will fail when the state changes.</li></ol></td></tr>
+
+<tr><td>134</td>
+<td class="cat">XPath – multiple predicates</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>XPath: <code>//button[@class='btn dyn-class'][@data-testid='stableBtn'][text()='Click Me']</code>.</li><li>Wait 8 s — class, data-testid, and sometimes text all change; the triple-predicate XPath returns nothing.</li></ol></td></tr>
+
+<tr><td>135</td>
+<td class="cat">XPath/CSS – css nth-child</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>CSS: <code>tbody tr:nth-child(3) td</code> — targets third row cells.</li><li>Add a new record via <b>+ Add Record</b> — it inserts at a specific position; the third row is now a different record.</li><li>Toggle table view (table1 ↔ table2) — row count changes; nth-child offsets shift.</li></ol></td></tr>
+
+<tr><td>136</td>
+<td class="cat">XPath/CSS – css nth-of-type</td>
+<td><span class="sec s-frm">Forms</span></td>
+<td><ol><li>Click <b>Forms</b> → Stage 2.</li><li>CSS: <code>.form-group:nth-of-type(2) input</code> — targets the second form group's input.</li><li>Click <b>Preferences</b> subtab — the form group count changes (different fields); <code>nth-of-type(2)</code> maps to a different field.</li></ol></td></tr>
+
+<tr><td>137</td>
+<td class="cat">XPath/CSS – attribute contains ([attr*=])</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>CSS: <code>button[id*='btn']</code> or XPath <code>//button[contains(@id,'btn')]</code>.</li><li>Wait 8 s for ID mutation — ID changes to <code>dyn-3a2f</code> (no longer contains <code>btn</code>); selector returns nothing.</li></ol></td></tr>
+
+<tr><td>138</td>
+<td class="cat">XPath/CSS – attribute starts-with ([attr^=])</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>CSS: <code>[data-testid^='stable']</code> matches <code>stableBtn</code>.</li><li>Wait 8 s — <code>data-testid</code> changes to a hash-only value; <code>^='stable'</code> no longer matches.</li></ol></td></tr>
+
+<!-- ===== GROUP: INPUT & INTERACTION ===== -->
+<tr class="group-row"><td colspan="4">M — Special Interactions &amp; Input Types</td></tr>
+
+<tr><td>139</td>
+<td class="cat">Input masking</td>
+<td><span class="sec s-frm">Forms</span></td>
+<td><ol><li>Click <b>Forms</b> → Stage 1.</li><li>Type into the <b>Phone</b> field (<code>#phone</code> with <code>type="tel"</code>) — the field may auto-format input (e.g., <code>555-1234</code> → <code>(555) 123-4</code>).</li><li>Automation that sends <code>"5551234567"</code> and then reads back the value gets a formatted string with dashes/brackets — string assertion fails.</li></ol></td></tr>
+
+<tr><td>140</td>
+<td class="cat">Custom dropdowns</td>
+<td><span class="sec s-hov">Hover Menu</span></td>
+<td><ol><li>Click <b>Hover Menu</b>.</li><li>Top-level items are not a <code>&lt;select&gt;</code> — they are styled <code>&lt;div&gt;</code> elements acting as a menu.</li><li>Automation using <code>Select</code> class (Selenium) fails; must use <code>Actions.moveToElement()</code> then click the revealed sub-item.</li></ol></td></tr>
+
+<tr><td>141</td>
+<td class="cat">Multi-select dropdowns / Dependent dropdowns</td>
+<td><span class="sec s-drop">Dynamic Dropdown</span></td>
+<td><ol><li>Click <b>Dynamic Dropdown</b>.</li><li>Click <b>Fetch Countries</b> — a <code>&lt;select&gt;</code> populates. Select a country — a dependent city dropdown appears.</li><li>The city dropdown options depend on the selected country; the city dropdown doesn't exist in DOM before a country is selected.</li><li>Locating a city option before selecting a country raises <code>NoSuchElementException</code>.</li></ol></td></tr>
+
+<tr><td>142</td>
+<td class="cat">Multi-match XPath/CSS</td>
+<td><span class="sec s-tbl">Dynamic Tables</span></td>
+<td><ol><li>Click <b>Dynamic Tables</b>.</li><li>CSS <code>table tbody td:first-child</code> matches the first cell of every row — multiple matches.</li><li>Automation that expects a single element gets an ambiguity error (Playwright strict mode) or silently interacts with the first match (Selenium).</li></ol></td></tr>
+
+<tr><td>143</td>
+<td class="cat">Unstable nth-child locators</td>
+<td><span class="sec s-inf">Infinite Scroll</span></td>
+<td><ol><li>Click <b>Infinite Scroll</b>.</li><li>Use <code>tr:nth-child(10)</code> to target the 10th row.</li><li>Scroll to bottom — new rows append; the 10th row's data does not change, but the 10th <code>nth-child</code> in the newly rendered list may refer to row ID 10 of the first batch or a row from a different batch depending on insertion order.</li></ol></td></tr>
+
+<tr><td>144</td>
+<td class="cat">Generated CSS classes</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Inspect <code>#btn-click</code> — it carries a hashed CSS class like <code>dyn-class-a4b2</code> generated by the framework simulator.</li><li>CSS selector <code>.dyn-class-a4b2</code> breaks in 8 s when the hash regenerates.</li></ol></td></tr>
+
+<tr><td>145</td>
+<td class="cat">Session-based attributes</td>
+<td><span class="sec s-ifr">iFrame</span></td>
+<td><ol><li>Click <b>iFrame</b>.</li><li>Click <b>Reload Frame</b> — the <b>Reload Counter</b> increments in the status box.</li><li>The frame URL may include a session/nonce query param on reload — a locator using the exact URL or frame name tied to the counter changes each reload.</li></ol></td></tr>
+
+<!-- ===== GROUP: SPECIAL SCENARIOS ===== -->
+<tr class="group-row"><td colspan="4">N — Special Scenarios</td></tr>
+
+<tr><td>146</td>
+<td class="cat">Date format variations</td>
+<td><span class="sec s-frm">Forms</span></td>
+<td><ol><li>Click <b>Forms</b> → Stage 1 → <b>Date of Birth</b> field (<code>#dob</code>).</li><li>Enter a date — the browser formats it per OS locale (MM/DD/YYYY vs DD/MM/YYYY vs YYYY-MM-DD).</li><li>Navigate to <b>Environment</b> → change locale → come back to Forms — the date field renders locale-specific format.</li><li>Automation asserting the value as a specific format string breaks across locales.</li></ol></td></tr>
+
+<tr><td>147</td>
+<td class="cat">Randomized attributes</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Open DevTools — inspect <code>#btn-click</code>: <code>data-component-id="3f9a2c1d"</code> (random 8-char hex).</li><li>Wait 8 s — value changes to a new random hex. Any locator using <code>[data-component-id='3f9a2c1d']</code> immediately breaks.</li></ol></td></tr>
+
+<tr><td>148</td>
+<td class="cat">Stale element reference</td>
+<td><span class="sec s-dyn">Dynamic Elements</span></td>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>DOM Re-Render</i> card.</li><li>In automation: store a reference to <code>#rerender-btn</code>.</li><li>Click the button — the playground removes and reinserts the DOM node.</li><li>Use the stored reference for a second click — <code>StaleElementReferenceException</code> is raised.</li></ol></td></tr>
+
+<tr><td>149</td>
+<td class="cat">Invalid nesting</td>
+<td><span class="sec s-na">Shadow DOM / Any Section</span></td>
+<td><ol><li>Click <b>Shadow DOM</b> → <b>Open</b> mode.</li><li>Attempt XPath: <code>//div[@id='shadow-host']//input</code> — the <code>//</code> descendant axis does not pierce shadow roots.</li><li>The selector is syntactically valid but semantically wrong for shadow-pierced content — returns 0 results silently (not an exception).</li></ol></td></tr>
+
+<tr><td>150</td>
+<td class="cat">Locator type change – getByRole (Playwright) – detailed</td>
+<td><span class="sec s-sld">Sliders</span></td>
+<td><ol><li>Click <b>Sliders</b>.</li><li>Custom slider has <code>role="slider"</code> — <code>getByRole('slider')</code> finds it.</li><li>Drag the slider to max — the ARIA role may be updated to <code>role="progressbar"</code> at 100%; the original <code>getByRole('slider')</code> no longer matches.</li></ol></td></tr>
+
+</tbody>
+</table>
+</div>
+
+<div style="text-align:center;padding:20px;color:#9ca3af;font-size:11px;">
+  QA Pro Automation Playground · Locator Break Reproduction Guide · 157 categories · <span style="color:#6366f1;">index.html</span>
+</div>
+</body>
+</html>

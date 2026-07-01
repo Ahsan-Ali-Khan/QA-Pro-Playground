@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Frame B — Dashboard</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f0fdf4; padding:18px; box-sizing:border-box; }
+    h3 { margin:0 0 10px; color:#10b981; font-size:15px; }
+    #waiting { color:#6b7280; font-size:13px; }
+    #content { display:none; }
+    #content p { font-weight:600; color:#065f46; margin-bottom:10px; font-size:13px; }
+    button { padding:9px 16px; background:#10b981; color:#fff; border:none;
+             border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; }
+    button:hover { background:#059669; }
+    #result { margin-top:8px; font-size:12px; color:#374151; }
+  </style>
+</head>
+<body>
+  <h3>📊 Frame B — Dashboard</h3>
+  <div id="waiting">⏳ Waiting for login from Frame A...</div>
+  <div id="content">
+    <p id="welcome"></p>
+    <button id="action-btn" onclick="doAction()">Perform Dashboard Action</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Called by Frame A after successful login
+    function receiveLogin(username) {
+      document.getElementById('waiting').style.display = 'none';
+      document.getElementById('welcome').textContent = '✅ Logged in as: ' + username;
+      document.getElementById('content').style.display = 'block';
+    }
+
+    function doAction() {
+      document.getElementById('result').textContent =
+        '✔ Action executed at ' + new Date().toLocaleTimeString();
+    }
+  </script>
+</body>
+</html>

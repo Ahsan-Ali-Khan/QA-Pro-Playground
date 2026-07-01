@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Frame A — Login</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f0f4ff; padding:18px; box-sizing:border-box; }
+    h3 { margin:0 0 14px; color:#6366f1; font-size:15px; }
+    label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; }
+    input { width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px;
+            font-size:13px; margin-bottom:10px; box-sizing:border-box; }
+    button { width:100%; padding:9px; background:#6366f1; color:#fff; border:none;
+             border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; }
+    button:hover { background:#4f46e5; }
+    #err { color:#ef4444; font-size:12px; margin-top:6px; display:none; }
+  </style>
+</head>
+<body>
+  <h3>🔐 Frame A — Login</h3>
+  <label for="fa-user">Username</label>
+  <input id="fa-user" type="text" placeholder="Enter username">
+  <label for="fa-pass">Password</label>
+  <input id="fa-pass" type="password" placeholder="Enter password">
+  <button onclick="doLogin()">Login</button>
+  <div id="err">Please enter both fields.</div>
+
+  <script>
+    function doLogin() {
+      const u = document.getElementById('fa-user').value.trim();
+      const p = document.getElementById('fa-pass').value.trim();
+      if (!u || !p) {
+        document.getElementById('err').style.display = 'block';
+        return;
+      }
+      document.getElementById('err').style.display = 'none';
+      // Post message to frameset parent so Frame B can react
+      parent.frames['frameB'].receiveLogin(u);
+    }
+  </script>
+</body>
+</html>

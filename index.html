@@ -1031,6 +1031,105 @@
       font-size: 18px;
       min-height: 50px;
     }
+  
+    /* =========================
+       ADVANCED LABS CSS
+    ========================= */
+    .ll-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:16px;}
+    .ll-card{background:#fff;border-radius:12px;padding:12px;box-shadow:var(--shadow);}
+    .ll-card img{border-radius:8px;width:100%;display:block;}
+    #inf-container{height:480px;overflow-y:auto;border:1px solid var(--border);border-radius:12px;background:#fff;}
+    #inf-container table{margin-top:0;border-radius:0;}
+    .inf-loader{display:none;justify-content:center;align-items:center;padding:20px;color:var(--muted);}
+    .sbadge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+    .sbadge-active{background:#d1fae5;color:#065f46;}
+    .sbadge-pending{background:#fef3c7;color:#92400e;}
+    .sbadge-inactive{background:#f3f4f6;color:#374151;}
+    .sbadge-review{background:#ede9fe;color:#5b21b6;}
+    .acc-item{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;}
+    .acc-header{padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff;font-weight:600;}
+    .acc-header:hover{background:#f8fafc;}
+    .acc-body{padding:14px 18px;background:#f8fafc;border-top:1px solid var(--border);}
+    .tree-nav{list-style:none;padding:0;}
+    .tree-nav li{padding:2px 0;}
+    .tree-toggle{cursor:pointer;margin-right:6px;color:var(--primary);}
+    .tree-leaf{cursor:pointer;padding:5px 10px;border-radius:6px;display:inline-block;}
+    .tree-leaf:hover{background:#e0e7ff;}
+    .tree-active{background:#e0e7ff;color:var(--primary);font-weight:600;}
+    .hm-menu{display:flex;gap:0;list-style:none;padding:0;background:#1f2937;border-radius:10px;overflow:visible;position:relative;}
+    .hm-parent{position:relative;padding:14px 20px;color:#d1d5db;cursor:pointer;font-weight:500;}
+    .hm-parent:hover{background:#374151;color:#fff;}
+    .hm-sub{position:absolute;top:100%;left:0;background:#fff;border-radius:10px;box-shadow:var(--shadow);min-width:200px;z-index:100;list-style:none;padding:8px 0;}
+    .hm-sub li{padding:10px 16px;cursor:pointer;font-size:14px;color:#1f2937;white-space:nowrap;}
+    .hm-sub li:hover{background:#f0f4ff;color:var(--primary);}
+    .hm-sub-parent{position:relative;}
+    .hm-sub2{position:absolute;left:100%;top:-8px;background:#fff;border-radius:10px;
+      box-shadow:var(--shadow);min-width:190px;z-index:102;list-style:none;padding:8px 0;}
+    .hm-sub2 li{padding:10px 16px;cursor:pointer;font-size:13px;color:#1f2937;white-space:nowrap;}
+    .hm-sub2 li:hover{background:#f0f4ff;color:var(--primary);}
+    .hm-sub-arrow{float:right;font-size:11px;opacity:0.55;margin-left:8px;}
+    .hm-delay-badge{font-size:10px;background:rgba(255,255,255,.18);color:#c7d2fe;
+      padding:1px 7px;border-radius:8px;margin-left:6px;font-weight:400;vertical-align:middle;}
+    #anim-panel{display:none;padding:20px;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;border-radius:12px;margin:16px 0;font-size:18px;font-weight:700;}
+    @keyframes slideInPanel{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
+    .anim-in{animation:slideInPanel 1.2s cubic-bezier(.4,0,.2,1) forwards;}
+    .dd-zone{min-height:120px;border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;color:var(--muted);transition:all .2s;margin-top:16px;}
+    .dd-zone.dd-hover{border-color:var(--primary);background:#e0e7ff;}
+    .dd-items{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+    .dd-item{background:#6366f1;color:#fff;padding:10px 18px;border-radius:10px;cursor:grab;font-weight:600;user-select:none;}
+    .dd-item.dd-dragging{opacity:.4;}
+    .dd-item.dd-dropped{background:#10b981;}
+    .sort-list{list-style:none;padding:0;margin-top:12px;}
+    .sort-item{padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:grab;font-weight:500;}
+    .sort-item.dd-over{border-color:var(--primary);background:#e0e7ff;}
+    .cs-track{position:relative;height:8px;background:#e5e7eb;border-radius:4px;cursor:pointer;margin:24px 0 8px;}
+    .cs-fill{position:absolute;left:0;top:0;height:100%;background:var(--primary);border-radius:4px;}
+    .cs-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--primary);cursor:grab;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px;}
+    .cal-hdr{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:6px 0;}
+    .cal-cell{text-align:center;padding:8px 4px;border-radius:8px;cursor:pointer;font-size:13px;}
+    .cal-cell:hover{background:#e0e7ff;color:var(--primary);}
+    .cal-sel{background:var(--primary)!important;color:#fff!important;}
+    .cal-empty{background:transparent;cursor:default;}
+    .cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+    .cal-nav button{padding:6px 14px;font-size:13px;}
+    .chat-wrap{border:1px solid var(--border);border-radius:14px;overflow:hidden;max-width:600px;background:#fff;}
+    #chat-thread{height:320px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+    .cmsg{display:flex;}
+    .cmsg-user{justify-content:flex-end;}
+    .cmsg-bot{justify-content:flex-start;}
+    .cbubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;}
+    .cmsg-user .cbubble{background:var(--primary);color:#fff;border-bottom-right-radius:4px;}
+    .cmsg-bot .cbubble{background:#f1f5f9;color:#111827;border-bottom-left-radius:4px;}
+    .ctyping span{display:inline-block;width:6px;height:6px;background:#94a3b8;border-radius:50%;animation:typing 1s infinite;}
+    .ctyping span:nth-child(2){animation-delay:.2s;}
+    .ctyping span:nth-child(3){animation-delay:.4s;}
+    @keyframes typing{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+    .chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+    #chat-input{flex:1;max-width:none;margin:0;padding:10px 14px;border-radius:10px;}
+    #chat-send{margin:0;padding:10px 18px;}
+    .cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;margin:14px 0;}
+    .cap-tile{font-size:36px;text-align:center;padding:14px;background:#f8fafc;border:2px solid transparent;border-radius:10px;cursor:pointer;user-select:none;transition:all .15s;}
+    .cap-tile:hover{border-color:var(--primary);}
+    .cap-sel{border-color:var(--primary)!important;background:#e0e7ff;}
+    #kb-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:16px;}
+    .kb-card{padding:16px;background:#fff;border-radius:12px;box-shadow:var(--shadow);cursor:pointer;outline:none;font-weight:600;text-align:center;}
+    .kb-card:focus{box-shadow:0 0 0 4px rgba(99,102,241,.3);border-color:var(--primary);}
+    #kb-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;}
+    #kb-modal-content{background:#fff;padding:32px;border-radius:16px;max-width:400px;width:90%;}
+    .notif-bell-wrap{position:relative;display:inline-block;margin-bottom:16px;}
+    #notif-bell{font-size:28px;cursor:pointer;background:none;border:none;padding:0;box-shadow:none;}
+    #notif-badge{position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 4px;}
+    #notif-panel{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:320px;max-height:400px;overflow-y:auto;margin-top:8px;}
+    #notif-panel-header{padding:12px 16px;font-weight:700;border-bottom:1px solid var(--border);background:#f8fafc;border-radius:14px 14px 0 0;}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:16px;}
+    .kpi-card{background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);text-align:center;}
+    .kpi-label{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+    .kpi-val{font-size:28px;font-weight:800;color:#111827;margin-top:6px;transition:color .4s;}
+    @keyframes slideInToast{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+    #toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+    #toast-container>*{pointer-events:auto;}
+
   </style>
 </head>
 
@@ -1076,6 +1175,25 @@
     <div onclick="show('adOverlay')">Ad / Banner Overlay</div>
     <div onclick="show('zoomImpact')">Zoom Level Impact</div>
     <div onclick="show('webComponents')">Custom Web Components</div>
+    <div style="color:#6b7280;font-size:11px;padding:14px 16px 4px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:default;pointer-events:none;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px;">— Advanced Labs —</div>
+    <div onclick="show('lazyLoadSection')">📷 Lazy Load Images</div>
+    <div onclick="show('infiniteScroll')">∞ Infinite Scroll</div>
+    <div onclick="show('accordion')">🪗 Accordion</div>
+    <div onclick="show('expandMenu')">🌳 Tree Menu</div>
+    <div onclick="show('hoverMenu')">🖱️ Hover Menu</div>
+    <div onclick="show('animationTiming')">🎞️ CSS Animations</div>
+    <div onclick="show('dragDrop')">🖱️ Drag & Drop</div>
+    <div onclick="show('sliderControls')">🎚️ Sliders</div>
+    <div onclick="show('canvasChart')">📊 Canvas Chart</div>
+    <div onclick="show('svgGraph')">🕸️ SVG Graph</div>
+    <div onclick="show('chatStream')">💬 Chat Stream</div>
+    <div onclick="show('captchaSection')">🤖 CAPTCHA Lab</div>
+    <div onclick="show('keyboardNav')">⌨️ Keyboard Nav</div>
+    <div onclick="show('dashboardSection')">📡 Live Dashboard</div>
+    <div onclick="show('toastMessages')">🍞 Toast Messages</div>
+    <a href="locator-break-reproduction-guide.html" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#9ca3af;text-decoration:none;font-size:13px;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px;transition:color .2s;" onmouseover="this.style.color='#f9fafb'" onmouseout="this.style.color='#9ca3af'">
+      <span style="font-size:15px;">📖</span> Locator Break Guide
+    </a>
   </div>
 
   <div id="content">
@@ -2050,60 +2168,23 @@
     <div id="framesetSec" class="section hidden">
       <h2>Elements Inside Frameset</h2>
       <div class="note">
-        <b>Reproduce:</b> Content is loaded inside multiple independent frames arranged in a frameset-like layout.
-        Each frame has its own document context. Automation must switch frame context to interact with elements.
+        <b>Reproduce:</b> Content is loaded inside a real HTML <code>&lt;frameset&gt;</code> with four
+        <code>&lt;frame&gt;</code> tags (frameA–frameD), each with its own document context.
+        Automation must switch frame context to reach elements. Frame A login unlocks Frame B dashboard.
         <br><br>
-        <b>Category:</b> Multi-Frame Context • Frame Switching • Cross-Document Locators
+        <b>Category:</b> Frameset • Multi-Frame Context • Frame Switching • Cross-Document Locators
       </div>
-      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div style="border:2px solid #6366f1;border-radius:10px;overflow:hidden;">
-          <div style="background:#6366f1;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame A — Login Form</div>
-          <div style="padding:16px;background:#f8fafc;" id="frameA">
-            <label style="font-size:13px;font-weight:600;">Username</label><br>
-            <input id="fa-username" type="text" placeholder="Enter username" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;width:100%;margin:6px 0 10px;box-sizing:border-box;">
-            <label style="font-size:13px;font-weight:600;">Password</label><br>
-            <input id="fa-password" type="password" placeholder="Enter password" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;width:100%;margin:6px 0 10px;box-sizing:border-box;">
-            <button onclick="frameLogin()" style="padding:8px 18px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;width:100%;">Login</button>
-          </div>
+      <div style="margin-top:16px;">
+        <div style="margin-bottom:10px;font-size:13px;color:#6b7280;">
+          Structure: <code>frameset rows="50%,50%"</code> → top row: frameA + frameB &nbsp;|&nbsp; bottom row: frameC + frameD
         </div>
-        <div style="border:2px solid #10b981;border-radius:10px;overflow:hidden;">
-          <div style="background:#10b981;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame B — Dashboard</div>
-          <div style="padding:16px;background:#f0fdf4;" id="frameB">
-            <p id="frameB-status" style="color:#6b7280;font-size:13px;margin-bottom:12px;">Waiting for login from Frame A...</p>
-            <div id="frameB-content" style="display:none;">
-              <p style="font-weight:600;color:#065f46;">✅ Logged in successfully!</p>
-              <button id="frameB-action" onclick="frameBAction()" style="margin-top:8px;padding:8px 16px;background:#10b981;color:#fff;border:none;border-radius:6px;cursor:pointer;">
-                Perform Action
-              </button>
-              <div id="frameB-result" style="margin-top:8px;font-size:13px;color:#374151;"></div>
-            </div>
-          </div>
-        </div>
-        <div style="border:2px solid #f59e0b;border-radius:10px;overflow:hidden;">
-          <div style="background:#f59e0b;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame C — Data Table</div>
-          <div style="padding:16px;background:#fffbeb;" id="frameC">
-            <table style="width:100%;border-collapse:collapse;font-size:13px;">
-              <thead><tr style="background:#fef3c7;">
-                <th style="padding:6px 10px;border:1px solid #fcd34d;text-align:left;">#</th>
-                <th style="padding:6px 10px;border:1px solid #fcd34d;text-align:left;">Item</th>
-                <th style="padding:6px 10px;border:1px solid #fcd34d;text-align:left;">Value</th>
-              </tr></thead>
-              <tbody>
-                <tr><td style="padding:6px 10px;border:1px solid #fcd34d;">1</td><td style="padding:6px 10px;border:1px solid #fcd34d;">Alpha</td><td style="padding:6px 10px;border:1px solid #fcd34d;">$120</td></tr>
-                <tr><td style="padding:6px 10px;border:1px solid #fcd34d;">2</td><td style="padding:6px 10px;border:1px solid #fcd34d;">Beta</td><td style="padding:6px 10px;border:1px solid #fcd34d;">$85</td></tr>
-                <tr><td style="padding:6px 10px;border:1px solid #fcd34d;">3</td><td style="padding:6px 10px;border:1px solid #fcd34d;">Gamma</td><td style="padding:6px 10px;border:1px solid #fcd34d;">$200</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div style="border:2px solid #8b5cf6;border-radius:10px;overflow:hidden;">
-          <div style="background:#8b5cf6;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;">Frame D — Actions</div>
-          <div style="padding:16px;background:#faf5ff;" id="frameD">
-            <button id="fd-btn1" onclick="frameDAction('export')" style="padding:8px 14px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;cursor:pointer;margin:4px;display:block;width:100%;">Export Report</button>
-            <button id="fd-btn2" onclick="frameDAction('refresh')" style="padding:8px 14px;background:#7c3aed;color:#fff;border:none;border-radius:6px;cursor:pointer;margin:4px;display:block;width:100%;">Refresh Data</button>
-            <div id="frameD-result" style="margin-top:8px;font-size:13px;color:#374151;"></div>
-          </div>
-        </div>
+        <!-- Single iframe that loads the real <frameset> document -->
+        <iframe
+          id="framesetHost"
+          src="frames/frameset.html"
+          style="width:100%;height:500px;border:2px solid #d1d5db;border-radius:12px;"
+          title="Frameset Playground">
+        </iframe>
       </div>
     </div>
 
@@ -2224,6 +2305,539 @@
       <button onclick="loadBooks()">Load Books</button>
       <ul id="books"></ul>
     </div>
+
+    <!-- ======================================================
+         ADVANCED LABS — Category B & C Scenarios
+         These sections are ISOLATED from original sections.
+         All new section IDs are unique and don't conflict.
+    ====================================================== -->
+
+    <!-- LAZY LOAD IMAGES (#11) -->
+    <div id="lazyLoadSection" class="section hidden">
+      <h2>Lazy Load Images</h2>
+      <div class="note">
+        <b>Reproduce:</b> Images load only when scrolled into viewport using IntersectionObserver.
+        Scripts that check <code>src</code> before scrolling get an empty attribute — NoSuchElementException or stale data.
+        <br><br>
+        <b>Category:</b> IntersectionObserver • Deferred Loading • Viewport Timing
+      </div>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:8px;">Scroll down inside this section to trigger lazy loading. Each card shows <code>data-loaded="true"</code> once the image loads.</p>
+      <div id="ll-grid" class="ll-grid"></div>
+    </div>
+
+    <!-- INFINITE SCROLL (#12 / #61) -->
+    <div id="infiniteScroll" class="section hidden">
+      <h2>Infinite Scroll Table</h2>
+      <div class="note">
+        <b>Reproduce:</b> New rows append dynamically as you scroll to the bottom. Automation that
+        counts rows after page load misses subsequent batches. Row IDs are sequential across loads.
+        <br><br>
+        <b>Category:</b> Dynamic DOM Append • Scroll Events • Stale Element References
+      </div>
+      <p id="inf-count" style="font-size:13px;color:#6b7280;margin-bottom:8px;">Loading...</p>
+      <div id="inf-container" style="height:420px;overflow-y:auto;border:1px solid var(--border);border-radius:12px;">
+        <table style="margin-top:0;border-radius:0;" class="active">
+          <thead>
+            <tr>
+              <th>#</th><th>Name</th><th>Email</th><th>Status</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="inf-tbody"></tbody>
+        </table>
+        <div id="inf-loader" class="inf-loader" style="display:none;">⏳ Loading more...</div>
+      </div>
+    </div>
+
+    <!-- ACCORDION (#16) -->
+    <div id="accordion" class="section hidden">
+      <h2>Accordion Component</h2>
+      <div class="note">
+        <b>Reproduce:</b> Accordion panels are physically removed from DOM when collapsed.
+        Automation asserting on collapsed panel text gets <code>NoSuchElementException</code>.
+        <br><br>
+        <b>Category:</b> DOM Remove/Insert • Expand-Collapse • Stale Elements
+      </div>
+      <div id="acc-wrap" style="max-width:640px;margin-top:16px;">
+        <div class="acc-item">
+          <div class="acc-header"><span>What is Selenium WebDriver?</span><span class="acc-icon">−</span></div>
+          <div class="acc-body">Selenium WebDriver is a browser automation framework that allows scripts to control a browser directly via native browser support.</div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-header"><span>What is the Page Object Model?</span><span class="acc-icon">+</span></div>
+          <div class="acc-body">POM is a design pattern that creates an object repository for web UI elements, improving test maintenance and readability.</div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-header"><span>What is an explicit wait?</span><span class="acc-icon">+</span></div>
+          <div class="acc-body">An explicit wait tells WebDriver to wait for a certain condition before proceeding — e.g., <code>WebDriverWait(driver, 10).until(EC.visibility_of_element)</code>.</div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-header"><span>How does Shadow DOM affect locators?</span><span class="acc-icon">+</span></div>
+          <div class="acc-body">Shadow DOM encapsulates elements so standard <code>driver.find_element</code> cannot reach inside unless you use <code>expand_shadow_element</code> or JS executor.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TREE MENU (#17) -->
+    <div id="expandMenu" class="section hidden">
+      <h2>Expand / Collapse Tree Menu</h2>
+      <div class="note">
+        <b>Reproduce:</b> Child menu items are removed from DOM when parent is collapsed.
+        Direct XPath to a child fails unless the parent is first expanded.
+        <br><br>
+        <b>Category:</b> DOM Removal • Nested Navigation • Sequential Interaction
+      </div>
+      <p id="tree-result" style="margin-top:12px;font-size:14px;color:var(--primary);font-weight:600;min-height:24px;"></p>
+      <ul class="tree-nav" style="margin-top:16px;">
+        <li>
+          <span class="tree-toggle">▼</span><strong>Automation Frameworks</strong>
+          <ul style="padding-left:24px;">
+            <li><span class="tree-toggle">▼</span><strong>Selenium</strong>
+              <ul style="padding-left:24px;">
+                <li><span class="tree-leaf">WebDriver API</span></li>
+                <li><span class="tree-leaf">Grid Setup</span></li>
+                <li><span class="tree-leaf">Page Object Model</span></li>
+              </ul>
+            </li>
+            <li><span class="tree-toggle">▶</span><strong>Playwright</strong>
+              <ul style="padding-left:24px;">
+                <li><span class="tree-leaf">Browser Contexts</span></li>
+                <li><span class="tree-leaf">Auto-Wait</span></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li style="margin-top:8px;">
+          <span class="tree-toggle">▶</span><strong>CI/CD Integration</strong>
+          <ul style="padding-left:24px;">
+            <li><span class="tree-leaf">Jenkins Pipeline</span></li>
+            <li><span class="tree-leaf">GitHub Actions</span></li>
+            <li><span class="tree-leaf">Docker Compose</span></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div id="hoverMenu" class="section hidden">
+      <h2>Hover-Dependent Submenu</h2>
+      <div class="note">
+        <b>Reproduce:</b> Submenus are removed from DOM on mouse-leave — automation clicking
+        a submenu item without hovering first throws <code>NoSuchElementException</code>.
+        Items marked <b>▶</b> open a third level. Each top-level item has a different
+        hide delay (instant / 300 ms / 800 ms) requiring timing-aware waits.
+        <br><br>
+        <b>Category:</b> Hover Interaction • DOM Remove on Mouse-Leave • Nested Navigation • Timing Variants
+      </div>
+      <nav style="margin-top:20px;">
+        <ul class="hm-menu">
+
+          <!-- ── L1: Products — hides instantly ── -->
+          <li class="hm-parent" data-hm-delay="0">
+            Products <span class="hm-delay-badge">instant</span>
+            <ul class="hm-sub">
+              <li class="hm-sub-parent" data-hm-delay="0">
+                Selenium <span class="hm-sub-arrow">▶</span>
+                <ul class="hm-sub2">
+                  <li data-item="selenium-ide">IDE Extension</li>
+                  <li data-item="selenium-wd">WebDriver API</li>
+                  <li data-item="selenium-grid">Remote Grid</li>
+                  <li data-item="selenium-bidi">BiDi Protocol</li>
+                </ul>
+              </li>
+              <li class="hm-sub-parent" data-hm-delay="0">
+                Playwright <span class="hm-sub-arrow">▶</span>
+                <ul class="hm-sub2">
+                  <li data-item="pw-ctx">Browser Contexts</li>
+                  <li data-item="pw-wait">Auto-Wait Engine</li>
+                  <li data-item="pw-trace">Trace Viewer</li>
+                </ul>
+              </li>
+              <li data-item="cypress">Cypress</li>
+              <li data-item="appium">Appium Mobile</li>
+            </ul>
+          </li>
+
+          <!-- ── L1: Tools — hides after 300 ms ── -->
+          <li class="hm-parent" data-hm-delay="300">
+            Tools <span class="hm-delay-badge">300 ms</span>
+            <ul class="hm-sub">
+              <li class="hm-sub-parent" data-hm-delay="300">
+                CI / CD <span class="hm-sub-arrow">▶</span>
+                <ul class="hm-sub2">
+                  <li data-item="ci-jenkins">Jenkins Pipeline</li>
+                  <li data-item="ci-gha">GitHub Actions</li>
+                  <li data-item="ci-gitlab">GitLab CI</li>
+                  <li data-item="ci-circle">CircleCI</li>
+                </ul>
+              </li>
+              <li class="hm-sub-parent" data-hm-delay="300">
+                Reporting <span class="hm-sub-arrow">▶</span>
+                <ul class="hm-sub2">
+                  <li data-item="rep-allure">Allure Reports</li>
+                  <li data-item="rep-extent">ExtentReports</li>
+                  <li data-item="rep-html">HTML Publisher</li>
+                </ul>
+              </li>
+              <li data-item="docker">Docker</li>
+              <li data-item="k8s">Kubernetes</li>
+            </ul>
+          </li>
+
+          <!-- ── L1: Services — hides after 800 ms ── -->
+          <li class="hm-parent" data-hm-delay="800">
+            Services <span class="hm-delay-badge">800 ms</span>
+            <ul class="hm-sub">
+              <li class="hm-sub-parent" data-hm-delay="800">
+                Cloud Testing <span class="hm-sub-arrow">▶</span>
+                <ul class="hm-sub2">
+                  <li data-item="cloud-bs">BrowserStack</li>
+                  <li data-item="cloud-sl">Sauce Labs</li>
+                  <li data-item="cloud-lt">LambdaTest</li>
+                </ul>
+              </li>
+              <li data-item="consulting">Consulting</li>
+              <li data-item="training">Training</li>
+              <li data-item="support">Support Plans</li>
+            </ul>
+          </li>
+
+          <!-- ── L1: Company — hides instantly ── -->
+          <li class="hm-parent" data-hm-delay="0">
+            Company <span class="hm-delay-badge">instant</span>
+            <ul class="hm-sub">
+              <li data-item="about">About Us</li>
+              <li data-item="blog">Blog</li>
+              <li data-item="careers">Careers</li>
+              <li data-item="contact">Contact</li>
+            </ul>
+          </li>
+
+        </ul>
+      </nav>
+      <p id="hm-result" style="margin-top:16px;font-size:14px;font-weight:600;color:var(--primary);min-height:22px;"></p>
+      <p style="margin-top:8px;font-size:13px;color:#6b7280;">
+        Hover a top-level item to open its submenu. Items with <strong>▶</strong> reveal a third level.
+        Each item has a different hide delay — move the cursor quickly vs slowly to see the difference.
+      </p>
+    </div>
+
+    <!-- CSS ANIMATION TIMING GATE (#59) -->
+    <div id="animationTiming" class="section hidden">
+      <h2>CSS Animation Timing Gate</h2>
+      <div class="note">
+        <b>Reproduce:</b> The action button is <b>disabled</b> while the panel animates in (1.2 s).
+        Automation clicking the button before animation ends gets <code>ElementNotInteractableException</code>.
+        Wait for <code>animationend</code> event or for the button's <code>disabled</code> attribute to clear.
+        <br><br>
+        <b>Category:</b> CSS Animation • Disabled State • Timing Gate • animationend Event
+      </div>
+      <button onclick="triggerAnimPanel()">▶ Trigger Panel Animation</button>
+      <div id="anim-panel">🎉 Panel Loaded — Animation Complete!</div>
+      <p id="anim-status" style="margin-top:12px;font-size:13px;color:#6b7280;">Click the button above to start the animation sequence.</p>
+      <button id="anim-action-btn" style="margin-top:12px;" disabled>✅ Confirm (only clickable after animation)</button>
+      <p id="anim-click-result" style="margin-top:8px;font-size:14px;min-height:20px;"></p>
+    </div>
+
+    <!-- DRAG & DROP (#90) -->
+    <div id="dragDrop" class="section hidden">
+      <h2>Drag &amp; Drop</h2>
+      <div class="note">
+        <b>Reproduce:</b> Items must be dragged using HTML5 DragEvent API. Standard
+        <code>click()</code> or <code>sendKeys</code> will not work. Use Actions chain with
+        <code>clickAndHold → moveToElement → release</code>.
+        <br><br>
+        <b>Category:</b> HTML5 Drag API • Actions Chain • Element Interaction
+      </div>
+      <h3 style="margin-top:20px;font-size:16px;">Drop Zone</h3>
+      <div class="dd-items">
+        <div class="dd-item" data-id="item-1">🐞 Bug Report</div>
+        <div class="dd-item" data-id="item-2">🚀 Feature Request</div>
+        <div class="dd-item" data-id="item-3">🔥 Critical Issue</div>
+        <div class="dd-item" data-id="item-4">📋 Test Case</div>
+      </div>
+      <div id="dd-zone" class="dd-zone">📥 Drop items here</div>
+      <p id="dd-result" style="margin-top:12px;font-size:14px;font-weight:600;min-height:20px;"></p>
+      <h3 style="margin-top:24px;font-size:16px;">Sortable List</h3>
+      <p style="font-size:13px;color:#6b7280;">Drag rows to reorder:</p>
+      <ul class="sort-list" id="sort-list">
+        <li class="sort-item" data-id="s1">🥇 Priority 1 — Login Flow</li>
+        <li class="sort-item" data-id="s2">🥈 Priority 2 — Checkout</li>
+        <li class="sort-item" data-id="s3">🥉 Priority 3 — Profile Update</li>
+        <li class="sort-item" data-id="s4">4️⃣  Priority 4 — Notification</li>
+      </ul>
+    </div>
+
+    <!-- SLIDER CONTROLS (#95 / #101) -->
+    <div id="sliderControls" class="section hidden">
+      <h2>Slider Controls</h2>
+      <div class="note">
+        <b>Reproduce:</b> Native <code>&lt;input type="range"&gt;</code> requires keyboard arrow keys or
+        JavaScript <code>element.value = x</code> + dispatchEvent. Custom CSS sliders need mouse-drag
+        simulation via Actions chain — standard <code>sendKeys</code> fails.
+        <br><br>
+        <b>Category:</b> Range Input • Custom Slider • Mouse Drag Simulation
+      </div>
+      <div style="max-width:480px;margin-top:20px;">
+        <h3 style="font-size:15px;margin-bottom:12px;">Native Range Slider</h3>
+        <input id="native-slider" type="range" min="0" max="100" value="50"
+               style="width:100%;max-width:none;padding:0;border:none;box-shadow:none;">
+        <p>Value: <strong id="native-slider-val">50</strong></p>
+
+        <h3 style="font-size:15px;margin:20px 0 12px;">Price Range</h3>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <span>Min: <strong id="pr-min-d">$0</strong></span>
+          <input id="pr-min" type="range" min="0" max="500" value="0"
+                 style="flex:1;max-width:none;padding:0;border:none;box-shadow:none;">
+          <input id="pr-max" type="range" min="0" max="500" value="500"
+                 style="flex:1;max-width:none;padding:0;border:none;box-shadow:none;">
+          <span>Max: <strong id="pr-max-d">$500</strong></span>
+        </div>
+
+        <h3 style="font-size:15px;margin:20px 0 12px;">Custom CSS Slider</h3>
+        <div id="cs-track" class="cs-track">
+          <div id="cs-fill" class="cs-fill" style="width:40%;"></div>
+          <div id="cs-thumb" class="cs-thumb" style="left:40%;" role="slider"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="40"></div>
+        </div>
+        <p>Custom value: <strong id="cs-val">40</strong></p>
+      </div>
+    </div>
+
+    <!-- CANVAS CHART (#31 / #85) -->
+    <div id="canvasChart" class="section hidden">
+      <h2>Canvas Chart</h2>
+      <div class="note">
+        <b>Reproduce:</b> Chart is drawn on a <code>&lt;canvas&gt;</code> element via JavaScript.
+        Standard XPath/CSS locators cannot inspect drawn pixels. Use <code>data-*</code>
+        attributes set by the chart engine, or compare canvas pixel data via JS executor.
+        <br><br>
+        <b>Category:</b> Canvas 2D API • Pixel Rendering • Data Attribute Verification
+      </div>
+      <div style="margin-bottom:12px;">
+        <label for="chart-dataset-sel" style="font-weight:600;margin-right:8px;">Dataset:</label>
+        <select id="chart-dataset-sel" style="max-width:200px;padding:8px 12px;">
+          <option value="monthly">Monthly Revenue</option>
+          <option value="weekly">Daily Orders</option>
+          <option value="quarterly">Quarterly Sales</option>
+        </select>
+      </div>
+      <div style="position:relative;background:#fff;border-radius:14px;padding:16px;box-shadow:var(--shadow);">
+        <canvas id="bar-chart-canvas" style="width:100%;max-height:380px;"></canvas>
+        <div id="chart-tooltip" style="display:none;position:absolute;background:#1f2937;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;pointer-events:none;z-index:10;"></div>
+      </div>
+    </div>
+
+    <!-- SVG GRAPH (#32 / #86) -->
+    <div id="svgGraph" class="section hidden">
+      <h2>SVG Interactive Network Graph</h2>
+      <div class="note">
+        <b>Reproduce:</b> Graph nodes are SVG elements inside a <code>&lt;svg&gt;</code> container.
+        Standard XPath cannot directly query SVG namespace. Use
+        <code>By.xpath("//svg//*[@id='n1']")</code> or JS executor for clicks.
+        <br><br>
+        <b>Category:</b> SVG Namespace • Custom XPath • Element Interaction
+      </div>
+      <div id="svg-graph-container" style="background:#fff;border-radius:14px;padding:16px;box-shadow:var(--shadow);"></div>
+      <div id="svg-node-info" style="display:none;margin-top:16px;padding:16px;background:#f0f4ff;border-radius:10px;border-left:4px solid var(--primary);">
+        <strong id="svg-node-name"></strong>
+        <span id="svg-node-badge" style="margin-left:10px;padding:2px 10px;border-radius:20px;font-size:12px;background:#e0e7ff;color:var(--primary);font-weight:600;"></span>
+        <p id="svg-node-desc" style="margin:8px 0 0;font-size:13px;color:#374151;"></p>
+      </div>
+    </div>
+
+    <!-- CHAT STREAM (#87 / #119) -->
+    <div id="chatStream" class="section hidden">
+      <h2>Streaming Chat</h2>
+      <div class="note">
+        <b>Reproduce:</b> Bot messages stream character-by-character. Asserting text immediately
+        after the user sends a message gets a partial or empty string. Wait for
+        <code>data-role="bot"</code> element with stable text (no change for 500 ms).
+        <br><br>
+        <b>Category:</b> Streaming Text • Timing • Text Assertion Instability
+      </div>
+      <div class="chat-wrap" style="margin-top:16px;">
+        <div id="chat-thread"></div>
+        <div class="chat-input-row">
+          <input id="chat-input" type="text" placeholder="Type a message and press Enter..." style="max-width:none;margin:0;">
+          <button id="chat-send">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAPTCHA LAB (#87 / #95) -->
+    <div id="captchaSection" class="section hidden">
+      <h2>CAPTCHA Simulation</h2>
+      <div class="note">
+        <b>Reproduce:</b> CAPTCHA grid regenerates on wrong answer. Tile selections are tracked
+        via DOM class, not value. Standard form submit assertions fail because there is no
+        hidden input — the result depends on the JS verification outcome.
+        <br><br>
+        <b>Category:</b> Visual CAPTCHA • DOM Class State • Conditional Verification
+      </div>
+      <p id="cap-label" style="font-weight:600;font-size:15px;margin:16px 0 8px;"></p>
+      <div id="cap-grid" class="cap-grid"></div>
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button id="cap-verify">✅ Verify</button>
+        <button id="cap-refresh" style="background:#e5e7eb;color:#374151;">🔄 New CAPTCHA</button>
+      </div>
+      <p id="cap-msg" style="margin-top:12px;font-size:14px;font-weight:600;min-height:20px;"></p>
+    </div>
+
+    <!-- KEYBOARD NAV (#42 / #102) -->
+    <div id="keyboardNav" class="section hidden">
+      <h2>Keyboard-Only Navigation</h2>
+      <div class="note">
+        <b>Reproduce:</b> Secret menu appears only when the focus-trap container gains focus.
+        The modal opens only on <kbd>Enter</kbd> key press on a specific card.
+        Automation using mouse clicks or Tab navigation misses these interactions.
+        <br><br>
+        <b>Category:</b> Focus Events • Keyboard Interaction • Modal • DOM Toggle
+      </div>
+      <div id="kb-focus-trap" tabindex="0" style="padding:14px;border:2px dashed var(--border);border-radius:12px;margin:16px 0;outline:none;cursor:pointer;">
+        <p style="margin:0;color:#6b7280;font-size:14px;">👆 Click here or Tab into this area to reveal the secret menu</p>
+        <div id="kb-secret-menu" style="margin-top:12px;padding:12px;background:#e0e7ff;border-radius:8px;">
+          <strong style="color:var(--primary);">🔓 Secret Menu Revealed!</strong>
+          <ul style="margin:8px 0 0;padding-left:20px;font-size:13px;">
+            <li>Admin Panel</li><li>Debug Mode</li><li>Raw Logs</li>
+          </ul>
+        </div>
+      </div>
+      <p style="font-size:13px;color:#6b7280;">Press <kbd>Enter</kbd> on a card below to open a modal:</p>
+      <div id="kb-card-grid">
+        <div class="kb-card" id="kb-enter-card" tabindex="0" data-tab-label="Open Modal Card">Press Enter → Modal</div>
+        <div class="kb-card" tabindex="0" data-tab-label="Card A">Tab Focus Card A</div>
+        <div class="kb-card" tabindex="0" data-tab-label="Card B">Tab Focus Card B</div>
+        <div class="kb-card" tabindex="0" data-tab-label="Card C">Tab Focus Card C</div>
+      </div>
+      <p id="tab-ind" style="margin-top:12px;font-size:13px;color:var(--primary);font-weight:600;min-height:20px;"></p>
+      <div id="kb-modal" style="display:none">
+        <div id="kb-modal-content">
+          <h3 style="margin-bottom:12px;">Modal Opened via Keyboard</h3>
+          <p style="color:#6b7280;font-size:14px;margin-bottom:20px;">This modal opened because you pressed <kbd>Enter</kbd> on the card. Automation must use keyboard events, not mouse clicks, to trigger this.</p>
+          <button id="kb-modal-close">Close Modal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE DASHBOARD (#66 / #85 / #86) -->
+    <div id="dashboardSection" class="section hidden">
+      <h2>Live KPI Dashboard</h2>
+      <div class="note">
+        <b>Reproduce:</b> KPI values update every 1.5–7 s via async intervals.
+        Notification panel is physically removed from DOM when closed — scripts asserting
+        on the panel before it's opened get <code>NoSuchElementException</code>.
+        <br><br>
+        <b>Category:</b> Async KPI Updates • DOM Remove Panel • Notification Bell
+      </div>
+      <div class="notif-bell-wrap">
+        <button id="notif-bell">🔔</button>
+        <div id="notif-badge"></div>
+      </div>
+      <div id="notif-panel">
+        <div id="notif-panel-header">Notifications</div>
+        <div id="notif-list"></div>
+      </div>
+      <div class="kpi-grid" style="margin-top:16px;">
+        <div class="kpi-card"><div class="kpi-label">Revenue</div><div id="kpi-revenue-val" class="kpi-val">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Users</div><div id="kpi-users-val" class="kpi-val">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Orders</div><div id="kpi-orders-val" class="kpi-val">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Errors</div><div id="kpi-errors-val" class="kpi-val">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Latency</div><div id="kpi-latency-val" class="kpi-val">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Uptime</div><div id="kpi-uptime-val" class="kpi-val">—</div></div>
+      </div>
+      <div style="margin-top:20px;">
+        <button onclick="_pushNotif('Manual test notification — Dashboard','info')">Push Test Notification</button>
+      </div>
+    </div>
+
+    <!-- TOAST MESSAGES (#34) -->
+    <div id="toastMessages" class="section hidden">
+      <h2>Toast Messages</h2>
+      <div class="note">
+        <b>Reproduce:</b> Toasts are injected into <code>#toast-container</code> (fixed, top-right, z-index:9999)
+        and <b>auto-removed from DOM</b> after their timeout — they are never just hidden.
+        Each toast gets a unique runtime ID (<code>toast-&lt;timestamp&gt;</code>), so static ID locators always fail.
+        Multiple toasts stack vertically; clicking a toast dismisses it early.
+        <br><br>
+        <b>Category:</b> Dynamic DOM Injection • Auto-Dismiss • Ephemeral Elements • Dynamic ID • Stacked Overlays • Async Trigger
+      </div>
+
+      <!-- Type buttons -->
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;">
+        <button id="toast-btn-success" onclick="showToast('success')"
+          style="background:#10b981;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ✅ Success Toast
+        </button>
+        <button id="toast-btn-error" onclick="showToast('error')"
+          style="background:#ef4444;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ❌ Error Toast
+        </button>
+        <button id="toast-btn-info" onclick="showToast('info')"
+          style="background:#6366f1;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ℹ️ Info Toast
+        </button>
+        <button id="toast-btn-warning" onclick="showToast('warning')"
+          style="background:#f59e0b;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ⚠️ Warning Toast
+        </button>
+      </div>
+
+      <!-- Custom message -->
+      <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input id="toast-custom-msg" type="text" placeholder="Enter custom toast message…"
+          style="padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;width:300px;">
+        <select id="toast-custom-type"
+          style="padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;">
+          <option value="success">Success</option>
+          <option value="error">Error</option>
+          <option value="info">Info</option>
+          <option value="warning">Warning</option>
+        </select>
+        <button id="toast-btn-custom"
+          style="background:#6366f1;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          Send Custom
+        </button>
+      </div>
+
+      <!-- Special scenarios -->
+      <div style="margin-top:24px;display:flex;flex-wrap:wrap;gap:10px;">
+        <button id="toast-btn-rapid"
+          style="background:#374151;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ⚡ Rapid Fire (3 toasts)
+        </button>
+        <button id="toast-btn-delayed"
+          style="background:#7c3aed;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          ⏳ Delayed Toast (2 s)
+        </button>
+        <button id="toast-btn-long"
+          style="background:#0284c7;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          📜 Long-lived Toast (8 s)
+        </button>
+        <button id="toast-btn-persistent"
+          style="background:#b45309;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">
+          📌 Persistent Toast (no auto-dismiss)
+        </button>
+      </div>
+
+      <!-- Status panel -->
+      <div style="margin-top:24px;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e5e7eb;">
+        <p style="font-size:13px;font-weight:700;margin-bottom:8px;color:#374151;">Live Status</p>
+        <p style="font-size:13px;color:#6b7280;">
+          Active toasts: <strong id="toast-active-count" data-count="0">0</strong>
+          &nbsp;|&nbsp;
+          Total fired: <strong id="toast-total-count" data-count="0">0</strong>
+          &nbsp;|&nbsp;
+          Last type: <span id="toast-last-type" data-type="">—</span>
+        </p>
+        <p style="font-size:12px;color:#9ca3af;margin-top:6px;">
+          Toasts appear top-right. Each has a unique <code>id="toast-&lt;timestamp&gt;"</code>
+          and <code>data-toast-type</code> attribute. Click any toast to dismiss early.
+        </p>
+      </div>
+    </div>
+
+    <!-- TOAST CONTAINER (global, used by showToast) -->
+    <div id="toast-container"></div>
+
 
   </div>
 
@@ -3705,25 +4319,8 @@
     }
 
     /* ---------- FRAMESET ---------- */
-    function frameLogin() {
-      const u = document.getElementById('fa-username').value.trim();
-      const p = document.getElementById('fa-password').value.trim();
-      if (!u || !p) { alert('Enter username and password'); return; }
-      const status  = document.getElementById('frameB-status');
-      const content = document.getElementById('frameB-content');
-      status.textContent = `Logged in as: ${u}`;
-      content.style.display = 'block';
-    }
-    function frameBAction() {
-      const r = document.getElementById('frameB-result');
-      r.textContent = '✅ Action executed successfully at ' + new Date().toLocaleTimeString();
-    }
-    function frameDAction(type) {
-      const r = document.getElementById('frameD-result');
-      r.textContent = type === 'export'
-        ? '📁 Report exported at ' + new Date().toLocaleTimeString()
-        : '🔄 Data refreshed at ' + new Date().toLocaleTimeString();
-    }
+    // All frame logic lives in the individual frame documents (fset-*.html).
+    // No helper functions needed in the parent page.
 
     /* ---------- AD OVERLAY ---------- */
     let _adLoopTimer = null;
@@ -3968,6 +4565,10 @@
   <script src="js/dynamic-text.js"></script>
   <script src="js/shadow-dom.js"></script>
   <script src="js/environment-simulator.js"></script>
+  <script src="js/lazy-load.js"></script>
+  <script src="js/canvas-chart.js"></script>
+  <script src="js/svg-graph.js"></script>
+  <script src="js/new-scenarios.js"></script>
 
 
 
