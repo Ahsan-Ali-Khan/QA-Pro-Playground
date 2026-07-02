@@ -917,6 +917,7 @@ function initKeyboardNav(){
     keyboardNav:()=>initKeyboardNav(),
     dashboardSection:()=>{initDashboard();initNotifications();},
     toastMessages:()=>initToastSection(),
+    calendarPicker:()=>initCalendarPicker(),
     lazyLoadSection:()=>LazyLoad.init(),
     canvasChart:()=>CanvasChart.init(),
     svgGraph:()=>SvgGraph.init(),
@@ -955,3 +956,187 @@ function initKeyboardNav(){
     setTimeout(()=>tryInit('dynamicElements'),200);
   });
 })();
+
+/* ================================================================
+   CALENDAR / DATE PICKER — nsdateformatter-style pattern playground
+================================================================ */
+function initCalendarPicker(){
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const pad=n=>String(n).padStart(2,'0');
+
+  const TOKENS=[
+    {token:'yyyy', desc:'4-digit year',          fn:d=>String(d.getFullYear())},
+    {token:'yy',   desc:'2-digit year',          fn:d=>String(d.getFullYear()).slice(-2)},
+    {token:'MMMM', desc:'Full month name',        fn:d=>MONTHS[d.getMonth()]},
+    {token:'MMM',  desc:'Short month name',       fn:d=>MONTHS[d.getMonth()].slice(0,3)},
+    {token:'MM',   desc:'Month number (padded)',  fn:d=>pad(d.getMonth()+1)},
+    {token:'M',    desc:'Month number',           fn:d=>String(d.getMonth()+1)},
+    {token:'dd',   desc:'Day of month (padded)',  fn:d=>pad(d.getDate())},
+    {token:'d',    desc:'Day of month',           fn:d=>String(d.getDate())},
+    {token:'EEEE', desc:'Full weekday name',      fn:d=>DAYS[d.getDay()]},
+    {token:'EEE',  desc:'Short weekday name',     fn:d=>DAYS[d.getDay()].slice(0,3)},
+    {token:'E',    desc:'Min weekday letter',     fn:d=>DAYS[d.getDay()][0]},
+    {token:'HH',   desc:'Hour 0-23 (padded)',     fn:d=>pad(d.getHours())},
+    {token:'H',    desc:'Hour 0-23',              fn:d=>String(d.getHours())},
+    {token:'hh',   desc:'Hour 1-12 (padded)',     fn:d=>pad(d.getHours()%12||12)},
+    {token:'h',    desc:'Hour 1-12',              fn:d=>String(d.getHours()%12||12)},
+    {token:'mm',   desc:'Minutes (padded)',        fn:d=>pad(d.getMinutes())},
+    {token:'ss',   desc:'Seconds (padded)',        fn:d=>pad(d.getSeconds())},
+    {token:'SSS',  desc:'Milliseconds',           fn:d=>String(d.getMilliseconds()).padStart(3,'0')},
+    {token:'a',    desc:'AM / PM',                fn:d=>d.getHours()<12?'AM':'PM'},
+    {token:'z',    desc:'Timezone name',          fn:d=>{const o=d.getTimezoneOffset(),s=o<=0?'+':'-',ah=pad(Math.floor(Math.abs(o)/60)),am=pad(Math.abs(o)%60);return'GMT'+s+ah+am;}},
+    {token:'Z',    desc:'Timezone offset',        fn:d=>{const o=d.getTimezoneOffset(),s=o<=0?'+':'-',ah=pad(Math.floor(Math.abs(o)/60)),am=pad(Math.abs(o)%60);return s+ah+am;}},
+    {token:'X',    desc:'ISO 8601 timezone',      fn:d=>{const o=d.getTimezoneOffset();if(o===0)return'Z';const s=o<0?'+':'-',ah=pad(Math.floor(Math.abs(o)/60)),am=pad(Math.abs(o)%60);return s+ah+':'+am;}},
+    {token:'Q',    desc:'Quarter of year',        fn:d=>'Q'+Math.ceil((d.getMonth()+1)/3)},
+    {token:'WW',   desc:'Week of year (padded)',  fn:d=>{const s=new Date(d.getFullYear(),0,1);return pad(Math.ceil(((d-s)/86400000+s.getDay()+1)/7));}},
+    {token:'W',    desc:'Week of year',           fn:d=>{const s=new Date(d.getFullYear(),0,1);return String(Math.ceil(((d-s)/86400000+s.getDay()+1)/7));}},
+    {token:'DDD',  desc:'Day of year (3-digit)',  fn:d=>{const s=new Date(d.getFullYear(),0,0);return String(Math.floor((d-s)/86400000)).padStart(3,'0');}},
+    {token:'D',    desc:'Day of year',            fn:d=>{const s=new Date(d.getFullYear(),0,0);return String(Math.floor((d-s)/86400000));}},
+  ];
+
+  const SORTED=[...TOKENS].sort((a,b)=>b.token.length-a.token.length);
+
+  function applyPattern(date,pattern){
+    let result='',i=0;
+    while(i<pattern.length){
+      if(pattern[i]==="'"){
+        let j=i+1;
+        while(j<pattern.length&&pattern[j]!=="'")j++;
+        result+=pattern.slice(i+1,j);
+        i=j+1;continue;
+      }
+      let matched=false;
+      for(const tok of SORTED){
+        if(pattern.startsWith(tok.token,i)){result+=tok.fn(date);i+=tok.token.length;matched=true;break;}
+      }
+      if(!matched){result+=pattern[i];i++;}
+    }
+    return result;
+  }
+
+  const QUICK=[
+    {label:'ISO 8601',        pattern:'yyyy-MM-dd'},
+    {label:'US Date',         pattern:'MM/dd/yyyy'},
+    {label:'EU Date',         pattern:'dd/MM/yyyy'},
+    {label:'Full Date',       pattern:'EEEE, MMMM d, yyyy'},
+    {label:'Short Date',      pattern:'MMM d, yyyy'},
+    {label:'Date + Time',     pattern:'yyyy-MM-dd HH:mm:ss'},
+    {label:'12h Time',        pattern:'h:mm:ss a'},
+    {label:'24h Time',        pattern:'HH:mm:ss'},
+    {label:'Dotted EU',       pattern:'dd.MM.yyyy'},
+    {label:'Compact',         pattern:'yyyyMMdd'},
+    {label:'With TZ',         pattern:'yyyy-MM-dd HH:mm:ss Z'},
+    {label:'ISO Full',        pattern:"yyyy-MM-dd'T'HH:mm:ssX"},
+    {label:'Month Year',      pattern:'MMMM yyyy'},
+    {label:'Weekday+Time',    pattern:'EEE, MMM d HH:mm'},
+    {label:'Verbose',         pattern:"EEEE 'the' d 'of' MMMM yyyy 'at' h:mm a"},
+    {label:'Quarter',         pattern:"'Q'Q yyyy"},
+    {label:'Log Timestamp',   pattern:'yyyy-MM-dd HH:mm:ss.SSS'},
+    {label:'Week of Year',    pattern:"'Week' WW 'of' yyyy"},
+  ];
+
+  const ALL_PATTERNS=[
+    {name:'ISO 8601 Date',        pattern:'yyyy-MM-dd'},
+    {name:'US Date',              pattern:'MM/dd/yyyy'},
+    {name:'EU Date',              pattern:'dd/MM/yyyy'},
+    {name:'Dotted (DD.MM.YYYY)',  pattern:'dd.MM.yyyy'},
+    {name:'Compact (YYYYMMDD)',   pattern:'yyyyMMdd'},
+    {name:'Short Month',          pattern:'MMM d, yyyy'},
+    {name:'Full Month',           pattern:'MMMM d, yyyy'},
+    {name:'Full Weekday',         pattern:'EEEE, MMMM d, yyyy'},
+    {name:'Month + Year',         pattern:'MMMM yyyy'},
+    {name:'Short Month + Year',   pattern:'MMM yyyy'},
+    {name:'24h Time',             pattern:'HH:mm:ss'},
+    {name:'12h Time',             pattern:'h:mm:ss a'},
+    {name:'Time (no seconds)',    pattern:'HH:mm'},
+    {name:'12h (no seconds)',     pattern:'h:mm a'},
+    {name:'Date + 24h Time',      pattern:'yyyy-MM-dd HH:mm:ss'},
+    {name:'Date + 12h Time',      pattern:'MM/dd/yyyy h:mm a'},
+    {name:'ISO with Timezone',    pattern:'yyyy-MM-dd HH:mm:ss Z'},
+    {name:'ISO 8601 Full',        pattern:"yyyy-MM-dd'T'HH:mm:ssX"},
+    {name:'RFC 2822 Style',       pattern:'EEE, dd MMM yyyy HH:mm:ss Z'},
+    {name:'Log Timestamp',        pattern:'yyyy-MM-dd HH:mm:ss.SSS'},
+    {name:'Verbose Date',         pattern:"EEEE 'the' d 'of' MMMM yyyy"},
+    {name:'Verbose + Time',       pattern:"EEEE 'the' d 'of' MMMM yyyy 'at' h:mm a"},
+    {name:'Quarter',              pattern:"'Q'Q yyyy"},
+    {name:'Week of Year',         pattern:"'Week' WW 'of' yyyy"},
+    {name:'Day of Year',          pattern:'DDD'},
+    {name:'Weekday + Short Date', pattern:'EEE, MMM d'},
+    {name:'Timezone Offset',      pattern:'Z'},
+    {name:'ISO Timezone',         pattern:'X'},
+    {name:'With Milliseconds',    pattern:'HH:mm:ss.SSS'},
+    {name:'Day + Short Month',    pattern:'d MMM'},
+    {name:'Day Name Only',        pattern:'EEEE'},
+    {name:'Month Name Only',      pattern:'MMMM'},
+    {name:'4-Digit Year',         pattern:'yyyy'},
+    {name:'2-Digit Year',         pattern:'yy'},
+  ];
+
+  const TODAY=new Date();
+  const toLocalISO=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+
+  const refInput=document.getElementById('cal-ref-datetime');
+  const patInput=document.getElementById('cal-pattern');
+  const resultEl=document.getElementById('cal-result');
+  if(refInput) refInput.value=toLocalISO(TODAY);
+
+  function getRef(){return refInput&&refInput.value?new Date(refInput.value):TODAY;}
+  function update(){
+    const d=getRef(),pat=patInput?patInput.value:'yyyy-MM-dd',out=applyPattern(d,pat);
+    if(resultEl){resultEl.textContent=out;resultEl.setAttribute('data-formatted',out);}
+  }
+  if(refInput) refInput.addEventListener('input',update);
+  if(patInput) patInput.addEventListener('input',update);
+
+  // Chips
+  const chipsEl=document.getElementById('cal-chips');
+  if(chipsEl) QUICK.forEach(qp=>{
+    const btn=document.createElement('button');
+    btn.textContent=qp.label;
+    btn.setAttribute('data-pattern',qp.pattern);
+    btn.style.cssText='padding:4px 10px;border:1px solid var(--border);border-radius:20px;background:#fff;font-size:12px;cursor:pointer;transition:all .15s;color:#374151;';
+    btn.onmouseover=()=>{btn.style.background='#6366f1';btn.style.color='#fff';btn.style.borderColor='#6366f1';};
+    btn.onmouseout=()=>{btn.style.background='#fff';btn.style.color='#374151';btn.style.borderColor='var(--border)';};
+    btn.onclick=()=>{if(patInput){patInput.value=qp.pattern;update();}};
+    chipsEl.appendChild(btn);
+  });
+
+  // All patterns grid
+  const allEl=document.getElementById('cal-all-patterns');
+  if(allEl){
+    ALL_PATTERNS.forEach(ap=>{
+      const preview=applyPattern(TODAY,ap.pattern);
+      const row=document.createElement('div');
+      row.setAttribute('data-pattern-name',ap.name);
+      row.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:#fff;transition:background .15s;overflow:hidden;';
+      row.innerHTML='<span style="font-size:12px;font-weight:600;color:var(--muted);width:150px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ap.name+'</span>'+
+        '<span style="font-size:12px;color:#6366f1;font-family:monospace;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ap.pattern+'</span>'+
+        '<span style="font-size:13px;font-weight:700;color:#111827;font-family:monospace;white-space:nowrap;flex-shrink:0;max-width:200px;overflow:hidden;text-overflow:ellipsis;" data-preview="'+ap.name+'">'+preview+'</span>';
+      row.onmouseover=()=>row.style.background='#f5f3ff';
+      row.onmouseout=()=>row.style.background='#fff';
+      row.onclick=()=>{if(patInput){patInput.value=ap.pattern;update();}};
+      allEl.appendChild(row);
+    });
+    if(refInput) refInput.addEventListener('input',()=>{
+      const d=getRef();
+      ALL_PATTERNS.forEach(ap=>{
+        const el=allEl.querySelector('[data-preview="'+ap.name+'"]');
+        if(el) el.textContent=applyPattern(d,ap.pattern);
+      });
+    });
+  }
+
+  // Native input constraints
+  const todayStr=String(TODAY.getFullYear())+'-'+pad(TODAY.getMonth()+1)+'-'+pad(TODAY.getDate());
+  const elMin=document.getElementById('cal-min'),elMax=document.getElementById('cal-max');
+  const elRO=document.getElementById('cal-readonly'),elDis=document.getElementById('cal-disabled');
+  const elDate=document.getElementById('cal-date');
+  if(elMin){elMin.min=todayStr;elMin.value=todayStr;}
+  if(elMax){elMax.max=todayStr;elMax.value=todayStr;}
+  if(elRO)  elRO.value=todayStr;
+  if(elDis) elDis.value=todayStr;
+  if(elDate)elDate.value=todayStr;
+
+  update();
+}

@@ -6,6 +6,8 @@
 
 const hostId="env-host";
 const sectionId="env";
+let _inited=false;
+let _pollTimer=null;
 
 function host(){
   return document.getElementById(hostId);
@@ -128,42 +130,51 @@ function bindControls(){
   ];
 
   mappings.forEach(([id,key])=>{
-
     const el=document.getElementById(id);
     if(!el) return;
-
     el.onchange=e=>{
       AppContext[key]=e.target.value;
       render();
     };
   });
+
+  // Wire manual Refresh button
+  const refreshBtn=document.getElementById("env-refresh-btn");
+  if(refreshBtn) refreshBtn.onclick=render;
 }
 
 /* ======================================================
-   INIT
+   INIT — binds controls once, renders on every visit
 ====================================================== */
 
+let _bound=false;
+
 window.initEnvSimulator=function(){
-  bindControls();
+  if(!_bound){
+    _bound=true;
+    bindControls();
+    // Stop the poll timer — no longer needed after first bind
+    if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
+  }
+  // Always render so env-host is populated on every section visit
   render();
 };
 
 /* ======================================================
-   AUTO SECTION DETECTOR
+   AUTO SECTION DETECTOR — polls until section is visible,
+   then calls initEnvSimulator (which always re-renders).
 ====================================================== */
 
 function tryInit(){
-
   const section=document.getElementById(sectionId);
   if(!section) return;
-
   if(section.offsetParent!==null){
     window.initEnvSimulator();
   }
 }
 
-document.addEventListener("click",()=>setTimeout(tryInit,50));
+document.addEventListener("click",()=>setTimeout(tryInit,80));
 document.addEventListener("DOMContentLoaded",tryInit);
-setInterval(tryInit,700);
+_pollTimer=setInterval(tryInit,800);
 
 })();

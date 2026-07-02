@@ -44,6 +44,11 @@
       box-sizing: border-box;
     }
 
+    html {
+      height: 100%;
+      overflow: hidden;
+    }
+
     :root {
       --bg: #f4f7fb;
       --sidebar: #111827;
@@ -94,6 +99,7 @@
         4px 0 20px rgba(0, 0, 0, 0.08);
 
       position: relative;
+      border-radius: 0 16px 16px 0;
     }
 
     #sidebar::before {
@@ -105,15 +111,15 @@
       font-weight: 700;
       letter-spacing: 0.5px;
 
-      margin-bottom: 8px;
-      padding: 14px 14px 6px;
+      margin-bottom: 6px;
+      padding: 10px 14px 4px;
     }
 
     #sidebar div {
-      padding: 14px 16px;
-      margin-bottom: 8px;
+      padding: 9px 14px;
+      margin-bottom: 4px;
 
-      border-radius: 14px;
+      border-radius: 10px;
 
       color: #d1d5db;
       font-size: 15px;
@@ -147,9 +153,10 @@
       height: 100%;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 32px;
+      padding: 0;
       background: #f4f7fb;
       scroll-behavior: smooth;
+      border-radius: 16px 0 0 16px;
     }
 
     /* Custom Scrollbar */
@@ -184,6 +191,7 @@
 ========================= */
     .section {
       animation: fadeIn 0.25s ease;
+      padding: 10px 14px 14px;
     }
 
     .section h2 {
@@ -629,7 +637,7 @@
       padding: 24px;
       border-radius: 18px;
       box-shadow: var(--shadow);
-      max-width: 900px;
+      max-width: 100%;
     }
 
     /* =========================
@@ -689,7 +697,7 @@
     body {
       font-family: Arial;
       background: #f3f4f6;
-      padding: 40px;
+      padding: 5px;
     }
 
     button {
@@ -1072,7 +1080,7 @@
       padding:1px 7px;border-radius:8px;margin-left:6px;font-weight:400;vertical-align:middle;}
     #anim-panel{display:none;padding:20px;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;border-radius:12px;margin:16px 0;font-size:18px;font-weight:700;}
     @keyframes slideInPanel{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
-    .anim-in{animation:slideInPanel 1.2s cubic-bezier(.4,0,.2,1) forwards;}
+    .anim-in{animation:slideInPanel 4s cubic-bezier(.4,0,.2,1) forwards;}
     .dd-zone{min-height:120px;border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;color:var(--muted);transition:all .2s;margin-top:16px;}
     .dd-zone.dd-hover{border-color:var(--primary);background:#e0e7ff;}
     .dd-items{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
@@ -1191,6 +1199,7 @@
     <div onclick="show('keyboardNav')">⌨️ Keyboard Nav</div>
     <div onclick="show('dashboardSection')">📡 Live Dashboard</div>
     <div onclick="show('toastMessages')">🍞 Toast Messages</div>
+    <div onclick="show('calendarPicker')">📅 Calendar / Date Picker</div>
     <a href="locator-break-reproduction-guide.html" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#9ca3af;text-decoration:none;font-size:13px;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px;transition:color .2s;" onmouseover="this.style.color='#f9fafb'" onmouseout="this.style.color='#9ca3af'">
       <span style="font-size:15px;">📖</span> Locator Break Guide
     </a>
@@ -2832,6 +2841,73 @@
           Toasts appear top-right. Each has a unique <code>id="toast-&lt;timestamp&gt;"</code>
           and <code>data-toast-type</code> attribute. Click any toast to dismiss early.
         </p>
+      </div>
+    </div>
+
+    <!-- CALENDAR / DATE PICKER (#35) -->
+    <div id="calendarPicker" class="section hidden">
+      <h2>Calendar / Date Picker Dynamics</h2>
+      <div class="note">
+        <b>Reproduce:</b> Date format patterns break locators when apps switch between formats (US vs EU, 12h vs 24h, ISO vs locale).
+        Type any pattern below and see the live output — just like <a href="https://www.nsdateformatter.com" target="_blank" style="color:#6366f1;">nsdateformatter.com</a>.
+        <br><br>
+        <b>Category:</b> Date Inputs · Format Patterns · Locale · Custom Widgets
+      </div>
+
+      <!-- LIVE PLAYGROUND -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:14px;font-size:16px;font-weight:700;">🧪 Live Format Playground</h3>
+
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;">
+          <div style="flex:1;min-width:200px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Reference Date &amp; Time</label>
+            <input id="cal-ref-datetime" type="datetime-local" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+          </div>
+          <div style="flex:2;min-width:260px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Format Pattern</label>
+            <input id="cal-pattern" type="text" placeholder="e.g. yyyy-MM-dd HH:mm:ss" value="yyyy-MM-dd HH:mm:ss"
+              style="width:100%;padding:8px 12px;border:2px solid #6366f1;border-radius:8px;font-size:14px;font-family:monospace;">
+          </div>
+        </div>
+
+        <!-- RESULT -->
+        <div style="background:#111827;border-radius:10px;padding:18px 24px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+          <span style="font-size:12px;color:#6b7280;font-weight:600;white-space:nowrap;">OUTPUT</span>
+          <span id="cal-result" data-formatted="" style="font-size:22px;font-weight:700;color:#a5f3fc;font-family:monospace;letter-spacing:0.5px;flex:1;"></span>
+        </div>
+
+        <!-- QUICK PATTERNS -->
+        <div style="margin-bottom:4px;">
+          <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;">Quick patterns — click to try:</div>
+          <div id="cal-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+      </div>
+
+      <!-- ALL PATTERNS TABLE -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:14px;font-size:16px;font-weight:700;">📋 All Format Patterns — click any row to try it</h3>
+        <div id="cal-all-patterns" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:8px;"></div>
+      </div>
+
+      <!-- NATIVE INPUT TYPES -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:14px;font-size:16px;font-weight:700;">🗂️ Native HTML Date Input Types</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;">
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="date"]</code></label><input id="cal-date" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="datetime-local"]</code></label><input id="cal-datetime" type="datetime-local" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="time"]</code></label><input id="cal-time" type="time" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="month"]</code></label><input id="cal-month" type="month" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="week"]</code></label><input id="cal-week" type="week" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Date Range</label>
+            <input id="cal-range-start" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:6px;">
+            <input id="cal-range-end" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+          </div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Min = Today</label><input id="cal-min" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Max = Today</label><input id="cal-max" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Disabled</label><input id="cal-disabled" type="date" disabled style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;opacity:0.5;cursor:not-allowed;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Read-only</label><input id="cal-readonly" type="date" readonly style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#f9fafb;"></div>
+        </div>
       </div>
     </div>
 
