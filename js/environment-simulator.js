@@ -77,6 +77,29 @@ function render(){
   if(AppContext.browser==="Safari")
     input=`<input class="email-input"/>`;
 
+  /* DATE FIELD — format changes per browser */
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const Y=now.getFullYear(), M=pad(now.getMonth()+1), D=pad(now.getDate());
+  const H=pad(now.getHours()), Min=pad(now.getMinutes()), S=pad(now.getSeconds());
+
+  let dateField="";
+  if(AppContext.browser==="Chrome"){
+    // Chrome native date input renders as MM/DD/YYYY internally
+    dateField=`<label style="display:block;margin-top:10px;font-size:12px;font-weight:600;">Date (Chrome — MM/DD/YYYY)</label>`+
+      `<input id="env-date-field" type="date" value="${Y}-${M}-${D}" data-date-format="MM/DD/YYYY" style="margin-top:4px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;"/>`;
+  }
+  if(AppContext.browser==="Firefox"){
+    // Firefox renders date as YYYY-MM-DD text
+    dateField=`<label style="display:block;margin-top:10px;font-size:12px;font-weight:600;">Date (Firefox — YYYY-MM-DD)</label>`+
+      `<input id="env-date-field" type="text" value="${Y}-${M}-${D}" data-date-format="YYYY-MM-DD" style="margin-top:4px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;"/>`;
+  }
+  if(AppContext.browser==="Safari"){
+    // Safari uses DD/MM/YYYY locale format and renders as text fallback
+    dateField=`<label style="display:block;margin-top:10px;font-size:12px;font-weight:600;">Date (Safari — DD/MM/YYYY)</label>`+
+      `<input id="env-date-field" type="text" value="${D}/${M}/${Y}" data-date-format="DD/MM/YYYY" style="margin-top:4px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;"/>`;
+  }
+
   /* DEVICE DIFFERENCE */
 
   if(AppContext.device==="Mobile"){
@@ -105,6 +128,8 @@ function render(){
     <br><br>
     ${input}
     <br><br>
+    ${dateField}
+    <br>
     ${checkout}
 
     <hr>
