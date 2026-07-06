@@ -80,7 +80,7 @@ const DynamicLab = (() => {
       // Element was removed from DOM by initDomRemoval — use stored reference
       const btn = window._delayedBtn;
       if (btn) domShow(btn);
-    },5000);
+    },33000);
   }
 
 
