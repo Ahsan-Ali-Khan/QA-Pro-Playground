@@ -45,26 +45,51 @@ Then open:
 
 ```
 /
-├── index.html                  # Single source of truth — serves both dynamic and stable
-├── server.js                   # Local dev server (not used on Netlify)
-├── netlify.toml                # Netlify routing — /stable rewrites to index.html
+├── index.html                          # Single source of truth — serves both dynamic and stable
+├── server.js                           # Local dev server (not used on Netlify)
+├── netlify.toml                        # Netlify routing — /stable rewrites to index.html
+├── LICENSE                             # Proprietary — All Rights Reserved
+├── NOTICE                              # Ownership declaration
+├── .gitignore
+├── locator-break-reproduction-guide.html  # 150-category manual test guide
 │
 ├── css/
-│   ├── env-simulator.css
-│   └── frame-styles.css
+│   ├── env-simulator.css               # Styles for Environment Simulator section
+│   └── frame-styles.css                # Styles for iframe/frame pages
 │
 ├── js/
-│   ├── dynamic-elements.js     # Chaos: random IDs, moving buttons, stale DOM
-│   ├── dynamic-text.js         # Chaos: timers, counters, live timestamps
-│   ├── iframe-loader.js        # Chaos: random frame IDs, attribute mutation
-│   ├── iframe-context.js       # Chaos: auto-reload, spawn new iframes
-│   ├── shadow-dom.js           # Chaos: shadow root rendering
-│   └── environment-simulator.js # Controlled: env/locale/browser simulator
+│   ├── dynamic-elements.js             # Chaos: random IDs, moving buttons, stale DOM
+│   ├── dynamic-text.js                 # Chaos: timers, counters, live timestamps
+│   ├── iframe-loader.js                # Chaos: random frame IDs, attribute mutation
+│   ├── iframe-context.js               # Chaos: auto-reload, spawn new iframes
+│   ├── shadow-dom.js                   # Chaos: shadow root rendering
+│   ├── environment-simulator.js        # Controlled: env/locale/browser simulator
+│   ├── new-scenarios.js                # Category B & C sections engine (MAP pattern)
+│   ├── canvas-chart.js                 # Canvas-based chart rendering
+│   ├── svg-graph.js                    # SVG graph rendering
+│   ├── lazy-load.js                    # Lazy-load / intersection observer scenarios
+│   └── level2-behavior.js              # Behaviour injected into iframe level 2
 │
 ├── frames/
-│   ├── level1.html             # iframe level 1 (contains level 2)
-│   ├── level2.html             # iframe level 2 (contains level 3)
-│   └── level3.html             # iframe level 3 (deepest)
+│   ├── frameset.html                   # Top-level frameset page
+│   ├── fset-actions.html               # Frameset: actions panel
+│   ├── fset-dashboard.html             # Frameset: dashboard panel
+│   ├── fset-login.html                 # Frameset: login panel
+│   ├── fset-table.html                 # Frameset: table panel
+│   ├── level1.html                     # iframe level 1 (contains level 2)
+│   ├── level2.html                     # iframe level 2 (contains level 3)
+│   └── level3.html                     # iframe level 3 (deepest)
+│
+├── scenarios/
+│   ├── INDEX.html                      # Scenario index / launcher
+│   └── Scenario-NNN/                   # Individual scenario folders (005–119)
+│
+├── stable/
+│   └── index.html                      # Stable mode entry point
+│
+├── selenium-tests/                     # Java + Maven Selenium test suite
+│   ├── pom.xml
+│   └── src/
 │
 └── assets/
     └── sampleFile.jpeg
@@ -87,6 +112,21 @@ Then open:
 | **iFrame** | 3 levels deep, auto-reload every 40s, frame ID randomised on each reload |
 | **Shadow DOM** | 10 shadow root scenarios — open, closed, nested, dynamic, disappearing |
 | **Environment Simulator** | Same UI renders differently per env / locale / browser / feature flag |
+| **Framework-Style Attributes** | Vue/React auto-generated `data-v-*` and `__reactFiber$*` attrs rotate every 8s |
+| **Toast Notifications** | Dynamic toast IDs, rapid-fire stacking, delayed triggers, persistent toasts |
+| **Tooltips** | DOM-injected tooltips — appear/disappear, not in initial DOM |
+| **Keyboard & Modal** | Keyboard shortcut triggers, modal with focus trap and dynamic content |
+| **Drag & Drop** | Draggable tiles with `data-dragging` state attributes |
+| **Canvas & SVG** | Canvas chart and SVG graph with dynamic node/edge attributes |
+| **Lazy Load** | Intersection-observer-driven content — elements only exist after scroll |
+| **Autocomplete** | 35s simulated API delay, per-keystroke debounce, `data-loading` state |
+| **Tree View** | Collapsible nodes, `data-expanded` toggling, nested children |
+| **Virtual List** | 10,000-row virtual scroll — only ~20 rows in DOM at any time |
+| **Clipboard & File** | Clipboard read/write, hidden file input, drag-to-upload zone |
+| **Network States** | Retry logic, `data-status` cycling through loading/success/error/retry |
+| **Calendar / Date Picker** | Native and custom pickers, `data-selected-date` attribute updates |
+| **Multi-Select & Dependent Dropdowns** | Native multi-select `data-selected`, custom chip multi-select, async Country→City, 3-level cascade |
+| **Session-Based Attributes** | Login state ID swap, cart `data-cart-count`, role panel `data-current-role`, visit counter, session expiry timer |
 
 ---
 
@@ -138,13 +178,12 @@ The `netlify.toml` rewrites both routes to the same `index.html`:
 - `/` → dynamic mode (`window.STABLE_MODE = false`)
 - `/stable` → stable mode (`window.STABLE_MODE = true`)
 
-To add a new feature, edit `index.html` and/or the relevant JS file once. Gate any chaos behaviour behind `if (!window.STABLE_MODE)` and it will automatically be suppressed at `/stable`.
+To add a new feature, edit `index.html` (HTML section + sidebar entry), add an init function to `js/new-scenarios.js`, and wire it into the MAP object.
 
 ---
 
-## Recommended Testing Workflow
+## Legal
 
-1. Open `/stable` → write and record your baseline test scripts
-2. Run the same scripts against `/` (dynamic version)
-3. Observe which locators break and whether your self-healing system recovers them
-4. Iterate on your healing logic, repeat from step 2
+Copyright © 2026 Ahsan Ali Khan. All Rights Reserved.
+This software is proprietary. See [`LICENSE`](./LICENSE) for full terms.
+Contact: ahsan.ali.khan.tech@gmail.com

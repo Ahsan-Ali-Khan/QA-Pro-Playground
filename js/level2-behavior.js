@@ -7,7 +7,7 @@
  * or commercial use of this software is prohibited without prior written
  * permission from the copyright owner.
  *
- * Contact: ahsan.ali@webomates.com
+ * Contact: ahsan.ali.khan.tech@gmail.com
  */
 
 // =====================================
