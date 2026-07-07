@@ -269,4 +269,4 @@ function createBaseButton(container) {
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.STABLE_MODE) DynamicLab.init();
-})
+});
