@@ -1702,88 +1702,125 @@ function initPrintDialog(){
 ================================================================ */
 function initContextMenu(){
   const menu=document.getElementById('qa-context-menu');
-  const actionLog=document.getElementById('ctx-action-log');
-  const actionCount=document.getElementById('ctx-action-count');
   if(!menu) return;
 
-  let currentTarget=null;
+  let pendingTarget=null;   // target captured at right-click time, used by item handler
   let totalActions=0;
 
-  const targets=[
-    {id:'ctx-target-a',statusId:'ctx-a-status'},
-    {id:'ctx-target-b',statusId:'ctx-b-status'},
-    {id:'ctx-target-c',statusId:'ctx-c-status'},
-  ];
+  /* ---- helpers ---- */
+  function getLog(){ return document.getElementById('ctx-action-log'); }
+  function getCount(){ return document.getElementById('ctx-action-count'); }
 
   function showMenu(x,y,targetEl){
-    currentTarget=targetEl;
+    pendingTarget=targetEl;
     menu.style.left=x+'px';
     menu.style.top=y+'px';
     menu.style.display='block';
     menu.setAttribute('data-menu-visible','true');
     menu.setAttribute('data-context-target',targetEl.getAttribute('data-context-target'));
-    // Keep menu in viewport
-    const rect=menu.getBoundingClientRect();
-    if(rect.right>window.innerWidth) menu.style.left=(x-rect.width)+'px';
-    if(rect.bottom>window.innerHeight) menu.style.top=(y-rect.height)+'px';
+    // Adjust if menu overflows viewport
+    requestAnimationFrame(()=>{
+      const rect=menu.getBoundingClientRect();
+      if(rect.right>window.innerWidth)  menu.style.left=(x-rect.width)+'px';
+      if(rect.bottom>window.innerHeight) menu.style.top=(y-rect.height)+'px';
+    });
   }
 
   function hideMenu(){
     menu.style.display='none';
     menu.setAttribute('data-menu-visible','false');
     menu.removeAttribute('data-context-target');
-    currentTarget=null;
+    // do NOT null pendingTarget here — item handler reads it after hideMenu
   }
 
-  function logAction(action,targetName){
+  function logAction(action,targetName,delayed){
     totalActions++;
     const t=new Date().toLocaleTimeString();
-    const entry=document.createElement('div');
-    entry.style.cssText='color:#374151;';
-    entry.innerHTML=`<span style="color:#9ca3af;">[${t}]</span> <strong style="color:#6366f1;">${action}</strong> on <span style="color:#10b981;">${targetName}</span>`;
-    const placeholder=actionLog&&actionLog.querySelector('span');
-    if(placeholder) actionLog.removeChild(placeholder);
-    if(actionLog){
-      actionLog.appendChild(entry);
-      actionLog.scrollTop=actionLog.scrollHeight;
+    const log=getLog();
+    const cnt=getCount();
+    if(log){
+      // Remove placeholder only if it's still there (identified by class)
+      const ph=log.querySelector('.ctx-placeholder');
+      if(ph) ph.remove();
+      const entry=document.createElement('div');
+      entry.style.cssText='color:#374151;padding:2px 0;';
+      const delayTag=delayed?` <span style="color:#d97706;font-size:10px;">[+${delayed}ms]</span>`:'';
+      entry.innerHTML=`<span style="color:#9ca3af;">[${t}]</span> <strong style="color:#6366f1;">${action}</strong> on <span style="color:#10b981;">${targetName}</span>${delayTag}`;
+      log.appendChild(entry);
+      log.scrollTop=log.scrollHeight;
     }
-    if(actionCount){
-      actionCount.textContent=totalActions;
-      actionCount.setAttribute('data-count',totalActions);
+    if(cnt){
+      cnt.textContent=totalActions;
+      cnt.setAttribute('data-count',totalActions);
     }
   }
 
-  // Wire right-click on each target
-  targets.forEach(({id,statusId})=>{
+  function applyAction(action,targetEl,delay){
+    const targetName=targetEl.getAttribute('data-context-target');
+    const statusId='ctx-'+targetName.slice(-1)+'-status';
+
+    if(delay>0){
+      // Show pending state immediately
+      const statusEl=document.getElementById(statusId);
+      if(statusEl){
+        statusEl.textContent=`⏳ Processing ${action}…`;
+        statusEl.setAttribute('data-last-action','pending');
+      }
+      targetEl.style.opacity='0.6';
+      setTimeout(()=>{
+        targetEl.style.opacity='1';
+        targetEl.setAttribute('data-last-action',action);
+        const el2=document.getElementById(statusId);
+        if(el2){
+          el2.textContent=`✅ ${action}`;
+          el2.setAttribute('data-last-action',action);
+        }
+        logAction(action,targetName,delay);
+      },delay);
+    } else {
+      targetEl.setAttribute('data-last-action',action);
+      const statusEl=document.getElementById(statusId);
+      if(statusEl){
+        statusEl.textContent=`✅ ${action}`;
+        statusEl.setAttribute('data-last-action',action);
+      }
+      logAction(action,targetName,0);
+    }
+  }
+
+  /* ---- wire right-click on each target ---- */
+  ['ctx-target-a','ctx-target-b','ctx-target-c'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
     el.addEventListener('contextmenu',e=>{
       e.preventDefault();
+      e.stopPropagation();
       showMenu(e.clientX,e.clientY,el);
     });
   });
 
-  // Wire menu item clicks
+  /* ---- wire menu item clicks ---- */
   menu.querySelectorAll('.ctx-item').forEach(item=>{
-    item.addEventListener('click',()=>{
-      if(!currentTarget) return;
+    item.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(!pendingTarget) return;
       const action=item.getAttribute('data-action');
-      const targetName=currentTarget.getAttribute('data-context-target');
-      currentTarget.setAttribute('data-last-action',action);
-      // Update card status
-      const statusId='ctx-'+targetName.slice(-1)+'-status';
-      const statusEl=document.getElementById(statusId);
-      if(statusEl) statusEl.textContent=`Last action: ${action}`;
-      logAction(action,targetName);
+      const delay=parseInt(pendingTarget.getAttribute('data-action-delay')||'0',10);
+      const target=pendingTarget;
       hideMenu();
+      pendingTarget=null;
+      applyAction(action,target,delay);
     });
   });
 
-  // Dismiss on outside click or Escape
+  /* ---- dismiss on outside click or Escape ---- */
   document.addEventListener('click',e=>{
-    if(!menu.contains(e.target)) hideMenu();
+    if(menu.style.display!=='none' && !menu.contains(e.target)){
+      hideMenu();
+      pendingTarget=null;
+    }
   });
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape') hideMenu();
+    if(e.key==='Escape'){ hideMenu(); pendingTarget=null; }
   });
 }
