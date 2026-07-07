@@ -91,7 +91,7 @@
           #111827 0%,
           #172033 100%);
 
-      padding: 0 14px 12px;
+      padding: 0 14px 48px;
 
       border-right: 1px solid rgba(255, 255, 255, 0.05);
 
@@ -1137,6 +1137,11 @@
     @keyframes slideInToast{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
     #toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
     #toast-container>*{pointer-events:auto;}
+    #pg-footer{position:fixed;bottom:0;left:0;right:0;height:36px;background:#111827;color:#d1d5db;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;z-index:200;border-top:2px solid #6366f1;box-shadow:0 -2px 12px rgba(0,0,0,0.3);}
+    #pg-footer .ft-name{color:#ffffff;font-weight:700;}
+    #pg-footer .ft-sep{color:#4b5563;margin:0 2px;}
+    #pg-footer .ft-copy{color:#9ca3af;}
+    #content{padding-bottom:36px;}
 
   </style>
 </head>
@@ -3111,6 +3116,14 @@
 
 
   </div>
+
+  <!-- STICKY FOOTER -->
+  <footer id="pg-footer">
+    <span class="ft-copy">Developed by</span>
+    <span class="ft-name">Ahsan Ali Khan</span>
+    <span class="ft-sep">&middot;</span>
+    <span class="ft-copy">&copy; <script>document.write(new Date().getFullYear())</script> All rights reserved</span>
+  </footer>
 
   <script>
     // =============================================================
