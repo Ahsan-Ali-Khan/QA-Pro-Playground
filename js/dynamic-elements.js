@@ -1,3 +1,15 @@
+/*
+ * Copyright © 2026 Ahsan Ali Khan
+ * QA Pro Playground
+ * All Rights Reserved.
+ *
+ * Unauthorized copying, modification, distribution, reverse engineering,
+ * or commercial use of this software is prohibited without prior written
+ * permission from the copyright owner.
+ *
+ * Contact: ahsan.ali@webomates.com
+ */
+
 /* ======================================================
    QA PRO — DYNAMIC ELEMENTS LAB
    Independent Scenario Engine
@@ -257,4 +269,4 @@ function createBaseButton(container) {
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.STABLE_MODE) DynamicLab.init();
-});
+})

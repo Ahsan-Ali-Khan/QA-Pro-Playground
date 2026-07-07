@@ -1,11 +1,22 @@
 <!DOCTYPE html>
+<!--
+  Copyright © 2026 Ahsan Ali Khan
+  QA Pro Playground
+  All Rights Reserved.
+
+  Unauthorized copying, modification, distribution, reverse engineering,
+  or commercial use of this software is prohibited without prior written
+  permission from the copyright owner.
+
+  Contact: ahsan.ali@webomates.com
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>QA Pro Playground — Locator Break Reproduction Guide</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: Inter, Segoe UI, sans-serif; background: #f4f7fb; color: #1f2937; font-size: 13px; }
+  body { font-family: Inter, Segoe UI, sans-serif; background: #f4f7fb; color: #1f2937; font-size: 13px; padding-bottom: 40px; }
   h1 { background: linear-gradient(135deg,#111827,#1e3a5f); color: #fff; padding: 22px 32px; font-size: 20px; letter-spacing: .3px; }
   h1 span { color: #6366f1; }
   .subtitle { background: #1f2937; color: #94a3b8; padding: 8px 32px 12px; font-size: 12px; }
@@ -66,12 +77,16 @@
   .s-kb     { background:#f5f3ff; color:#4c1d95; }
   .s-dash   { background:#f0fdfa; color:#134e4a; }
   .s-na     { background:#f1f5f9; color:#64748b; }
+  .s-cal    { background:#fce7f3; color:#831843; }
+  .s-msd    { background:#ede9fe; color:#5b21b6; }
+  .s-sess   { background:#ecfdf5; color:#065f46; }
 </style>
 </head>
 <body>
 
 <h1>QA Pro Automation Playground — <span>Locator Break Reproduction Guide</span></h1>
-<div class="subtitle">157 categories · Manual steps mapped to live playground sections · URL: index.html</div>
+<div class="subtitle">150 categories · Manual steps mapped to live playground sections · Source: <a id="guide-src-link" href="#" target="_blank" style="color:#818cf8;text-decoration:none;"></a>
+<script>(function(){var o=window.location.origin;var a=document.getElementById('guide-src-link');a.href=o+'/';a.textContent=o.replace(/^https?:\/\//,'');})()</script></div>
 
 <div class="legend">
   <div class="legend-item"><div class="dot" style="background:#5b21b6"></div>Dynamic Elements</div>
@@ -87,6 +102,9 @@
   <div class="legend-item"><div class="dot" style="background:#0369a1"></div>Toast Messages</div>
   <div class="legend-item"><div class="dot" style="background:#166534"></div>Lazy Load / Infinite Scroll</div>
   <div class="legend-item"><div class="dot" style="background:#86198f"></div>Accordion / Tree / Hover</div>
+  <div class="legend-item"><div class="dot" style="background:#831843"></div>Calendar / Date Picker</div>
+  <div class="legend-item"><div class="dot" style="background:#5b21b6"></div>Multi-Select &amp; Dependent Dropdowns</div>
+  <div class="legend-item"><div class="dot" style="background:#065f46"></div>Session-Based Attributes</div>
 </div>
 
 <div class="wrap">
@@ -381,7 +399,7 @@
 <tr><td>54</td>
 <td class="cat">Delayed rendering</td>
 <td><span class="sec s-dyn">Dynamic Elements</span></td>
-<td><ol><li>Click <b>Dynamic Elements</b> → <i>Delayed Rendering</i> card.</li><li>The <code>#delayed-btn</code> has <code>class="hidden"</code> on page load — it appears after a 3–5 s delay.</li><li>An automation script that immediately checks for the button before the delay expires gets <code>ElementNotVisibleException</code> or <code>NoSuchElementException</code>.</li></ol></td></tr>
+<td><ol><li>Click <b>Dynamic Elements</b> → <i>Delayed Rendering</i> card.</li><li>The <code>#delayed-btn</code> is DOM-removed on page load — it only re-appears after a <b>&gt;30 second delay (31 s)</b>.</li><li>Any automation with a default implicit/explicit wait of under 30 s will get <code>NoSuchElementException</code> or <code>ElementNotVisibleException</code>.</li><li>Must configure explicit wait timeout above 31 s or poll for the element until it enters DOM.</li></ol></td></tr>
 
 <tr><td>55</td>
 <td class="cat">Lazy loaded elements</td>
@@ -439,7 +457,7 @@
 <tr><td>65</td>
 <td class="cat">Animation/transition timing</td>
 <td><span class="sec s-anim">CSS Animations</span></td>
-<td><ol><li>Click <b>CSS Animations</b>.</li><li>Click <b>Trigger Animation</b> — a panel slides in over 1.2 s; the action button inside is <code>disabled</code> during animation.</li><li>Automation clicking the button immediately gets <code>ElementNotInteractableException</code>.</li><li>Must wait for <code>animationend</code> event or poll until <code>disabled</code> is removed (~1.2 s).</li></ol></td></tr>
+<td><ol><li>Click <b>CSS Animations</b>.</li><li>Click <b>Trigger Animation</b> — a panel slides in over <b>40 seconds</b> (<code>animation-duration: 40s</code>); the action button inside is <code>disabled</code> for the entire animation.</li><li>Automation clicking the button at any point during the animation gets <code>ElementNotInteractableException</code>.</li><li>Must wait for the <code>animationend</code> event (fires after 40 s) before the button becomes enabled — default timeouts of 5–10 s will fail entirely.</li></ol></td></tr>
 
 <tr><td>66</td>
 <td class="cat">Hover-dependent elements</td>
@@ -512,7 +530,7 @@
 <tr><td>79</td>
 <td class="cat">Data loaded from APIs</td>
 <td><span class="sec s-drop">Dynamic Dropdown</span></td>
-<td><ol><li>Click <b>Dynamic Dropdown</b>.</li><li>Click <b>Fetch Countries</b> — after ~1 s, a <code>&lt;select&gt;</code> is populated with country options fetched from a simulated API.</li><li>Before the data loads, the <code>&lt;select&gt;</code> is empty or absent — locators for specific options fail.</li><li>Must wait for the loader/spinner to disappear before asserting option count.</li></ol></td></tr>
+<td><ol><li>Click <b>Dynamic Dropdown</b>.</li><li>Click <b>Fetch Countries</b> — the button is disabled and a loading spinner appears; the <code>&lt;select&gt;</code> populates only after a <b>35-second simulated API delay</b>.</li><li>Before the data loads, the <code>&lt;select&gt;</code> is empty — locators for specific options (e.g., <code>option[value='Canada']</code>) raise <code>NoSuchElementException</code>.</li><li>Must configure explicit wait timeout &gt;35 s and wait for the spinner to disappear before asserting option count or selecting a value.</li></ol></td></tr>
 
 <tr><td>80</td>
 <td class="cat">Dropdown with dynamic options</td>
@@ -522,7 +540,7 @@
 <tr><td>81</td>
 <td class="cat">Autocomplete suggestions</td>
 <td><span class="sec s-auto">Autocomplete</span></td>
-<td><ol><li>Click <b>Autocomplete</b>.</li><li>Type <b>"Bra"</b> into <code>#acInput</code> — a suggestion dropdown (<code>#acList</code>) appears with matching countries.</li><li>The <code>#acList</code> is <code>display:none</code> by default — locating its children before typing raises visibility exceptions.</li><li>Clear the input — the list hides again; previously found items are no longer visible/clickable.</li></ol></td></tr>
+<td><ol><li>Click <b>Autocomplete</b>.</li><li>Type <b>"Bra"</b> into <code>#acInput</code> — the suggestion list (<code>#acList</code>) immediately shows a <b>loading spinner</b> (<code>id="ac-loading"</code>) for <b>35 seconds</b> before actual matches appear.</li><li>Automation that checks for result items right after typing finds only the spinner — <code>NoSuchElementException</code> for the actual suggestion <code>&lt;div&gt;</code> items.</li><li>Must wait for the <code>#ac-loading</code> element to be removed from DOM (after 35 s) before asserting or clicking suggestions.</li><li>Typing a new character cancels the previous 35 s timer and starts a fresh one — rapid-fire typing resets the wait each time.</li></ol></td></tr>
 
 <tr><td>82</td>
 <td class="cat">Virtualized lists/tables</td>
@@ -531,8 +549,8 @@
 
 <tr><td>83</td>
 <td class="cat">Calendar/date picker dynamics</td>
-<td><span class="sec s-frm">Forms</span></td>
-<td><ol><li>Click <b>Forms</b> → Stage 1.</li><li>Locate <code>&lt;input id="dob" type="date"&gt;</code>.</li><li>The browser renders a native date-picker widget — its internal calendar popup elements are browser-generated and not accessible via standard DOM locators.</li><li>Automation must set the value via JS (<code>element.value = '1990-01-15'</code>) and dispatch a change event.</li></ol></td></tr>
+<td><span class="sec s-cal">Calendar / Date Picker</span></td>
+<td><ol><li>Click <b>Calendar / Date Picker</b> in sidebar.</li><li>In the <i>Native HTML Date Input Types</i> card — observe <code>[type="date"]</code>, <code>[type="datetime-local"]</code>, <code>[type="week"]</code>, etc. — each renders a different browser-native widget.</li><li>The internal calendar popup elements are browser-generated and not accessible via standard DOM locators; must set via JS: <code>element.value = '2024-06-15'</code> + <code>dispatchEvent(new Event('change'))</code>.</li><li>Also: the <b>Min = Today</b> input (<code>id="cal-min"</code>) rejects past dates — automation submitting a historical date gets a native browser validation error.</li><li>The <b>Disabled</b> input (<code>id="cal-disabled"</code>) raises <code>ElementNotInteractableException</code> on any interaction attempt.</li></ol></td></tr>
 
 <tr><td>84</td>
 <td class="cat">Dynamic validation messages</td>
@@ -876,9 +894,24 @@
 <td><ol><li>Click <b>Hover Menu</b>.</li><li>Top-level items are not a <code>&lt;select&gt;</code> — they are styled <code>&lt;div&gt;</code> elements acting as a menu.</li><li>Automation using <code>Select</code> class (Selenium) fails; must use <code>Actions.moveToElement()</code> then click the revealed sub-item.</li></ol></td></tr>
 
 <tr><td>141</td>
-<td class="cat">Multi-select dropdowns / Dependent dropdowns</td>
-<td><span class="sec s-drop">Dynamic Dropdown</span></td>
-<td><ol><li>Click <b>Dynamic Dropdown</b>.</li><li>Click <b>Fetch Countries</b> — a <code>&lt;select&gt;</code> populates. Select a country — a dependent city dropdown appears.</li><li>The city dropdown options depend on the selected country; the city dropdown doesn't exist in DOM before a country is selected.</li><li>Locating a city option before selecting a country raises <code>NoSuchElementException</code>.</li></ol></td></tr>
+<td class="cat">Multi-select — native <code>&lt;select multiple&gt;</code></td>
+<td><span class="sec s-msd">Multi-Select &amp; Dependent Dropdowns</span></td>
+<td><ol><li>Click <b>Multi-Select &amp; Dependent Dropdowns</b> in sidebar.</li><li>In the <i>Native Multi-Select</i> card — select multiple options in <code>#ms-native</code> (hold Ctrl/Cmd).</li><li>The <code>data-selected</code> attribute on the <code>&lt;select&gt;</code> updates with a comma-joined value list; <code>data-count</code> reflects the count.</li><li>Selenium's <code>Select</code> class requires <code>selectByValue()</code> or <code>selectByVisibleText()</code> called once per option — a single <code>click()</code> only selects one.</li><li>Assert using <code>data-selected</code> attribute rather than looping through <code>selectedOptions</code> for stable automation.</li></ol></td></tr>
+
+<tr><td>141b</td>
+<td class="cat">Multi-select — custom chip-style</td>
+<td><span class="sec s-msd">Multi-Select &amp; Dependent Dropdowns</span></td>
+<td><ol><li>Click <b>Multi-Select &amp; Dependent Dropdowns</b> → <i>Custom Multi-Select (Chip Style)</i> card.</li><li>These are <code>&lt;button&gt;</code> elements — Selenium's <code>Select</code> class fails entirely (<code>WebDriverException: element is not a SELECT element</code>).</li><li>Click any skill button — it becomes selected (purple background); click again to deselect. The hidden input (<code>#ms-custom-hidden</code>) <code>data-value</code> attribute updates with comma-joined selected values.</li><li>Chips appear in <code>#ms-custom-chips</code> — each chip has <code>data-chip</code> for the value; click the chip's ✕ to deselect.</li><li>Assert the final selection via <code>#ms-custom-hidden[data-value]</code> rather than inspecting each button state individually.</li></ol></td></tr>
+
+<tr><td>141c</td>
+<td class="cat">Dependent dropdown — Country → City (2-level async)</td>
+<td><span class="sec s-msd">Multi-Select &amp; Dependent Dropdowns</span></td>
+<td><ol><li>Click <b>Multi-Select &amp; Dependent Dropdowns</b> → <i>Dependent Dropdown — Country → City</i> card.</li><li>The city <code>&lt;select id="dep-city"&gt;</code> is <code>disabled</code> with <code>data-country=""</code> on load — locating options raises <code>NoSuchElementException</code>.</li><li>Select a country from <code>#dep-country</code> — an inline <b>⏳ Loading…</b> label appears and the city dropdown shows "Loading cities…" for ~1.5 s (simulated async).</li><li>After 1.5 s: <code>dep-city</code> becomes enabled, <code>data-country</code> is set to the selected country code, and options populate.</li><li>Automation must wait for <code>#dep-city[disabled]</code> to lose its <code>disabled</code> attribute before selecting a city. Selecting too early raises <code>ElementNotInteractableException</code>.</li></ol></td></tr>
+
+<tr><td>141d</td>
+<td class="cat">3-level cascading dropdown — Country → State → City</td>
+<td><span class="sec s-msd">Multi-Select &amp; Dependent Dropdowns</span></td>
+<td><ol><li>Click <b>Multi-Select &amp; Dependent Dropdowns</b> → <i>3-Level Cascading</i> card.</li><li>Both <code>#chain-state</code> and <code>#chain-city</code> start disabled with <code>data-parent=""</code>.</li><li>Selecting a country enables State; selecting a state enables City — each step resets all downstream dropdowns.</li><li>Option count changes entirely with each parent selection (e.g., US has 3 states × 3 cities = 9 city options total; India has different counts). Locators using static option index or <code>option:nth-child(2)</code> map to different data across country selections.</li><li>Changing the country resets both State and City to disabled/empty — any cached reference to a previously selected City option is stale.</li></ol></td></tr>
 
 <tr><td>142</td>
 <td class="cat">Multi-match XPath/CSS</td>
@@ -896,9 +929,29 @@
 <td><ol><li>Click <b>Dynamic Elements</b>.</li><li>Inspect <code>#btn-click</code> — it carries a hashed CSS class like <code>dyn-class-a4b2</code> generated by the framework simulator.</li><li>CSS selector <code>.dyn-class-a4b2</code> breaks in 8 s when the hash regenerates.</li></ol></td></tr>
 
 <tr><td>145</td>
-<td class="cat">Session-based attributes</td>
-<td><span class="sec s-ifr">iFrame</span></td>
-<td><ol><li>Click <b>iFrame</b>.</li><li>Click <b>Reload Frame</b> — the <b>Reload Counter</b> increments in the status box.</li><li>The frame URL may include a session/nonce query param on reload — a locator using the exact URL or frame name tied to the counter changes each reload.</li></ol></td></tr>
+<td class="cat">Session attributes — login state ID change</td>
+<td><span class="sec s-sess">Session-Based Attributes</span></td>
+<td><ol><li>Click <b>Session-Based Attributes</b> in sidebar.</li><li>In the <i>Login State Simulation</i> card — the auth widget has <code>id="sess-auth-widget"</code> and <code>data-auth="guest"</code> on page load.</li><li>Click <b>Login</b> — the <code>id</code> changes to <code>"sess-auth-widget-loggedin"</code> and <code>data-auth</code> changes to <code>"authenticated"</code>.</li><li>Click <b>Logout</b> — <code>id</code> reverts to <code>"sess-auth-widget"</code>.</li><li>Any locator using <code>#sess-auth-widget</code> fails after login; any locator using <code>#sess-auth-widget-loggedin</code> fails after logout. Must locator by <code>[data-auth]</code> instead.</li><li>State is stored in <code>sessionStorage</code> under key <code>qa_auth_state</code> — page reload restores the last auth state.</li></ol></td></tr>
+
+<tr><td>145b</td>
+<td class="cat">Session attributes — cart badge counter</td>
+<td><span class="sec s-sess">Session-Based Attributes</span></td>
+<td><ol><li>Click <b>Session-Based Attributes</b> → <i>Cart Badge</i> card.</li><li>The cart wrapper <code>#cart-icon-wrap</code> has <code>data-cart-count="0"</code> initially; the badge (<code>#cart-badge</code>) is <code>display:none</code>.</li><li>Click <b>+ Add Item</b> — <code>data-cart-count</code> increments and the badge becomes visible with the count.</li><li>A locator asserting <code>[data-cart-count='0']</code> or <code>#cart-badge[style*='none']</code> breaks after the first add. Assert <code>data-cart-count</code> value numerically rather than checking visibility.</li><li>State persists via <code>sessionStorage</code> — navigating away and back restores the previous cart count.</li></ol></td></tr>
+
+<tr><td>145c</td>
+<td class="cat">Session attributes — role-based content</td>
+<td><span class="sec s-sess">Session-Based Attributes</span></td>
+<td><ol><li>Click <b>Session-Based Attributes</b> → <i>Role-Based Content</i> card.</li><li>The role panel starts with <code>data-current-role="guest"</code> and renders a single <code>data-role-section="guest-view"</code> div with a <code>#role-login-cta</code> button.</li><li>Click <b>Admin</b> — the panel re-renders entirely with <code>data-current-role="admin"</code> and three new buttons: <code>#role-users-btn</code>, <code>#role-settings-btn</code>, <code>#role-logs-btn</code>.</li><li>Any locator for <code>#role-login-cta</code> raises <code>NoSuchElementException</code> in admin mode — and vice versa.</li><li>Use <code>[data-current-role]</code> and <code>[data-role-section]</code> attributes to build role-aware locators instead of hardcoding element IDs.</li></ol></td></tr>
+
+<tr><td>145d</td>
+<td class="cat">Session attributes — visit counter</td>
+<td><span class="sec s-sess">Session-Based Attributes</span></td>
+<td><ol><li>Click <b>Session-Based Attributes</b> → <i>Visit Counter</i> card.</li><li>On first visit: <code>#visit-counter-el</code> has <code>data-visit-count="1"</code> and <code>data-first-visit="true"</code>.</li><li>Navigate away (click any other sidebar item) and return — <code>data-visit-count</code> increments to <b>2</b> and <code>data-first-visit</code> changes to <b>"false"</b>.</li><li>Any locator asserting <code>[data-visit-count='1']</code> or <code>[data-first-visit='true']</code> breaks on the second visit — a classic cross-run test fragility.</li></ol></td></tr>
+
+<tr><td>145e</td>
+<td class="cat">Session attributes — session expiry state transitions</td>
+<td><span class="sec s-sess">Session-Based Attributes</span></td>
+<td><ol><li>Click <b>Session-Based Attributes</b> → <i>Session Expiry Simulation</i> card.</li><li>Click <b>▶ Start Session (30s)</b> — <code>#sess-timer-el</code> transitions: <code>data-session="idle"</code> → <code>"active"</code> → <code>"warning"</code> (at 10 s remaining) → <code>"expired"</code>.</li><li>Automation that locates <code>[data-session="active"]</code> immediately after clicking Start will succeed.</li><li>The same locator fails after 20 s (state is <code>"warning"</code>) and raises <code>NoSuchElementException</code> after 30 s (state is <code>"expired"</code>).</li><li>Tests that rely on <code>[data-session="active"]</code> without enforcing a fresh session start are non-deterministic — outcome depends on when in the timer cycle the assertion fires.</li></ol></td></tr>
 
 <!-- ===== GROUP: SPECIAL SCENARIOS ===== -->
 <tr class="group-row"><td colspan="4">N — Special Scenarios</td></tr>
@@ -932,8 +985,16 @@
 </table>
 </div>
 
-<div style="text-align:center;padding:20px;color:#9ca3af;font-size:11px;">
-  QA Pro Automation Playground · Locator Break Reproduction Guide · 157 categories · <span style="color:#6366f1;">index.html</span>
-</div>
+<footer style="position:fixed;bottom:0;left:0;right:0;height:40px;background:#111827;display:flex;align-items:center;justify-content:center;gap:10px;z-index:200;border-top:2px solid #6366f1;box-shadow:0 -2px 12px rgba(0,0,0,0.25);font-family:Inter,Segoe UI,sans-serif;font-size:12px;font-weight:500;">
+  <span style="color:#9ca3af;">Developed by</span>
+  <span style="color:#ffffff;font-weight:700;">Ahsan Ali Khan</span>
+  <span style="color:#4b5563;margin:0 2px;">&middot;</span>
+  <span style="color:#9ca3af;">&copy; <span id="footer-year"></span> All rights reserved</span>
+</footer>
+
+<script>
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+</script>
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                        
