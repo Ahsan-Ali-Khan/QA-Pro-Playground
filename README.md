@@ -10,7 +10,7 @@
 > QA Pro Playground is proprietary software owned exclusively by **Ahsan Ali Khan**.
 > Unauthorized copying, distribution, modification, or commercial use is strictly prohibited.
 > See [`LICENSE`](./LICENSE) for full terms.
-> Contact: ahsan.ali@webomates.com
+> Contact: ahsan.ali.khan.tech@gmail.com
 
 A self-contained HTML/JS playground that intentionally reproduces the toughest real-world automation challenges — dynamic locators, nested iframes, shadow DOM, async rendering, flaky visibility, and more.
 
