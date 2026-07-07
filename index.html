@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<!--
+  Copyright © 2026 Ahsan Ali Khan
+  QA Pro Playground
+  All Rights Reserved.
+
+  Unauthorized copying, modification, distribution, reverse engineering,
+  or commercial use of this software is prohibited without prior written
+  permission from the copyright owner.
+
+  Contact: ahsan.ali.khan.tech@gmail.com
+-->
 <html lang="en">
 
 <head>
@@ -44,6 +55,11 @@
       box-sizing: border-box;
     }
 
+    html {
+      height: 100%;
+      overflow: hidden;
+    }
+
     :root {
       --bg: #f4f7fb;
       --sidebar: #111827;
@@ -63,7 +79,7 @@
 
     body {
       display: flex;
-      min-height: 100vh;
+      height: 100vh;
       background: var(--bg);
       font-family:
         Inter,
@@ -78,7 +94,7 @@
 ========================= */
     #sidebar {
       width: 270px;
-      height: 100vh;
+      height: 100%;
       overflow-y: auto;
 
       background:
@@ -86,7 +102,7 @@
           #111827 0%,
           #172033 100%);
 
-      padding: 18px 14px;
+      padding: 0 14px 48px;
 
       border-right: 1px solid rgba(255, 255, 255, 0.05);
 
@@ -94,6 +110,7 @@
         4px 0 20px rgba(0, 0, 0, 0.08);
 
       position: relative;
+      border-radius: 0 16px 16px 0;
     }
 
     #sidebar::before {
@@ -105,15 +122,15 @@
       font-weight: 700;
       letter-spacing: 0.5px;
 
-      margin-bottom: 25px;
-      padding: 10px 14px;
+      margin-bottom: 6px;
+      padding: 10px 14px 4px;
     }
 
     #sidebar div {
-      padding: 14px 16px;
-      margin-bottom: 8px;
+      padding: 9px 14px;
+      margin-bottom: 4px;
 
-      border-radius: 14px;
+      border-radius: 10px;
 
       color: #d1d5db;
       font-size: 15px;
@@ -144,12 +161,13 @@
     /* MAIN CONTENT */
     #content {
       flex: 1;
-      height: 100vh;
+      height: 100%;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 32px;
+      padding: 0;
       background: #f4f7fb;
       scroll-behavior: smooth;
+      border-radius: 16px 0 0 16px;
     }
 
     /* Custom Scrollbar */
@@ -184,6 +202,7 @@
 ========================= */
     .section {
       animation: fadeIn 0.25s ease;
+      padding: 10px 14px 14px;
     }
 
     .section h2 {
@@ -629,7 +648,7 @@
       padding: 24px;
       border-radius: 18px;
       box-shadow: var(--shadow);
-      max-width: 900px;
+      max-width: 100%;
     }
 
     /* =========================
@@ -689,7 +708,7 @@
     body {
       font-family: Arial;
       background: #f3f4f6;
-      padding: 40px;
+      padding: 5px;
     }
 
     button {
@@ -1072,7 +1091,7 @@
       padding:1px 7px;border-radius:8px;margin-left:6px;font-weight:400;vertical-align:middle;}
     #anim-panel{display:none;padding:20px;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;border-radius:12px;margin:16px 0;font-size:18px;font-weight:700;}
     @keyframes slideInPanel{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
-    .anim-in{animation:slideInPanel 1.2s cubic-bezier(.4,0,.2,1) forwards;}
+    .anim-in{animation:slideInPanel 40s cubic-bezier(.4,0,.2,1) forwards;}
     .dd-zone{min-height:120px;border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;color:var(--muted);transition:all .2s;margin-top:16px;}
     .dd-zone.dd-hover{border-color:var(--primary);background:#e0e7ff;}
     .dd-items{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
@@ -1129,6 +1148,11 @@
     @keyframes slideInToast{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
     #toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
     #toast-container>*{pointer-events:auto;}
+    #pg-footer{position:fixed;bottom:0;left:0;right:0;height:36px;background:#111827;color:#d1d5db;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;z-index:200;border-top:2px solid #6366f1;box-shadow:0 -2px 12px rgba(0,0,0,0.3);}
+    #pg-footer .ft-name{color:#ffffff;font-weight:700;}
+    #pg-footer .ft-sep{color:#4b5563;margin:0 2px;}
+    #pg-footer .ft-copy{color:#9ca3af;}
+    #content{padding-bottom:36px;}
 
   </style>
 </head>
@@ -1191,6 +1215,9 @@
     <div onclick="show('keyboardNav')">⌨️ Keyboard Nav</div>
     <div onclick="show('dashboardSection')">📡 Live Dashboard</div>
     <div onclick="show('toastMessages')">🍞 Toast Messages</div>
+    <div onclick="show('calendarPicker')">📅 Calendar / Date Picker</div>
+    <div onclick="show('dropdownScenarios')">⬇️ Multi-Select &amp; Dependent Dropdowns</div>
+    <div onclick="show('sessionAttributes')">🔐 Session-Based Attributes</div>
     <a href="locator-break-reproduction-guide.html" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#9ca3af;text-decoration:none;font-size:13px;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px;transition:color .2s;" onmouseover="this.style.color='#f9fafb'" onmouseout="this.style.color='#9ca3af'">
       <span style="font-size:15px;">📖</span> Locator Break Guide
     </a>
@@ -2835,11 +2862,279 @@
       </div>
     </div>
 
+    <!-- CALENDAR / DATE PICKER (#35) -->
+    <div id="calendarPicker" class="section hidden">
+      <h2>Calendar / Date Picker Dynamics</h2>
+      <div class="note">
+        <b>Reproduce:</b> Date format patterns break locators when apps switch between formats (US vs EU, 12h vs 24h, ISO vs locale).
+        Type any pattern below and see the live output — just like <a href="https://www.nsdateformatter.com" target="_blank" style="color:#6366f1;">nsdateformatter.com</a>.
+        <br><br>
+        <b>Category:</b> Date Inputs · Format Patterns · Locale · Custom Widgets
+      </div>
+
+      <!-- LIVE PLAYGROUND -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:14px;font-size:16px;font-weight:700;">🧪 Live Format Playground</h3>
+
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;">
+          <div style="flex:1;min-width:200px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Reference Date &amp; Time</label>
+            <input id="cal-ref-datetime" type="datetime-local" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+          </div>
+          <div style="flex:2;min-width:260px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Format Pattern</label>
+            <input id="cal-pattern" type="text" placeholder="e.g. yyyy-MM-dd HH:mm:ss" value="yyyy-MM-dd HH:mm:ss"
+              style="width:100%;padding:8px 12px;border:2px solid #6366f1;border-radius:8px;font-size:14px;font-family:monospace;">
+          </div>
+        </div>
+
+        <!-- RESULT -->
+        <div style="background:#111827;border-radius:10px;padding:18px 24px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+          <span style="font-size:12px;color:#6b7280;font-weight:600;white-space:nowrap;">OUTPUT</span>
+          <span id="cal-result" data-formatted="" style="font-size:22px;font-weight:700;color:#a5f3fc;font-family:monospace;letter-spacing:0.5px;flex:1;"></span>
+        </div>
+
+        <!-- QUICK PATTERNS -->
+        <div style="margin-bottom:4px;">
+          <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;">Quick patterns — click to try:</div>
+          <div id="cal-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+      </div>
+
+      <!-- ALL PATTERNS TABLE -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:14px;font-size:16px;font-weight:700;">📋 All Format Patterns — click any row to try it</h3>
+        <div id="cal-all-patterns" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:8px;"></div>
+      </div>
+
+      <!-- NATIVE INPUT TYPES -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:14px;font-size:16px;font-weight:700;">🗂️ Native HTML Date Input Types</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;">
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="date"]</code></label><input id="cal-date" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="datetime-local"]</code></label><input id="cal-datetime" type="datetime-local" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="time"]</code></label><input id="cal-time" type="time" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="month"]</code></label><input id="cal-month" type="month" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;"><code>[type="week"]</code></label><input id="cal-week" type="week" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Date Range</label>
+            <input id="cal-range-start" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:6px;">
+            <input id="cal-range-end" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+          </div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Min = Today</label><input id="cal-min" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Max = Today</label><input id="cal-max" type="date" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Disabled</label><input id="cal-disabled" type="date" disabled style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;opacity:0.5;cursor:not-allowed;"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Read-only</label><input id="cal-readonly" type="date" readonly style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#f9fafb;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MULTI-SELECT & DEPENDENT DROPDOWNS -->
+    <div id="dropdownScenarios" class="section hidden">
+      <h2>Multi-Select &amp; Dependent Dropdowns</h2>
+      <div class="note">
+        <b>Reproduce:</b> Multi-select values and cascading dropdowns (Country → State → City) are common QA failure points — options are async-loaded, the selected set lives in attributes, and dependent dropdowns repopulate on parent change.<br><br>
+        <b>Category:</b> Dropdowns · Multi-Select · Dependent/Cascading · Dynamic Options
+      </div>
+
+      <!-- 1. Native Multi-Select -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:12px;font-size:16px;font-weight:700;">🔢 Native Multi-Select</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Hold <kbd style="background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;padding:1px 5px;">Ctrl</kbd>/<kbd style="background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;padding:1px 5px;">Cmd</kbd> to select multiple options. Selected values are reflected in <code>data-selected</code>.</p>
+        <select id="ms-native" multiple size="6" data-selected="" style="width:100%;max-width:320px;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;">
+          <option value="selenium">Selenium</option>
+          <option value="playwright">Playwright</option>
+          <option value="cypress">Cypress</option>
+          <option value="appium">Appium</option>
+          <option value="testng">TestNG</option>
+          <option value="junit">JUnit</option>
+          <option value="jest">Jest</option>
+          <option value="mocha">Mocha</option>
+        </select>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span style="font-size:12px;font-weight:600;color:var(--muted);">Selected:</span>
+          <span id="ms-native-display" data-count="0" style="font-size:13px;font-family:monospace;color:#6366f1;">none</span>
+        </div>
+      </div>
+
+      <!-- 2. Custom Multi-Select with chips -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:12px;font-size:16px;font-weight:700;">🏷️ Custom Multi-Select (Chip Style)</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Click options to toggle selection. Selected items become chips. The hidden input carries <code>data-value</code> with a comma-joined list.</p>
+        <div id="ms-custom-options" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;"></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:28px;">
+          <span style="font-size:12px;font-weight:600;color:var(--muted);">Chips:</span>
+          <div id="ms-custom-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+        <input type="hidden" id="ms-custom-hidden" data-value="" aria-label="selected-skills">
+        <div style="margin-top:8px;font-size:12px;color:var(--muted);">Hidden input <code>data-value</code>: <code id="ms-custom-val-display">(empty)</code></div>
+      </div>
+
+      <!-- 3. Country → City dependent -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:12px;font-size:16px;font-weight:700;">🌍 Dependent Dropdown — Country → City</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Select a country. The city dropdown is <b>disabled and empty</b> until a country is chosen, then populates with a short loading delay to simulate an async fetch.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:520px;">
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Country</label>
+            <select id="dep-country" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+              <option value="">— Select Country —</option>
+              <option value="us">United States</option>
+              <option value="uk">United Kingdom</option>
+              <option value="in">India</option>
+              <option value="de">Germany</option>
+              <option value="jp">Japan</option>
+              <option value="au">Australia</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">City <span id="dep-city-loading" style="display:none;font-size:11px;color:#6366f1;">⏳ Loading…</span></label>
+            <select id="dep-city" disabled data-country="" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#f9fafb;cursor:not-allowed;">
+              <option value="">— Select Country first —</option>
+            </select>
+          </div>
+        </div>
+        <div id="dep-result" style="margin-top:12px;font-size:13px;color:#10b981;min-height:20px;"></div>
+      </div>
+
+      <!-- 4. 3-Level Chained -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:12px;font-size:16px;font-weight:700;">🔗 3-Level Cascading — Country → State → City</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Each level resets and disables the downstream dropdowns. Locators using static option counts will break when the chain repopulates.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:680px;">
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Country</label>
+            <select id="chain-country" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+              <option value="">— Country —</option>
+              <option value="us">United States</option>
+              <option value="in">India</option>
+              <option value="au">Australia</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">State</label>
+            <select id="chain-state" disabled data-parent="" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#f9fafb;cursor:not-allowed;">
+              <option value="">— Select Country first —</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">City</label>
+            <select id="chain-city" disabled data-parent="" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#f9fafb;cursor:not-allowed;">
+              <option value="">— Select State first —</option>
+            </select>
+          </div>
+        </div>
+        <div id="chain-result" style="margin-top:12px;font-size:13px;color:#10b981;min-height:20px;"></div>
+      </div>
+    </div>
+
+    <!-- SESSION-BASED ATTRIBUTES -->
+    <div id="sessionAttributes" class="section hidden">
+      <h2>Session-Based Attributes</h2>
+      <div class="note">
+        <b>Reproduce:</b> Attributes, element IDs, text content, and visibility all change based on session state — login status, cart count, role, visit count. Locators that assume static states will fail across test runs or when session state differs.<br><br>
+        <b>Category:</b> Session State · sessionStorage · Auth · Role-based UI · Dynamic Attributes
+      </div>
+
+      <!-- 1. Login State -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:12px;font-size:16px;font-weight:700;">🔐 Login State Simulation</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">The widget element changes its <code>id</code>, <code>data-auth</code>, and text based on auth state stored in sessionStorage.</p>
+        <div style="display:flex;gap:10px;margin-bottom:14px;">
+          <button id="sess-login-btn" style="padding:8px 18px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Login</button>
+          <button id="sess-logout-btn" disabled style="padding:8px 18px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;opacity:0.4;">Logout</button>
+        </div>
+        <div id="sess-auth-widget" data-auth="guest" style="padding:14px 18px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:monospace;display:flex;align-items:center;gap:8px;">
+          <span id="sess-auth-icon">🔒</span>
+          <span id="sess-auth-label">Not logged in</span>
+          <span id="sess-user-badge" style="display:none;padding:2px 8px;background:#d1fae5;color:#065f46;border-radius:20px;font-size:12px;font-weight:700;"></span>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted);">sessionStorage key: <code>qa_auth_state</code> = <code id="sess-storage-display">guest</code></div>
+      </div>
+
+      <!-- 2. Cart Badge -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:12px;font-size:16px;font-weight:700;">🛒 Cart Badge (Session Counter)</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">The cart element has a <code>data-cart-count</code> attribute that updates with each add/remove action. State persists for the session.</p>
+        <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap;">
+          <button id="cart-add-btn" style="padding:8px 18px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">+ Add Item</button>
+          <button id="cart-remove-btn" style="padding:8px 18px;background:#fff;color:#ef4444;border:2px solid #ef4444;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">− Remove</button>
+          <button id="cart-clear-btn" style="padding:8px 18px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:14px;cursor:pointer;">Clear All</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div id="cart-icon-wrap" data-cart-count="0" style="position:relative;display:inline-flex;cursor:default;">
+            <span style="font-size:34px;">🛒</span>
+            <span id="cart-badge" style="position:absolute;top:-4px;right:-8px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 4px;">0</span>
+          </div>
+          <div style="font-size:13px;font-family:monospace;color:var(--muted);">data-cart-count = <code id="cart-count-display">0</code></div>
+        </div>
+        <div id="cart-items-list" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;min-height:24px;"></div>
+      </div>
+
+      <!-- 3. Role-Based Content -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:12px;font-size:16px;font-weight:700;">👤 Role-Based Content</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Switch roles — each role renders different elements with different IDs and <code>data-role</code> attributes. Elements appear/disappear based on permissions.</p>
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="role-btn" data-role="guest" style="padding:7px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#f9fafb;">👤 Guest</button>
+          <button class="role-btn" data-role="user" style="padding:7px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#f9fafb;">🙋 User</button>
+          <button class="role-btn" data-role="moderator" style="padding:7px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#f9fafb;">🛡️ Moderator</button>
+          <button class="role-btn" data-role="admin" style="padding:7px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#f9fafb;">⚙️ Admin</button>
+        </div>
+        <div id="role-panel" data-current-role="guest" style="border:1px solid var(--border);border-radius:10px;padding:16px;min-height:80px;background:#fafafa;"></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--muted);">sessionStorage: <code>qa_user_role</code> = <code id="role-storage-display">guest</code></div>
+      </div>
+
+      <!-- 4. Visit Counter -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:12px;font-size:16px;font-weight:700;">🔢 Visit Counter &amp; Page Session State</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Tracks how many times you've visited this section within the session. <code>data-visit-count</code> and <code>data-first-visit</code> change each visit — locators depending on those values become fragile.</p>
+        <div id="visit-counter-el" data-visit-count="0" data-first-visit="true" style="padding:16px 20px;border:2px solid #6366f1;border-radius:10px;display:flex;align-items:center;gap:16px;">
+          <span style="font-size:32px;">👀</span>
+          <div>
+            <div style="font-size:20px;font-weight:700;" id="visit-count-label">Visit #0</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;" id="visit-status-label">First visit this session</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <button id="visit-reset-btn" style="padding:7px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;background:#fff;color:#374151;">↺ Reset Counter</button>
+        </div>
+      </div>
+
+      <!-- 5. Session Expiry -->
+      <div class="card" style="margin-top:14px;padding:20px;">
+        <h3 style="margin-bottom:12px;font-size:16px;font-weight:700;">⏱️ Session Expiry Simulation</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Start a 30-second session timer. The element's <code>data-session</code> transitions: <code>idle</code> → <code>active</code> → <code>warning</code> → <code>expired</code>. Automation targeting <code>[data-session="active"]</code> will fail after the session expires.</p>
+        <div style="display:flex;gap:10px;margin-bottom:14px;">
+          <button id="sess-start-btn" style="padding:8px 18px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">▶ Start Session (30s)</button>
+          <button id="sess-reset-btn" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;background:#fff;color:#374151;">↺ Reset</button>
+        </div>
+        <div id="sess-timer-el" data-session="idle" style="padding:14px 18px;border:2px solid var(--border);border-radius:10px;font-size:14px;background:#fff;transition:border-color .3s,background .3s;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span id="sess-timer-icon" style="font-size:24px;">⏸️</span>
+            <div>
+              <div id="sess-timer-label" style="font-weight:700;font-size:16px;">Session Idle</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;font-family:monospace;" id="sess-timer-attr">data-session = "idle"</div>
+            </div>
+            <div id="sess-countdown" style="margin-left:auto;font-size:28px;font-weight:700;font-family:monospace;color:#6366f1;display:none;">30</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- TOAST CONTAINER (global, used by showToast) -->
     <div id="toast-container"></div>
 
 
   </div>
+
+  <!-- STICKY FOOTER -->
+  <footer id="pg-footer">
+    <span class="ft-copy">Developed by</span>
+    <span class="ft-name">Ahsan Ali Khan</span>
+    <span class="ft-sep">&middot;</span>
+    <span class="ft-copy">&copy; <script>document.write(new Date().getFullYear())</script> All rights reserved</span>
+  </footer>
 
   <script>
     // =============================================================
@@ -4171,407 +4466,4 @@
 
     function showConfirmationAlert() {
 
-      if (useBrowserAlert) {
-        console.log(confirm("Are you sure?"));
-        return;
-      }
-
-      AlertEngine.open({
-        title: "Confirmation",
-        message: "Are you sure?",
-        type: "confirm",
-        onOk: () => console.log("Confirmed"),
-        onCancel: () => console.log("Cancelled")
-      });
-    }
-
-    function showErrorAlert() {
-
-      if (useBrowserAlert) {
-        alert("System failure!");
-        return;
-      }
-
-      AlertEngine.open({
-        title: "Error",
-        message: "Unexpected system failure"
-      });
-    }
-
-    let useBrowserAlert = false;
-
-    function toggleAlertMode() {
-      useBrowserAlert =
-        document.getElementById("alertModeToggle").checked;
-
-      console.log(
-        useBrowserAlert
-          ? "Browser Alerts Enabled"
-          : "Custom Alerts Enabled"
-      );
-    }
-
-    // ================================================================
-    // NEW SECTION SCRIPTS
-    // ================================================================
-
-    /* ---------- DYNAMIC DROPDOWN ---------- */
-    const _allCountries = [
-      "Afghanistan","Albania","Algeria","Argentina","Australia","Austria","Bangladesh",
-      "Belgium","Brazil","Canada","Chile","China","Colombia","Croatia","Czech Republic",
-      "Denmark","Egypt","Ethiopia","Finland","France","Germany","Ghana","Greece","Hungary",
-      "India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Japan","Jordan","Kenya",
-      "Malaysia","Mexico","Morocco","Netherlands","New Zealand","Nigeria","Norway","Pakistan",
-      "Peru","Philippines","Poland","Portugal","Romania","Russia","Saudi Arabia","South Africa",
-      "South Korea","Spain","Sweden","Switzerland","Thailand","Turkey","Ukraine","United Kingdom",
-      "United States","Vietnam","Zimbabwe"
-    ];
-    function fetchCountries() {
-      const btn = document.getElementById('fetchCountriesBtn');
-      const status = document.getElementById('fetchStatus');
-      const sel = document.getElementById('countryDropdown');
-      btn.disabled = true;
-      status.textContent = 'Fetching from API...';
-      sel.innerHTML = '<option value="">Loading...</option>';
-      const delay = 1500 + Math.random() * 2000;
-      setTimeout(() => {
-        // Return random subset (15–25 countries) — list changes each fetch
-        const shuffled = [..._allCountries].sort(() => Math.random() - 0.5);
-        const subset = shuffled.slice(0, Math.floor(Math.random() * 11) + 15);
-        subset.sort();
-        sel.innerHTML = '<option value="">-- select a country --</option>';
-        subset.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c; opt.textContent = c;
-          sel.appendChild(opt);
-        });
-        status.textContent = `Loaded ${subset.length} countries`;
-        btn.disabled = false;
-      }, delay);
-    }
-    document.addEventListener('change', e => {
-      if (e.target.id === 'countryDropdown' && e.target.value) {
-        const r = document.getElementById('countryResult');
-        r.textContent = `Selected: ${e.target.value}`;
-        r.style.display = 'block';
-      }
-    });
-
-    /* ---------- AUTOCOMPLETE ---------- */
-    const _acData = [
-      "Afghanistan","Albania","Algeria","Argentina","Australia","Austria","Azerbaijan",
-      "Bangladesh","Belgium","Bolivia","Brazil","Bulgaria","Cambodia","Canada","Chile",
-      "China","Colombia","Croatia","Cuba","Czech Republic","Denmark","Ecuador","Egypt",
-      "Ethiopia","Finland","France","Georgia","Germany","Ghana","Greece","Guatemala",
-      "Hungary","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica",
-      "Japan","Jordan","Kazakhstan","Kenya","Kuwait","Kyrgyzstan","Latvia","Lebanon",
-      "Lithuania","Malaysia","Mexico","Mongolia","Morocco","Nepal","Netherlands",
-      "New Zealand","Nigeria","Norway","Pakistan","Peru","Philippines","Poland",
-      "Portugal","Romania","Russia","Saudi Arabia","Serbia","Singapore","Slovakia",
-      "South Africa","South Korea","Spain","Sri Lanka","Sweden","Switzerland",
-      "Thailand","Tunisia","Turkey","Ukraine","United Arab Emirates",
-      "United Kingdom","United States","Uzbekistan","Venezuela","Vietnam","Zimbabwe"
-    ];
-    function handleAcInput(val) {
-      const list = document.getElementById('acList');
-      if (!val.trim()) { list.style.display = 'none'; list.innerHTML = ''; return; }
-      const matches = _acData.filter(c => c.toLowerCase().startsWith(val.toLowerCase())).slice(0, 8);
-      if (!matches.length) { list.style.display = 'none'; list.innerHTML = ''; return; }
-      list.innerHTML = matches.map(m =>
-        `<div onclick="selectAc('${m}')" style="padding:9px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #f3f4f6;"
-          onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''">${m}</div>`
-      ).join('');
-      list.style.display = 'block';
-    }
-    function selectAc(val) {
-      document.getElementById('acInput').value = val;
-      document.getElementById('acList').style.display = 'none';
-      document.getElementById('acSelected').textContent = `✅ Selected: ${val}`;
-    }
-    function clearAcSuggestions() {
-      const list = document.getElementById('acList');
-      if (list) list.style.display = 'none';
-    }
-
-    /* ---------- DARK MODE ---------- */
-    function applyDarkMode(on) {
-      const preview = document.getElementById('darkModePreview');
-      const icon    = document.getElementById('darkOnlyIcon');
-      const badge   = document.getElementById('darkOnlyBadge');
-      const status  = document.getElementById('darkModeStatus');
-      if (on) {
-        preview.style.background = '#1f2937';
-        preview.style.color      = '#f9fafb';
-        preview.style.borderColor= '#374151';
-        icon.style.opacity  = '1';
-        badge.style.opacity = '1';
-        status.textContent  = 'Current mode: Dark';
-        status.style.color  = '#9ca3af';
-      } else {
-        preview.style.background = '#fff';
-        preview.style.color      = '';
-        preview.style.borderColor= '#e5e7eb';
-        icon.style.opacity  = '0';
-        badge.style.opacity = '0';
-        status.textContent  = 'Current mode: Light';
-        status.style.color  = '#6b7280';
-      }
-    }
-
-    /* ---------- FRAMESET ---------- */
-    // All frame logic lives in the individual frame documents (fset-*.html).
-    // No helper functions needed in the parent page.
-
-    /* ---------- AD OVERLAY ---------- */
-    let _adLoopTimer = null;
-    let _adCountTimer = null;
-    function showAd() {
-      const banner = document.getElementById('adBanner');
-      const countdown = document.getElementById('adCountdown');
-      if (!banner) return;
-      banner.style.display = 'flex';
-      banner.style.flexDirection = 'column';
-      banner.style.justifyContent = 'center';
-      banner.style.alignItems = 'center';
-      let secs = 5;
-      countdown.textContent = `Auto-closes in ${secs}s`;
-      clearInterval(_adCountTimer);
-      _adCountTimer = setInterval(() => {
-        secs--;
-        if (secs <= 0) { clearInterval(_adCountTimer); dismissAd(); }
-        else countdown.textContent = `Auto-closes in ${secs}s`;
-      }, 1000);
-    }
-    function dismissAd() {
-      const banner = document.getElementById('adBanner');
-      if (banner) banner.style.display = 'none';
-      clearInterval(_adCountTimer);
-    }
-    function startAdLoop() {
-      stopAdLoop();
-      showAd();
-      _adLoopTimer = setInterval(showAd, 20000);
-    }
-    function stopAdLoop() {
-      clearInterval(_adLoopTimer);
-      _adLoopTimer = null;
-      dismissAd();
-    }
-
-    /* ---------- ZOOM IMPACT ---------- */
-    function setZoom(pct) {
-      const content = document.getElementById('zoom-content');
-      const label   = document.getElementById('zoomLabel');
-      const scale   = pct / 100;
-      content.style.transform = `scale(${scale})`;
-      label.textContent = `Current zoom: ${pct}%`;
-      // At 200% hide the third card via overflow clipping
-      const container = document.getElementById('zoom-container');
-      container.style.overflow = pct >= 200 ? 'hidden' : 'hidden';
-    }
-
-    /* ---------- CUSTOM WEB COMPONENTS ---------- */
-    // qa-button
-    if (!customElements.get('qa-button')) {
-      customElements.define('qa-button', class extends HTMLElement {
-        connectedCallback() {
-          const shadow = this.attachShadow({ mode: 'open' });
-          shadow.innerHTML = `
-            <style>
-              button { padding:10px 24px;background:#6366f1;color:#fff;border:none;border-radius:8px;
-                       cursor:pointer;font-size:14px;font-family:inherit; }
-              button:hover { background:#4f46e5; }
-              .result { margin-top:8px;font-size:13px;color:#374151; }
-            </style>
-            <button id="wc-btn">QA Custom Button</button>
-            <div class="result" id="wc-result"></div>`;
-          shadow.getElementById('wc-btn').addEventListener('click', () => {
-            shadow.getElementById('wc-result').textContent = '✅ Custom button clicked at ' + new Date().toLocaleTimeString();
-          });
-        }
-      });
-    }
-    // qa-input
-    if (!customElements.get('qa-input')) {
-      customElements.define('qa-input', class extends HTMLElement {
-        connectedCallback() {
-          const label = this.getAttribute('label') || 'Field';
-          const ph    = this.getAttribute('placeholder') || '';
-          const shadow = this.attachShadow({ mode: 'open' });
-          shadow.innerHTML = `
-            <style>
-              label { display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:#374151; }
-              input { padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;width:280px;font-size:14px;font-family:inherit; }
-              input:focus { outline:none;border-color:#6366f1;box-shadow:0 0 0 3px #e0e7ff; }
-            </style>
-            <label>${label}</label>
-            <input id="wc-input" type="text" placeholder="${ph}">`;
-        }
-      });
-    }
-    // qa-card
-    if (!customElements.get('qa-card')) {
-      customElements.define('qa-card', class extends HTMLElement {
-        connectedCallback() {
-          const shadow = this.attachShadow({ mode: 'open' });
-          const statuses = ['Active', 'Pending', 'Inactive'];
-          const colors   = ['#10b981', '#f59e0b', '#ef4444'];
-          let idx = 0;
-          shadow.innerHTML = `
-            <style>
-              .card { padding:16px 20px;background:#f8fafc;border-radius:10px;border:2px solid #e5e7eb;display:flex;align-items:center;gap:14px; }
-              .dot  { width:12px;height:12px;border-radius:50%;flex-shrink:0; }
-              .lbl  { font-weight:600;font-size:14px; }
-              button{ margin-left:auto;padding:6px 14px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px; }
-            </style>
-            <div class="card">
-              <span class="dot" id="dot" style="background:#10b981;"></span>
-              <span class="lbl" id="lbl">Status: Active</span>
-              <button id="cyc">Cycle Status</button>
-            </div>`;
-          shadow.getElementById('cyc').addEventListener('click', () => {
-            idx = (idx + 1) % 3;
-            shadow.getElementById('dot').style.background = colors[idx];
-            shadow.getElementById('lbl').textContent = `Status: ${statuses[idx]}`;
-          });
-        }
-      });
-    }
-    // qa-counter
-    if (!customElements.get('qa-counter')) {
-      customElements.define('qa-counter', class extends HTMLElement {
-        connectedCallback() {
-          const shadow = this.attachShadow({ mode: 'open' });
-          let count = 0;
-          shadow.innerHTML = `
-            <style>
-              .wrap { display:flex;align-items:center;gap:12px; }
-              button { width:36px;height:36px;border:none;border-radius:50%;background:#6366f1;color:#fff;font-size:18px;cursor:pointer;line-height:1; }
-              .val  { font-size:22px;font-weight:700;min-width:40px;text-align:center;color:#374151; }
-            </style>
-            <div class="wrap">
-              <button id="dec">−</button>
-              <span class="val" id="val">0</span>
-              <button id="inc">+</button>
-            </div>`;
-          shadow.getElementById('inc').addEventListener('click', () => {
-            shadow.getElementById('val').textContent = ++count;
-          });
-          shadow.getElementById('dec').addEventListener('click', () => {
-            shadow.getElementById('val').textContent = --count;
-          });
-        }
-      });
-    }
-
-    // ================================================================
-    // initCapture — store references while ALL elements are in the DOM.
-    // Must run BEFORE initDomRemoval removes anything.
-    // ================================================================
-    function initCapture() {
-      // Page sections — strip CSS 'hidden' class so DOM removal is the sole mechanism
-      _allSections    = Array.from(document.querySelectorAll('.section'));
-      _allSections.forEach(s => s.classList.remove('hidden'));
-
-      // Form stages — strip hidden class, capture next-buttons
-      _allFormStages  = Array.from(document.querySelectorAll('.form-stage'));
-      _allFormStages.forEach(stage => {
-        stage.classList.remove('hidden');
-        stage._nextBtns = Array.from(stage.querySelectorAll('.next-btn'));
-      });
-
-      // Sub-tab content panels — strip hidden class
-      _allSubcontents = Array.from(document.querySelectorAll('.subcontent'));
-      _allSubcontents.forEach(s => s.classList.remove('hidden'));
-
-      // One-off elements referenced inside functions called after init
-      // Strip 'hidden' class from each so DOM removal is the sole visibility mechanism
-      _filterPopup    = document.getElementById('filterPopup');
-      _modalOverlay   = document.getElementById('modalOverlay');
-      _settingsEl     = document.getElementById('settings');
-      _dataCard       = document.getElementById('dataCard');
-      _spinnerOverlay = document.getElementById('spinnerOverlay');
-      _alertOverlay   = document.getElementById('customAlertOverlay');
-      _alertInput     = document.getElementById('alertInput');
-      _alertCancel    = document.getElementById('alertCancel');
-      _alertTitle     = document.getElementById('alertTitle');
-      _alertMsg       = document.getElementById('alertMessage');
-      _alertOk        = document.getElementById('alertOk');
-
-      [_filterPopup, _modalOverlay, _settingsEl, _dataCard,
-       _spinnerOverlay, _alertOverlay, _alertInput, _alertCancel]
-        .forEach(el => el && el.classList.remove('hidden'));
-
-      // Expose delayed-btn ref so dynamic-elements.js can domShow it after timeout
-      window._delayedBtn = document.getElementById('delayed-btn');
-      if (window._delayedBtn) window._delayedBtn.classList.remove('hidden');
-
-      // Expose l1-addressBox ref so the onchange handler can find it after DOM removal
-      window._l1AddrBox = document.getElementById('l1-addressBox');
-    }
-
-    // ================================================================
-    // initDomRemoval — remove hidden elements from DOM so automation
-    // tools cannot locate them. Call AFTER initCapture and all other
-    // init code so element references are valid before removal.
-    // ================================================================
-    function initDomRemoval() {
-      // Sections: keep dynamicElements (default), remove the rest
-      _allSections.forEach(s => {
-        if (s.id !== 'dynamicElements') domHide(s);
-      });
-
-      // Form stages: keep stage1, remove 2-4
-      _allFormStages.forEach(s => {
-        if (s.id !== 'stage1') domHide(s);
-      });
-
-      // Sub-tab panels: keep address (default), remove preferences
-      _allSubcontents.forEach(s => {
-        if (s.id !== 'address') domHide(s);
-      });
-
-      // Dynamic elements section
-      domHide(window._delayedBtn);
-
-      // Tables section
-      domHide(_filterPopup);
-      domHide(_settingsEl);
-
-      // Modal
-      domHide(_modalOverlay);
-
-      // Slow & disappearing
-      domHide(_dataCard);
-      domHide(_spinnerOverlay);
-
-      // Alerts
-      domHide(_alertOverlay);
-      domHide(_alertInput);
-      domHide(_alertCancel);
-
-      // Stable frames: address box starts removed (use captured ref — getElementById won't find it after removal)
-      if (window._l1AddrBox) domHide(window._l1AddrBox);
-    }
-
-    // Run capture first, then removal
-    initCapture();
-    initDomRemoval();
-
-  </script>
-  <script src="js/dynamic-elements.js"></script>
-  <script src="js/iframe-loader.js"></script>
-  <script src="js/iframe-context.js"></script>
-  <script src="js/dynamic-text.js"></script>
-  <script src="js/shadow-dom.js"></script>
-  <script src="js/environment-simulator.js"></script>
-  <script src="js/lazy-load.js"></script>
-  <script src="js/canvas-chart.js"></script>
-  <script src="js/svg-graph.js"></script>
-  <script src="js/new-scenarios.js"></script>
-
-
-
-</body>
-
-</html>
+      if (useBrowserAle

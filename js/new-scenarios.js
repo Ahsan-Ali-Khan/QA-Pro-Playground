@@ -1,3 +1,15 @@
+/*
+ * Copyright © 2026 Ahsan Ali Khan
+ * QA Pro Playground
+ * All Rights Reserved.
+ *
+ * Unauthorized copying, modification, distribution, reverse engineering,
+ * or commercial use of this software is prohibited without prior written
+ * permission from the copyright owner.
+ *
+ * Contact: ahsan.ali.khan.tech@gmail.com
+ */
+
 /* ======================================================
    QA PRO — NEW SCENARIOS ENGINE
    Category B & C Implementations
@@ -917,6 +929,9 @@ function initKeyboardNav(){
     keyboardNav:()=>initKeyboardNav(),
     dashboardSection:()=>{initDashboard();initNotifications();},
     toastMessages:()=>initToastSection(),
+    calendarPicker:()=>initCalendarPicker(),
+    dropdownScenarios:()=>initDropdownScenarios(),
+    sessionAttributes:()=>initSessionAttributes(),
     lazyLoadSection:()=>LazyLoad.init(),
     canvasChart:()=>CanvasChart.init(),
     svgGraph:()=>SvgGraph.init(),
@@ -955,3 +970,583 @@ function initKeyboardNav(){
     setTimeout(()=>tryInit('dynamicElements'),200);
   });
 })();
+
+/* ================================================================
+   CALENDAR / DATE PICKER — nsdateformatter-style pattern playground
+================================================================ */
+function initCalendarPicker(){
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const pad=n=>String(n).padStart(2,'0');
+
+  const TOKENS=[
+    {token:'yyyy', desc:'4-digit year',          fn:d=>String(d.getFullYear())},
+    {token:'yy',   desc:'2-digit year',          fn:d=>String(d.getFullYear()).slice(-2)},
+    {token:'MMMM', desc:'Full month name',        fn:d=>MONTHS[d.getMonth()]},
+    {token:'MMM',  desc:'Short month name',       fn:d=>MONTHS[d.getMonth()].slice(0,3)},
+    {token:'MM',   desc:'Month number (padded)',  fn:d=>pad(d.getMonth()+1)},
+    {token:'M',    desc:'Month number',           fn:d=>String(d.getMonth()+1)},
+    {token:'dd',   desc:'Day of month (padded)',  fn:d=>pad(d.getDate())},
+    {token:'d',    desc:'Day of month',           fn:d=>String(d.getDate())},
+    {token:'EEEE', desc:'Full weekday name',      fn:d=>DAYS[d.getDay()]},
+    {token:'EEE',  desc:'Short weekday name',     fn:d=>DAYS[d.getDay()].slice(0,3)},
+    {token:'E',    desc:'Min weekday letter',     fn:d=>DAYS[d.getDay()][0]},
+    {token:'HH',   desc:'Hour 0-23 (padded)',     fn:d=>pad(d.getHours())},
+    {token:'H',    desc:'Hour 0-23',              fn:d=>String(d.getHours())},
+    {token:'hh',   desc:'Hour 1-12 (padded)',     fn:d=>pad(d.getHours()%12||12)},
+    {token:'h',    desc:'Hour 1-12',              fn:d=>String(d.getHours()%12||12)},
+    {token:'mm',   desc:'Minutes (padded)',        fn:d=>pad(d.getMinutes())},
+    {token:'ss',   desc:'Seconds (padded)',        fn:d=>pad(d.getSeconds())},
+    {token:'SSS',  desc:'Milliseconds',           fn:d=>String(d.getMilliseconds()).padStart(3,'0')},
+    {token:'a',    desc:'AM / PM',                fn:d=>d.getHours()<12?'AM':'PM'},
+    {token:'z',    desc:'Timezone name',          fn:d=>{const o=d.getTimezoneOffset(),s=o<=0?'+':'-',ah=pad(Math.floor(Math.abs(o)/60)),am=pad(Math.abs(o)%60);return'GMT'+s+ah+am;}},
+    {token:'Z',    desc:'Timezone offset',        fn:d=>{const o=d.getTimezoneOffset(),s=o<=0?'+':'-',ah=pad(Math.floor(Math.abs(o)/60)),am=pad(Math.abs(o)%60);return s+ah+am;}},
+    {token:'X',    desc:'ISO 8601 timezone',      fn:d=>{const o=d.getTimezoneOffset();if(o===0)return'Z';const s=o<0?'+':'-',ah=pad(Math.floor(Math.abs(o)/60)),am=pad(Math.abs(o)%60);return s+ah+':'+am;}},
+    {token:'Q',    desc:'Quarter of year',        fn:d=>'Q'+Math.ceil((d.getMonth()+1)/3)},
+    {token:'WW',   desc:'Week of year (padded)',  fn:d=>{const s=new Date(d.getFullYear(),0,1);return pad(Math.ceil(((d-s)/86400000+s.getDay()+1)/7));}},
+    {token:'W',    desc:'Week of year',           fn:d=>{const s=new Date(d.getFullYear(),0,1);return String(Math.ceil(((d-s)/86400000+s.getDay()+1)/7));}},
+    {token:'DDD',  desc:'Day of year (3-digit)',  fn:d=>{const s=new Date(d.getFullYear(),0,0);return String(Math.floor((d-s)/86400000)).padStart(3,'0');}},
+    {token:'D',    desc:'Day of year',            fn:d=>{const s=new Date(d.getFullYear(),0,0);return String(Math.floor((d-s)/86400000));}},
+  ];
+
+  const SORTED=[...TOKENS].sort((a,b)=>b.token.length-a.token.length);
+
+  function applyPattern(date,pattern){
+    let result='',i=0;
+    while(i<pattern.length){
+      if(pattern[i]==="'"){
+        let j=i+1;
+        while(j<pattern.length&&pattern[j]!=="'")j++;
+        result+=pattern.slice(i+1,j);
+        i=j+1;continue;
+      }
+      let matched=false;
+      for(const tok of SORTED){
+        if(pattern.startsWith(tok.token,i)){result+=tok.fn(date);i+=tok.token.length;matched=true;break;}
+      }
+      if(!matched){result+=pattern[i];i++;}
+    }
+    return result;
+  }
+
+  const QUICK=[
+    {label:'ISO 8601',        pattern:'yyyy-MM-dd'},
+    {label:'US Date',         pattern:'MM/dd/yyyy'},
+    {label:'EU Date',         pattern:'dd/MM/yyyy'},
+    {label:'Full Date',       pattern:'EEEE, MMMM d, yyyy'},
+    {label:'Short Date',      pattern:'MMM d, yyyy'},
+    {label:'Date + Time',     pattern:'yyyy-MM-dd HH:mm:ss'},
+    {label:'12h Time',        pattern:'h:mm:ss a'},
+    {label:'24h Time',        pattern:'HH:mm:ss'},
+    {label:'Dotted EU',       pattern:'dd.MM.yyyy'},
+    {label:'Compact',         pattern:'yyyyMMdd'},
+    {label:'With TZ',         pattern:'yyyy-MM-dd HH:mm:ss Z'},
+    {label:'ISO Full',        pattern:"yyyy-MM-dd'T'HH:mm:ssX"},
+    {label:'Month Year',      pattern:'MMMM yyyy'},
+    {label:'Weekday+Time',    pattern:'EEE, MMM d HH:mm'},
+    {label:'Verbose',         pattern:"EEEE 'the' d 'of' MMMM yyyy 'at' h:mm a"},
+    {label:'Quarter',         pattern:"'Q'Q yyyy"},
+    {label:'Log Timestamp',   pattern:'yyyy-MM-dd HH:mm:ss.SSS'},
+    {label:'Week of Year',    pattern:"'Week' WW 'of' yyyy"},
+  ];
+
+  const ALL_PATTERNS=[
+    {name:'ISO 8601 Date',        pattern:'yyyy-MM-dd'},
+    {name:'US Date',              pattern:'MM/dd/yyyy'},
+    {name:'EU Date',              pattern:'dd/MM/yyyy'},
+    {name:'Dotted (DD.MM.YYYY)',  pattern:'dd.MM.yyyy'},
+    {name:'Compact (YYYYMMDD)',   pattern:'yyyyMMdd'},
+    {name:'Short Month',          pattern:'MMM d, yyyy'},
+    {name:'Full Month',           pattern:'MMMM d, yyyy'},
+    {name:'Full Weekday',         pattern:'EEEE, MMMM d, yyyy'},
+    {name:'Month + Year',         pattern:'MMMM yyyy'},
+    {name:'Short Month + Year',   pattern:'MMM yyyy'},
+    {name:'24h Time',             pattern:'HH:mm:ss'},
+    {name:'12h Time',             pattern:'h:mm:ss a'},
+    {name:'Time (no seconds)',    pattern:'HH:mm'},
+    {name:'12h (no seconds)',     pattern:'h:mm a'},
+    {name:'Date + 24h Time',      pattern:'yyyy-MM-dd HH:mm:ss'},
+    {name:'Date + 12h Time',      pattern:'MM/dd/yyyy h:mm a'},
+    {name:'ISO with Timezone',    pattern:'yyyy-MM-dd HH:mm:ss Z'},
+    {name:'ISO 8601 Full',        pattern:"yyyy-MM-dd'T'HH:mm:ssX"},
+    {name:'RFC 2822 Style',       pattern:'EEE, dd MMM yyyy HH:mm:ss Z'},
+    {name:'Log Timestamp',        pattern:'yyyy-MM-dd HH:mm:ss.SSS'},
+    {name:'Verbose Date',         pattern:"EEEE 'the' d 'of' MMMM yyyy"},
+    {name:'Verbose + Time',       pattern:"EEEE 'the' d 'of' MMMM yyyy 'at' h:mm a"},
+    {name:'Quarter',              pattern:"'Q'Q yyyy"},
+    {name:'Week of Year',         pattern:"'Week' WW 'of' yyyy"},
+    {name:'Day of Year',          pattern:'DDD'},
+    {name:'Weekday + Short Date', pattern:'EEE, MMM d'},
+    {name:'Timezone Offset',      pattern:'Z'},
+    {name:'ISO Timezone',         pattern:'X'},
+    {name:'With Milliseconds',    pattern:'HH:mm:ss.SSS'},
+    {name:'Day + Short Month',    pattern:'d MMM'},
+    {name:'Day Name Only',        pattern:'EEEE'},
+    {name:'Month Name Only',      pattern:'MMMM'},
+    {name:'4-Digit Year',         pattern:'yyyy'},
+    {name:'2-Digit Year',         pattern:'yy'},
+  ];
+
+  const TODAY=new Date();
+  const toLocalISO=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+
+  const refInput=document.getElementById('cal-ref-datetime');
+  const patInput=document.getElementById('cal-pattern');
+  const resultEl=document.getElementById('cal-result');
+  if(refInput) refInput.value=toLocalISO(TODAY);
+
+  function getRef(){return refInput&&refInput.value?new Date(refInput.value):TODAY;}
+  function update(){
+    const d=getRef(),pat=patInput?patInput.value:'yyyy-MM-dd',out=applyPattern(d,pat);
+    if(resultEl){resultEl.textContent=out;resultEl.setAttribute('data-formatted',out);}
+  }
+  if(refInput) refInput.addEventListener('input',update);
+  if(patInput) patInput.addEventListener('input',update);
+
+  // Chips
+  const chipsEl=document.getElementById('cal-chips');
+  if(chipsEl) QUICK.forEach(qp=>{
+    const btn=document.createElement('button');
+    btn.textContent=qp.label;
+    btn.setAttribute('data-pattern',qp.pattern);
+    btn.style.cssText='padding:4px 10px;border:1px solid var(--border);border-radius:20px;background:#fff;font-size:12px;cursor:pointer;transition:all .15s;color:#374151;';
+    btn.onmouseover=()=>{btn.style.background='#6366f1';btn.style.color='#fff';btn.style.borderColor='#6366f1';};
+    btn.onmouseout=()=>{btn.style.background='#fff';btn.style.color='#374151';btn.style.borderColor='var(--border)';};
+    btn.onclick=()=>{if(patInput){patInput.value=qp.pattern;update();}};
+    chipsEl.appendChild(btn);
+  });
+
+  // All patterns grid
+  const allEl=document.getElementById('cal-all-patterns');
+  if(allEl){
+    ALL_PATTERNS.forEach(ap=>{
+      const preview=applyPattern(TODAY,ap.pattern);
+      const row=document.createElement('div');
+      row.setAttribute('data-pattern-name',ap.name);
+      row.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:#fff;transition:background .15s;overflow:hidden;';
+      row.innerHTML='<span style="font-size:12px;font-weight:600;color:var(--muted);width:150px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ap.name+'</span>'+
+        '<span style="font-size:12px;color:#6366f1;font-family:monospace;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ap.pattern+'</span>'+
+        '<span style="font-size:13px;font-weight:700;color:#111827;font-family:monospace;white-space:nowrap;flex-shrink:0;max-width:200px;overflow:hidden;text-overflow:ellipsis;" data-preview="'+ap.name+'">'+preview+'</span>';
+      row.onmouseover=()=>row.style.background='#f5f3ff';
+      row.onmouseout=()=>row.style.background='#fff';
+      row.onclick=()=>{if(patInput){patInput.value=ap.pattern;update();}};
+      allEl.appendChild(row);
+    });
+    if(refInput) refInput.addEventListener('input',()=>{
+      const d=getRef();
+      ALL_PATTERNS.forEach(ap=>{
+        const el=allEl.querySelector('[data-preview="'+ap.name+'"]');
+        if(el) el.textContent=applyPattern(d,ap.pattern);
+      });
+    });
+  }
+
+  // Native input constraints
+  const todayStr=String(TODAY.getFullYear())+'-'+pad(TODAY.getMonth()+1)+'-'+pad(TODAY.getDate());
+  const elMin=document.getElementById('cal-min'),elMax=document.getElementById('cal-max');
+  const elRO=document.getElementById('cal-readonly'),elDis=document.getElementById('cal-disabled');
+  const elDate=document.getElementById('cal-date');
+  if(elMin){elMin.min=todayStr;elMin.value=todayStr;}
+  if(elMax){elMax.max=todayStr;elMax.value=todayStr;}
+  if(elRO)  elRO.value=todayStr;
+  if(elDis) elDis.value=todayStr;
+  if(elDate)elDate.value=todayStr;
+
+  update();
+}
+
+/* ================================================================
+   MULTI-SELECT & DEPENDENT DROPDOWNS
+================================================================ */
+function initDropdownScenarios(){
+
+  /* ---- 1. Native Multi-Select ---- */
+  const msNative=document.getElementById('ms-native');
+  const msDisp=document.getElementById('ms-native-display');
+  if(msNative&&msDisp){
+    msNative.addEventListener('change',()=>{
+      const vals=[...msNative.selectedOptions].map(o=>o.value);
+      msNative.setAttribute('data-selected',vals.join(','));
+      msDisp.setAttribute('data-count',vals.length);
+      msDisp.textContent=vals.length?vals.join(', '):'none';
+    });
+  }
+
+  /* ---- 2. Custom Multi-Select (chip style) ---- */
+  const SKILLS=['Java','Python','JavaScript','TypeScript','Go','Ruby','Kotlin','Swift'];
+  const customOpts=document.getElementById('ms-custom-options');
+  const customChips=document.getElementById('ms-custom-chips');
+  const customHidden=document.getElementById('ms-custom-hidden');
+  const customValDisp=document.getElementById('ms-custom-val-display');
+  const selectedSkills=new Set();
+
+  function refreshCustom(){
+    if(customChips){
+      customChips.innerHTML='';
+      selectedSkills.forEach(s=>{
+        const chip=document.createElement('span');
+        chip.style.cssText='padding:3px 10px;background:#eef2ff;color:#4338ca;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;';
+        chip.textContent=s+' ✕';
+        chip.setAttribute('data-chip',s);
+        chip.onclick=()=>{selectedSkills.delete(s);refreshCustom();updateCustomOpts();};
+        customChips.appendChild(chip);
+      });
+    }
+    const val=[...selectedSkills].join(',');
+    if(customHidden){customHidden.value=val;customHidden.setAttribute('data-value',val);}
+    if(customValDisp) customValDisp.textContent=val||'(empty)';
+  }
+
+  function updateCustomOpts(){
+    if(!customOpts) return;
+    [...customOpts.children].forEach(btn=>{
+      const s=btn.getAttribute('data-skill');
+      const sel=selectedSkills.has(s);
+      btn.style.background=sel?'#6366f1':'#f9fafb';
+      btn.style.color=sel?'#fff':'#374151';
+      btn.style.borderColor=sel?'#6366f1':'#e5e7eb';
+      btn.setAttribute('data-selected',sel?'true':'false');
+    });
+  }
+
+  if(customOpts){
+    SKILLS.forEach(s=>{
+      const btn=document.createElement('button');
+      btn.textContent=s;
+      btn.setAttribute('data-skill',s);
+      btn.setAttribute('data-selected','false');
+      btn.style.cssText='padding:6px 14px;border:1px solid #e5e7eb;border-radius:20px;background:#f9fafb;font-size:13px;cursor:pointer;transition:all .15s;color:#374151;';
+      btn.onclick=()=>{
+        selectedSkills.has(s)?selectedSkills.delete(s):selectedSkills.add(s);
+        refreshCustom();updateCustomOpts();
+      };
+      customOpts.appendChild(btn);
+    });
+  }
+
+  /* ---- 3. Dependent Dropdown — Country → City ---- */
+  const CITIES={
+    us:['New York','Los Angeles','Chicago','Houston','Phoenix','San Francisco'],
+    uk:['London','Manchester','Birmingham','Leeds','Glasgow','Bristol'],
+    in:['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Pune'],
+    de:['Berlin','Hamburg','Munich','Frankfurt','Cologne','Stuttgart'],
+    jp:['Tokyo','Osaka','Kyoto','Yokohama','Nagoya','Sapporo'],
+    au:['Sydney','Melbourne','Brisbane','Perth','Adelaide','Canberra'],
+  };
+  const depCountry=document.getElementById('dep-country');
+  const depCity=document.getElementById('dep-city');
+  const depLoading=document.getElementById('dep-city-loading');
+  const depResult=document.getElementById('dep-result');
+  let _depTimer=null;
+
+  if(depCountry&&depCity){
+    depCountry.addEventListener('change',()=>{
+      const c=depCountry.value;
+      depCity.disabled=true;
+      depCity.innerHTML='<option value="">— Loading cities… —</option>';
+      depCity.style.background='#f9fafb';
+      depCity.style.cursor='not-allowed';
+      depCity.setAttribute('data-country','');
+      if(depResult) depResult.textContent='';
+      clearTimeout(_depTimer);
+      if(!c){depCity.innerHTML='<option value="">— Select Country first —</option>';return;}
+      if(depLoading) depLoading.style.display='';
+      _depTimer=setTimeout(()=>{
+        if(depLoading) depLoading.style.display='none';
+        const cities=CITIES[c]||[];
+        depCity.innerHTML='<option value="">— Select City —</option>'+
+          cities.map(ct=>`<option value="${ct.toLowerCase().replace(/ /g,'-')}">${ct}</option>`).join('');
+        depCity.disabled=false;
+        depCity.style.background='#fff';
+        depCity.style.cursor='pointer';
+        depCity.setAttribute('data-country',c);
+      },1500);
+    });
+    depCity.addEventListener('change',()=>{
+      if(depCity.value&&depResult)
+        depResult.textContent='✅ Selected: '+
+          depCountry.options[depCountry.selectedIndex].text+' → '+
+          depCity.options[depCity.selectedIndex].text;
+    });
+  }
+
+  /* ---- 4. 3-Level Cascading — Country → State → City ---- */
+  const STATES={
+    us:{CA:['Los Angeles','San Francisco','San Diego'],TX:['Houston','Dallas','Austin'],NY:['New York City','Buffalo','Albany']},
+    in:{MH:['Mumbai','Pune','Nagpur'],KA:['Bangalore','Mysore','Hubli'],DL:['New Delhi','Dwarka','Rohini']},
+    au:{NSW:['Sydney','Newcastle','Wollongong'],VIC:['Melbourne','Geelong','Ballarat'],QLD:['Brisbane','Gold Coast','Cairns']},
+  };
+  const STATE_NAMES={
+    CA:'California',TX:'Texas',NY:'New York',
+    MH:'Maharashtra',KA:'Karnataka',DL:'Delhi',
+    NSW:'New South Wales',VIC:'Victoria',QLD:'Queensland',
+  };
+  const chainCountry=document.getElementById('chain-country');
+  const chainState=document.getElementById('chain-state');
+  const chainCity=document.getElementById('chain-city');
+  const chainResult=document.getElementById('chain-result');
+
+  function resetChainCity(){
+    if(!chainCity) return;
+    chainCity.disabled=true;
+    chainCity.innerHTML='<option value="">— Select State first —</option>';
+    chainCity.style.background='#f9fafb';
+    chainCity.style.cursor='not-allowed';
+    chainCity.setAttribute('data-parent','');
+    if(chainResult) chainResult.textContent='';
+  }
+  function resetChainState(){
+    if(!chainState) return;
+    chainState.disabled=true;
+    chainState.innerHTML='<option value="">— Select Country first —</option>';
+    chainState.style.background='#f9fafb';
+    chainState.style.cursor='not-allowed';
+    chainState.setAttribute('data-parent','');
+    resetChainCity();
+  }
+  if(chainCountry&&chainState&&chainCity){
+    chainCountry.addEventListener('change',()=>{
+      resetChainState();
+      const c=chainCountry.value;if(!c) return;
+      const states=STATES[c]||{};
+      chainState.innerHTML='<option value="">— Select State —</option>'+
+        Object.keys(states).map(k=>`<option value="${k}">${STATE_NAMES[k]||k}</option>`).join('');
+      chainState.disabled=false;
+      chainState.style.background='#fff';
+      chainState.style.cursor='pointer';
+      chainState.setAttribute('data-parent',c);
+    });
+    chainState.addEventListener('change',()=>{
+      resetChainCity();
+      const c=chainCountry.value,s=chainState.value;if(!s) return;
+      const cities=(STATES[c]||{})[s]||[];
+      chainCity.innerHTML='<option value="">— Select City —</option>'+
+        cities.map(ct=>`<option value="${ct.toLowerCase().replace(/ /g,'-')}">${ct}</option>`).join('');
+      chainCity.disabled=false;
+      chainCity.style.background='#fff';
+      chainCity.style.cursor='pointer';
+      chainCity.setAttribute('data-parent',s);
+    });
+    chainCity.addEventListener('change',()=>{
+      if(chainCity.value&&chainResult)
+        chainResult.textContent='✅ '+
+          chainCountry.options[chainCountry.selectedIndex].text+' → '+
+          chainState.options[chainState.selectedIndex].text+' → '+
+          chainCity.options[chainCity.selectedIndex].text;
+    });
+  }
+}
+
+/* ================================================================
+   SESSION-BASED ATTRIBUTES
+================================================================ */
+function initSessionAttributes(){
+  const ITEMS=['🖥️ Laptop','📱 Phone','⌚ Watch','🎧 Headphones','⌨️ Keyboard','🖱️ Mouse','📷 Camera'];
+
+  /* ---- 1. Visit counter ---- */
+  const VISIT_KEY='qa_visit_count_sessionAttrs';
+  let visitCount=+(sessionStorage.getItem(VISIT_KEY)||0)+1;
+  sessionStorage.setItem(VISIT_KEY,visitCount);
+  const visitEl=document.getElementById('visit-counter-el');
+  const visitLabel=document.getElementById('visit-count-label');
+  const visitStatus=document.getElementById('visit-status-label');
+  function renderVisit(){
+    if(visitEl){
+      visitEl.setAttribute('data-visit-count',visitCount);
+      visitEl.setAttribute('data-first-visit',visitCount===1?'true':'false');
+    }
+    if(visitLabel) visitLabel.textContent='Visit #'+visitCount;
+    if(visitStatus) visitStatus.textContent=visitCount===1?'First visit this session':'Returning visit (total: '+visitCount+')';
+  }
+  renderVisit();
+  document.getElementById('visit-reset-btn')?.addEventListener('click',()=>{
+    visitCount=0;sessionStorage.setItem(VISIT_KEY,'0');renderVisit();
+  });
+
+  /* ---- 2. Login state ---- */
+  const loginBtn=document.getElementById('sess-login-btn');
+  const logoutBtn=document.getElementById('sess-logout-btn');
+  const authWidget=document.getElementById('sess-auth-widget');
+  const authIcon=document.getElementById('sess-auth-icon');
+  const authLabel=document.getElementById('sess-auth-label');
+  const userBadge=document.getElementById('sess-user-badge');
+  const storageDisp=document.getElementById('sess-storage-display');
+  const AUTH_KEY='qa_auth_state';
+  const TEST_USERS=['alex.doe@qa.test','sam.smith@qa.test','test.user@qa.test'];
+  let authState=sessionStorage.getItem(AUTH_KEY)||'guest';
+
+  function renderAuth(){
+    sessionStorage.setItem(AUTH_KEY,authState);
+    if(storageDisp) storageDisp.textContent=authState;
+    if(authState==='guest'){
+      if(authWidget){authWidget.setAttribute('data-auth','guest');authWidget.id='sess-auth-widget';}
+      if(authIcon) authIcon.textContent='🔒';
+      if(authLabel) authLabel.textContent='Not logged in';
+      if(userBadge){userBadge.style.display='none';userBadge.textContent='';}
+      if(loginBtn){loginBtn.disabled=false;loginBtn.style.opacity='1';}
+      if(logoutBtn){logoutBtn.disabled=true;logoutBtn.style.opacity='0.4';}
+    }else{
+      if(authWidget){authWidget.setAttribute('data-auth','authenticated');authWidget.id='sess-auth-widget-loggedin';}
+      if(authIcon) authIcon.textContent='🔓';
+      if(authLabel) authLabel.textContent='Logged in as';
+      if(userBadge){userBadge.style.display='inline-flex';userBadge.textContent=authState;}
+      if(loginBtn){loginBtn.disabled=true;loginBtn.style.opacity='0.4';}
+      if(logoutBtn){logoutBtn.disabled=false;logoutBtn.style.opacity='1';}
+    }
+  }
+  renderAuth();
+  loginBtn?.addEventListener('click',()=>{
+    authState=TEST_USERS[Math.floor(Math.random()*TEST_USERS.length)];
+    renderAuth();
+  });
+  logoutBtn?.addEventListener('click',()=>{
+    authState='guest';
+    renderAuth();
+    // restore original id in case it was changed
+    const w=document.getElementById('sess-auth-widget-loggedin');
+    if(w) w.id='sess-auth-widget';
+  });
+
+  /* ---- 3. Cart badge ---- */
+  const cartWrap=document.getElementById('cart-icon-wrap');
+  const cartBadge=document.getElementById('cart-badge');
+  const cartDisp=document.getElementById('cart-count-display');
+  const cartList=document.getElementById('cart-items-list');
+  const CART_KEY='qa_cart_items';
+  let cartItems=JSON.parse(sessionStorage.getItem(CART_KEY)||'[]');
+
+  function renderCart(){
+    sessionStorage.setItem(CART_KEY,JSON.stringify(cartItems));
+    const n=cartItems.length;
+    if(cartWrap) cartWrap.setAttribute('data-cart-count',n);
+    if(cartDisp) cartDisp.textContent=n;
+    if(cartBadge){
+      cartBadge.textContent=n>9?'9+':n;
+      cartBadge.style.display=n>0?'flex':'none';
+    }
+    if(cartList){
+      cartList.innerHTML='';
+      cartItems.forEach((item,i)=>{
+        const chip=document.createElement('span');
+        chip.style.cssText='padding:3px 10px;background:#eef2ff;color:#4338ca;border-radius:20px;font-size:12px;font-weight:600;';
+        chip.textContent=item;
+        chip.setAttribute('data-cart-item-index',i);
+        cartList.appendChild(chip);
+      });
+    }
+  }
+  renderCart();
+  document.getElementById('cart-add-btn')?.addEventListener('click',()=>{
+    cartItems.push(ITEMS[Math.floor(Math.random()*ITEMS.length)]);renderCart();
+  });
+  document.getElementById('cart-remove-btn')?.addEventListener('click',()=>{
+    if(cartItems.length) cartItems.pop();renderCart();
+  });
+  document.getElementById('cart-clear-btn')?.addEventListener('click',()=>{cartItems=[];renderCart();});
+
+  /* ---- 4. Role panel ---- */
+  const ROLE_CONTENT={
+    guest:'<div data-role-section="guest-view" style="display:flex;flex-direction:column;gap:8px;">'
+      +'<button id="role-login-cta" style="padding:9px 20px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;width:fit-content;">Sign In to Continue</button>'
+      +'<p style="font-size:13px;color:var(--muted);margin-top:4px;">You are viewing as a guest. Sign in to access your profile.</p>'
+      +'</div>',
+    user:'<div data-role-section="user-view" style="display:flex;flex-direction:column;gap:8px;">'
+      +'<button id="role-profile-btn" style="padding:7px 16px;background:#f0fdf4;color:#065f46;border:1px solid #a7f3d0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:fit-content;">👤 My Profile</button>'
+      +'<button id="role-orders-btn" style="padding:7px 16px;background:#f0fdf4;color:#065f46;border:1px solid #a7f3d0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:fit-content;">📦 My Orders</button>'
+      +'<p style="font-size:13px;color:var(--muted);margin-top:4px;">Standard user — no admin controls visible.</p>'
+      +'</div>',
+    moderator:'<div data-role-section="moderator-view" style="display:flex;flex-direction:column;gap:8px;">'
+      +'<button id="role-moderate-btn" style="padding:7px 16px;background:#fffbeb;color:#92400e;border:1px solid #fcd34d;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:fit-content;">🛡️ Moderation Queue</button>'
+      +'<button id="role-flag-btn" style="padding:7px 16px;background:#fffbeb;color:#92400e;border:1px solid #fcd34d;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:fit-content;">🚩 Flagged Content</button>'
+      +'<p style="font-size:13px;color:var(--muted);margin-top:4px;">Moderator — content controls visible; admin settings hidden.</p>'
+      +'</div>',
+    admin:'<div data-role-section="admin-view" style="display:flex;flex-direction:column;gap:8px;">'
+      +'<button id="role-users-btn" style="padding:7px 16px;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:fit-content;">⚙️ User Management</button>'
+      +'<button id="role-settings-btn" style="padding:7px 16px;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:fit-content;">🔧 System Settings</button>'
+      +'<button id="role-logs-btn" style="padding:7px 16px;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:fit-content;">📋 Audit Logs</button>'
+      +'<p style="font-size:13px;color:var(--muted);margin-top:4px;">Admin — all controls visible including destructive actions.</p>'
+      +'</div>',
+  };
+  const ROLE_KEY='qa_user_role';
+  const rolePanel=document.getElementById('role-panel');
+  const roleDisp=document.getElementById('role-storage-display');
+  let currentRole=sessionStorage.getItem(ROLE_KEY)||'guest';
+
+  function renderRole(role){
+    currentRole=role;
+    sessionStorage.setItem(ROLE_KEY,role);
+    if(rolePanel){rolePanel.setAttribute('data-current-role',role);rolePanel.innerHTML=ROLE_CONTENT[role]||'';}
+    if(roleDisp) roleDisp.textContent=role;
+    document.querySelectorAll('.role-btn').forEach(btn=>{
+      const active=btn.getAttribute('data-role')===role;
+      btn.style.background=active?'#6366f1':'#f9fafb';
+      btn.style.color=active?'#fff':'#374151';
+      btn.style.borderColor=active?'#6366f1':'#e5e7eb';
+    });
+  }
+  renderRole(currentRole);
+  document.querySelectorAll('.role-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>renderRole(btn.getAttribute('data-role')));
+  });
+
+  /* ---- 5. Session expiry simulation ---- */
+  const sessEl=document.getElementById('sess-timer-el');
+  const sessLabel=document.getElementById('sess-timer-label');
+  const sessIcon=document.getElementById('sess-timer-icon');
+  const sessAttrDisp=document.getElementById('sess-timer-attr');
+  const sessCountdown=document.getElementById('sess-countdown');
+  const sessStartBtn=document.getElementById('sess-start-btn');
+  let _sessTick=null,sessRunning=false;
+  const TOTAL_SECS=30;
+
+  function setSessState(state,remaining){
+    if(!sessEl) return;
+    sessEl.setAttribute('data-session',state);
+    if(sessAttrDisp) sessAttrDisp.textContent='data-session = "'+state+'"';
+    const STATES_MAP={
+      idle:   {icon:'⏸️',label:'Session Idle',border:'#e5e7eb',bg:'#fff'},
+      active: {icon:'✅',label:'Session Active — '+remaining+'s remaining',border:'#10b981',bg:'#f0fdf4'},
+      warning:{icon:'⚠️',label:'Session Expiring — '+remaining+'s remaining',border:'#f59e0b',bg:'#fffbeb'},
+      expired:{icon:'❌',label:'Session Expired',border:'#ef4444',bg:'#fef2f2'},
+    };
+    const s=STATES_MAP[state]||STATES_MAP.idle;
+    if(sessIcon) sessIcon.textContent=s.icon;
+    if(sessLabel) sessLabel.textContent=s.label;
+    sessEl.style.borderColor=s.border;
+    sessEl.style.background=s.bg;
+    if(sessCountdown){
+      if(state==='active'||state==='warning'){
+        sessCountdown.style.display='';
+        sessCountdown.textContent=remaining;
+        sessCountdown.style.color=state==='warning'?'#f59e0b':'#6366f1';
+      }else{
+        sessCountdown.style.display='none';
+      }
+    }
+  }
+
+  function startSession(){
+    if(sessRunning) return;
+    sessRunning=true;
+    if(sessStartBtn) sessStartBtn.disabled=true;
+    let remaining=TOTAL_SECS;
+    setSessState('active',remaining);
+    _sessTick=setInterval(()=>{
+      remaining--;
+      if(remaining>10) setSessState('active',remaining);
+      else if(remaining>0) setSessState('warning',remaining);
+      else{
+        clearInterval(_sessTick);_sessTick=null;sessRunning=false;
+        setSessState('expired',0);
+        if(sessStartBtn) sessStartBtn.disabled=false;
+      }
+    },1000);
+  }
+
+  sessStartBtn?.addEventListener('click',startSession);
+  document.getElementById('sess-reset-btn')?.addEventListener('click',()=>{
+    clearInterval(_sessTick);_sessTick=null;sessRunning=false;
+    setSessState('idle',TOTAL_SECS);
+    if(sessStartBtn) sessStartBtn.disabled=false;
+  });
+}

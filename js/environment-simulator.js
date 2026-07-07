@@ -1,3 +1,15 @@
+/*
+ * Copyright © 2026 Ahsan Ali Khan
+ * QA Pro Playground
+ * All Rights Reserved.
+ *
+ * Unauthorized copying, modification, distribution, reverse engineering,
+ * or commercial use of this software is prohibited without prior written
+ * permission from the copyright owner.
+ *
+ * Contact: ahsan.ali.khan.tech@gmail.com
+ */
+
 /* ======================================================
    REAL ENVIRONMENT LOCATOR LAB
 ====================================================== */
@@ -6,6 +18,8 @@
 
 const hostId="env-host";
 const sectionId="env";
+let _inited=false;
+let _pollTimer=null;
 
 function host(){
   return document.getElementById(hostId);
@@ -75,6 +89,29 @@ function render(){
   if(AppContext.browser==="Safari")
     input=`<input class="email-input"/>`;
 
+  /* DATE FIELD — format changes per browser */
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const Y=now.getFullYear(), M=pad(now.getMonth()+1), D=pad(now.getDate());
+  const H=pad(now.getHours()), Min=pad(now.getMinutes()), S=pad(now.getSeconds());
+
+  let dateField="";
+  if(AppContext.browser==="Chrome"){
+    // Chrome native date input renders as MM/DD/YYYY internally
+    dateField=`<label style="display:block;margin-top:10px;font-size:12px;font-weight:600;">Date (Chrome — MM/DD/YYYY)</label>`+
+      `<input id="env-date-field" type="date" value="${Y}-${M}-${D}" data-date-format="MM/DD/YYYY" style="margin-top:4px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;"/>`;
+  }
+  if(AppContext.browser==="Firefox"){
+    // Firefox renders date as YYYY-MM-DD text
+    dateField=`<label style="display:block;margin-top:10px;font-size:12px;font-weight:600;">Date (Firefox — YYYY-MM-DD)</label>`+
+      `<input id="env-date-field" type="text" value="${Y}-${M}-${D}" data-date-format="YYYY-MM-DD" style="margin-top:4px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;"/>`;
+  }
+  if(AppContext.browser==="Safari"){
+    // Safari uses DD/MM/YYYY locale format and renders as text fallback
+    dateField=`<label style="display:block;margin-top:10px;font-size:12px;font-weight:600;">Date (Safari — DD/MM/YYYY)</label>`+
+      `<input id="env-date-field" type="text" value="${D}/${M}/${Y}" data-date-format="DD/MM/YYYY" style="margin-top:4px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;"/>`;
+  }
+
   /* DEVICE DIFFERENCE */
 
   if(AppContext.device==="Mobile"){
@@ -103,6 +140,8 @@ function render(){
     <br><br>
     ${input}
     <br><br>
+    ${dateField}
+    <br>
     ${checkout}
 
     <hr>
@@ -128,42 +167,51 @@ function bindControls(){
   ];
 
   mappings.forEach(([id,key])=>{
-
     const el=document.getElementById(id);
     if(!el) return;
-
     el.onchange=e=>{
       AppContext[key]=e.target.value;
       render();
     };
   });
+
+  // Wire manual Refresh button
+  const refreshBtn=document.getElementById("env-refresh-btn");
+  if(refreshBtn) refreshBtn.onclick=render;
 }
 
 /* ======================================================
-   INIT
+   INIT — binds controls once, renders on every visit
 ====================================================== */
 
+let _bound=false;
+
 window.initEnvSimulator=function(){
-  bindControls();
+  if(!_bound){
+    _bound=true;
+    bindControls();
+    // Stop the poll timer — no longer needed after first bind
+    if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
+  }
+  // Always render so env-host is populated on every section visit
   render();
 };
 
 /* ======================================================
-   AUTO SECTION DETECTOR
+   AUTO SECTION DETECTOR — polls until section is visible,
+   then calls initEnvSimulator (which always re-renders).
 ====================================================== */
 
 function tryInit(){
-
   const section=document.getElementById(sectionId);
   if(!section) return;
-
   if(section.offsetParent!==null){
     window.initEnvSimulator();
   }
 }
 
-document.addEventListener("click",()=>setTimeout(tryInit,50));
+document.addEventListener("click",()=>setTimeout(tryInit,80));
 document.addEventListener("DOMContentLoaded",tryInit);
-setInterval(tryInit,700);
+_pollTimer=setInterval(tryInit,800);
 
 })();
