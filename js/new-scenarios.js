@@ -932,6 +932,9 @@ function initKeyboardNav(){
     calendarPicker:()=>initCalendarPicker(),
     dropdownScenarios:()=>initDropdownScenarios(),
     sessionAttributes:()=>initSessionAttributes(),
+    inputMasking:()=>initInputMasking(),
+    printDialog:()=>initPrintDialog(),
+    contextMenuSection:()=>initContextMenu(),
     lazyLoadSection:()=>LazyLoad.init(),
     canvasChart:()=>CanvasChart.init(),
     svgGraph:()=>SvgGraph.init(),
@@ -1548,5 +1551,239 @@ function initSessionAttributes(){
     clearInterval(_sessTick);_sessTick=null;sessRunning=false;
     setSessState('idle',TOTAL_SECS);
     if(sessStartBtn) sessStartBtn.disabled=false;
+  });
+}
+
+/* ================================================================
+   INPUT MASKING
+================================================================ */
+function initInputMasking(){
+
+  /* ---- Phone: (XXX) XXX-XXXX ---- */
+  const phoneEl=document.getElementById('mask-phone');
+  const phoneRaw=document.getElementById('mask-phone-raw');
+  const phoneMasked=document.getElementById('mask-phone-masked');
+  if(phoneEl){
+    phoneEl.addEventListener('input',function(){
+      let digits=this.value.replace(/\D/g,'').slice(0,10);
+      this.setAttribute('data-raw-value',digits);
+      let masked='';
+      if(digits.length>0) masked='('+digits.slice(0,3);
+      if(digits.length>=4) masked+=') '+digits.slice(3,6);
+      if(digits.length>=7) masked+='-'+digits.slice(6,10);
+      this.value=masked;
+      this.setAttribute('data-masked-value',masked);
+      if(phoneRaw) phoneRaw.textContent=digits||'—';
+      if(phoneMasked) phoneMasked.textContent=masked||'—';
+    });
+  }
+
+  /* ---- Credit Card: XXXX XXXX XXXX XXXX ---- */
+  const ccEl=document.getElementById('mask-cc');
+  const ccRaw=document.getElementById('mask-cc-raw');
+  const ccMasked=document.getElementById('mask-cc-masked');
+  if(ccEl){
+    ccEl.addEventListener('input',function(){
+      let digits=this.value.replace(/\D/g,'').slice(0,16);
+      this.setAttribute('data-raw-value',digits);
+      let masked=digits.replace(/(.{4})/g,'$1 ').trim();
+      this.value=masked;
+      this.setAttribute('data-masked-value',masked);
+      if(ccRaw) ccRaw.textContent=digits||'—';
+      if(ccMasked) ccMasked.textContent=masked||'—';
+    });
+  }
+
+  /* ---- Date: MM/DD/YYYY ---- */
+  const dateEl=document.getElementById('mask-date');
+  const dateRaw=document.getElementById('mask-date-raw');
+  const dateValidity=document.getElementById('mask-date-validity');
+  if(dateEl){
+    dateEl.addEventListener('input',function(){
+      let digits=this.value.replace(/\D/g,'').slice(0,8);
+      this.setAttribute('data-raw-value',digits);
+      let masked='';
+      if(digits.length>0) masked=digits.slice(0,2);
+      if(digits.length>=3) masked+='/'+digits.slice(2,4);
+      if(digits.length>=5) masked+='/'+digits.slice(4,8);
+      this.value=masked;
+      this.setAttribute('data-masked-value',masked);
+      if(dateRaw) dateRaw.textContent=digits||'—';
+      if(dateValidity){
+        let valid='—';
+        if(digits.length===8){
+          const m=parseInt(digits.slice(0,2)),d=parseInt(digits.slice(2,4)),y=parseInt(digits.slice(4,8));
+          const dt=new Date(y,m-1,d);
+          valid=(dt.getFullYear()===y&&dt.getMonth()===m-1&&dt.getDate()===d)?'✅ valid':'❌ invalid';
+        }
+        dateValidity.textContent=valid;
+        dateValidity.setAttribute('data-valid',digits.length===8?valid.includes('✅')?'true':'false':'');
+      }
+    });
+  }
+
+  /* ---- SSN: XXX-XX-XXXX (first 5 masked as •) ---- */
+  const ssnEl=document.getElementById('mask-ssn');
+  const ssnRaw=document.getElementById('mask-ssn-raw');
+  if(ssnEl){
+    ssnEl.addEventListener('input',function(){
+      let digits=this.value.replace(/\D/g,'').slice(0,9);
+      this.setAttribute('data-raw-value',digits);
+      let display='';
+      const mask=digits.slice(0,5).replace(/./g,'•')+digits.slice(5);
+      if(mask.length>0) display=mask.slice(0,3);
+      if(mask.length>=4) display+='-'+mask.slice(3,5);
+      if(mask.length>=6) display+='-'+mask.slice(5,9);
+      this.value=display;
+      this.setAttribute('data-masked-value',display);
+      if(ssnRaw) ssnRaw.textContent=digits||'—';
+    });
+  }
+}
+
+/* ================================================================
+   PRINT DIALOG
+================================================================ */
+function initPrintDialog(){
+  const wrapper=document.getElementById('print-state-wrapper');
+  const badge=document.getElementById('print-state-badge');
+  const log=document.getElementById('print-event-log');
+  const ts=document.getElementById('print-timestamp');
+  if(!wrapper) return;
+
+  const BADGE_STYLES={
+    idle:      {bg:'#e5e7eb',color:'#374151'},
+    beforeprint:{bg:'#fef3c7',color:'#92400e'},
+    printing:  {bg:'#dbeafe',color:'#1e40af'},
+    afterprint: {bg:'#d1fae5',color:'#065f46'},
+  };
+
+  function setState(state){
+    wrapper.setAttribute('data-print-state',state);
+    if(badge){
+      badge.textContent=state;
+      badge.setAttribute('data-state',state);
+      const s=BADGE_STYLES[state]||BADGE_STYLES.idle;
+      badge.style.background=s.bg;
+      badge.style.color=s.color;
+    }
+  }
+
+  function addLog(event){
+    if(!log) return;
+    const t=new Date().toLocaleTimeString();
+    const entry=document.createElement('div');
+    entry.style.cssText='color:#a5f3fc;';
+    entry.textContent=`[${t}] ${event}`;
+    const placeholder=log.querySelector('span');
+    if(placeholder) log.removeChild(placeholder);
+    log.appendChild(entry);
+    log.scrollTop=log.scrollHeight;
+    const count=parseInt(log.getAttribute('data-event-count')||0)+1;
+    log.setAttribute('data-event-count',count);
+  }
+
+  window.addEventListener('beforeprint',()=>{
+    setState('beforeprint');
+    if(ts) ts.textContent=new Date().toLocaleString();
+    addLog('beforeprint fired — dialog opening');
+    setTimeout(()=>setState('printing'),50);
+  });
+
+  window.addEventListener('afterprint',()=>{
+    setState('afterprint');
+    addLog('afterprint fired — dialog closed');
+    setTimeout(()=>setState('idle'),2000);
+  });
+}
+
+/* ================================================================
+   RIGHT-CLICK CONTEXT MENU
+================================================================ */
+function initContextMenu(){
+  const menu=document.getElementById('qa-context-menu');
+  const actionLog=document.getElementById('ctx-action-log');
+  const actionCount=document.getElementById('ctx-action-count');
+  if(!menu) return;
+
+  let currentTarget=null;
+  let totalActions=0;
+
+  const targets=[
+    {id:'ctx-target-a',statusId:'ctx-a-status'},
+    {id:'ctx-target-b',statusId:'ctx-b-status'},
+    {id:'ctx-target-c',statusId:'ctx-c-status'},
+  ];
+
+  function showMenu(x,y,targetEl){
+    currentTarget=targetEl;
+    menu.style.left=x+'px';
+    menu.style.top=y+'px';
+    menu.style.display='block';
+    menu.setAttribute('data-menu-visible','true');
+    menu.setAttribute('data-context-target',targetEl.getAttribute('data-context-target'));
+    // Keep menu in viewport
+    const rect=menu.getBoundingClientRect();
+    if(rect.right>window.innerWidth) menu.style.left=(x-rect.width)+'px';
+    if(rect.bottom>window.innerHeight) menu.style.top=(y-rect.height)+'px';
+  }
+
+  function hideMenu(){
+    menu.style.display='none';
+    menu.setAttribute('data-menu-visible','false');
+    menu.removeAttribute('data-context-target');
+    currentTarget=null;
+  }
+
+  function logAction(action,targetName){
+    totalActions++;
+    const t=new Date().toLocaleTimeString();
+    const entry=document.createElement('div');
+    entry.style.cssText='color:#374151;';
+    entry.innerHTML=`<span style="color:#9ca3af;">[${t}]</span> <strong style="color:#6366f1;">${action}</strong> on <span style="color:#10b981;">${targetName}</span>`;
+    const placeholder=actionLog&&actionLog.querySelector('span');
+    if(placeholder) actionLog.removeChild(placeholder);
+    if(actionLog){
+      actionLog.appendChild(entry);
+      actionLog.scrollTop=actionLog.scrollHeight;
+    }
+    if(actionCount){
+      actionCount.textContent=totalActions;
+      actionCount.setAttribute('data-count',totalActions);
+    }
+  }
+
+  // Wire right-click on each target
+  targets.forEach(({id,statusId})=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('contextmenu',e=>{
+      e.preventDefault();
+      showMenu(e.clientX,e.clientY,el);
+    });
+  });
+
+  // Wire menu item clicks
+  menu.querySelectorAll('.ctx-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      if(!currentTarget) return;
+      const action=item.getAttribute('data-action');
+      const targetName=currentTarget.getAttribute('data-context-target');
+      currentTarget.setAttribute('data-last-action',action);
+      // Update card status
+      const statusId='ctx-'+targetName.slice(-1)+'-status';
+      const statusEl=document.getElementById(statusId);
+      if(statusEl) statusEl.textContent=`Last action: ${action}`;
+      logAction(action,targetName);
+      hideMenu();
+    });
+  });
+
+  // Dismiss on outside click or Escape
+  document.addEventListener('click',e=>{
+    if(!menu.contains(e.target)) hideMenu();
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape') hideMenu();
   });
 }

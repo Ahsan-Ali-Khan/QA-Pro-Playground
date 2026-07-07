@@ -1218,6 +1218,9 @@
     <div onclick="show('calendarPicker')">📅 Calendar / Date Picker</div>
     <div onclick="show('dropdownScenarios')">⬇️ Multi-Select &amp; Dependent Dropdowns</div>
     <div onclick="show('sessionAttributes')">🔐 Session-Based Attributes</div>
+    <div onclick="show('inputMasking')">🎭 Input Masking</div>
+    <div onclick="show('printDialog')">🖨️ Print Dialog</div>
+    <div onclick="show('contextMenuSection')">🖱️ Right-Click Context Menu</div>
     <a href="locator-break-reproduction-guide.html" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#9ca3af;text-decoration:none;font-size:13px;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px;transition:color .2s;" onmouseover="this.style.color='#f9fafb'" onmouseout="this.style.color='#9ca3af'">
       <span style="font-size:15px;">📖</span> Locator Break Guide
     </a>
@@ -3119,6 +3122,186 @@
             <div id="sess-countdown" style="margin-left:auto;font-size:28px;font-weight:700;font-family:monospace;color:#6366f1;display:none;">30</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- INPUT MASKING -->
+    <div id="inputMasking" class="section hidden">
+      <h2>Input Masking Lab</h2>
+      <p style="color:#6b7280;margin-bottom:20px;">Fields auto-format input as the user types. The automation challenge: <code>element.value</code>, the visible text, and the raw keystrokes are all different. Selectors based on expected raw input will fail.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
+
+        <!-- Phone -->
+        <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:20px;">
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px;">📱 Phone Number</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:12px;">Auto-formats to <code>(XXX) XXX-XXXX</code></div>
+          <input id="mask-phone" type="tel" placeholder="(___) ___-____"
+                 data-mask-type="phone" data-raw-value="" data-masked-value=""
+                 style="padding:10px 14px;border:2px solid #d1d5db;border-radius:8px;font-size:16px;width:100%;box-sizing:border-box;font-family:monospace;letter-spacing:1px;">
+          <div style="margin-top:10px;font-size:12px;color:#6b7280;display:flex;gap:16px;flex-wrap:wrap;">
+            <span>Raw: <code id="mask-phone-raw" style="color:#6366f1;font-weight:700;">—</code></span>
+            <span>Masked: <code id="mask-phone-masked" style="color:#10b981;font-weight:700;">—</code></span>
+          </div>
+        </div>
+
+        <!-- Credit Card -->
+        <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:20px;">
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px;">💳 Credit Card</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:12px;">Auto-formats to <code>XXXX XXXX XXXX XXXX</code></div>
+          <input id="mask-cc" type="text" placeholder="____ ____ ____ ____"
+                 data-mask-type="credit-card" data-raw-value="" data-masked-value="" maxlength="19"
+                 style="padding:10px 14px;border:2px solid #d1d5db;border-radius:8px;font-size:16px;width:100%;box-sizing:border-box;font-family:monospace;letter-spacing:2px;">
+          <div style="margin-top:10px;font-size:12px;color:#6b7280;display:flex;gap:16px;flex-wrap:wrap;">
+            <span>Raw digits: <code id="mask-cc-raw" style="color:#6366f1;font-weight:700;">—</code></span>
+            <span>Masked: <code id="mask-cc-masked" style="color:#10b981;font-weight:700;">—</code></span>
+          </div>
+        </div>
+
+        <!-- Date -->
+        <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:20px;">
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px;">📅 Date</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:12px;">Auto-formats to <code>MM/DD/YYYY</code></div>
+          <input id="mask-date" type="text" placeholder="MM/DD/YYYY"
+                 data-mask-type="date" data-raw-value="" data-masked-value="" data-valid="" maxlength="10"
+                 style="padding:10px 14px;border:2px solid #d1d5db;border-radius:8px;font-size:16px;width:100%;box-sizing:border-box;font-family:monospace;letter-spacing:1px;">
+          <div style="margin-top:10px;font-size:12px;color:#6b7280;display:flex;gap:16px;flex-wrap:wrap;">
+            <span>Raw: <code id="mask-date-raw" style="color:#6366f1;font-weight:700;">—</code></span>
+            <span>Valid: <span id="mask-date-validity" data-valid="" style="font-weight:700;color:#6b7280;">—</span></span>
+          </div>
+        </div>
+
+        <!-- SSN -->
+        <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:20px;">
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px;">🔒 SSN (last 4 visible)</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:12px;">Auto-formats to <code>XXX-XX-XXXX</code>, first 5 digits masked</div>
+          <input id="mask-ssn" type="text" placeholder="___-__-____"
+                 data-mask-type="ssn" data-raw-value="" data-masked-value="" maxlength="11"
+                 style="padding:10px 14px;border:2px solid #d1d5db;border-radius:8px;font-size:16px;width:100%;box-sizing:border-box;font-family:monospace;letter-spacing:1px;">
+          <div style="margin-top:10px;font-size:12px;color:#6b7280;">
+            <span>Raw digits: <code id="mask-ssn-raw" style="color:#6366f1;font-weight:700;">—</code></span>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:20px;padding:14px 18px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;font-size:13px;color:#1e40af;">
+        <strong>Automation tip:</strong> Use <code>element.getAttribute('data-raw-value')</code> to read the unformatted digits, or <code>element.getAttribute('data-masked-value')</code> for the formatted string. <code>element.value</code> returns the masked value.
+      </div>
+    </div>
+
+    <!-- PRINT DIALOG -->
+    <div id="printDialog" class="section hidden">
+      <h2>Print Dialog Lab</h2>
+      <p style="color:#6b7280;margin-bottom:20px;"><code>window.print()</code> opens a system-level dialog that freezes JS execution and can dismiss overlays or reset focus. Observe <code>data-print-state</code> lifecycle transitions and <code>beforeprint</code> / <code>afterprint</code> events.</p>
+
+      <div id="print-state-wrapper" data-print-state="idle" style="background:#f8fafc;border:2px solid #e5e7eb;border-radius:14px;padding:24px;margin-bottom:20px;transition:border-color .3s;">
+
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+          <div style="font-size:13px;color:#6b7280;">Print state:</div>
+          <div id="print-state-badge" data-state="idle"
+               style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;background:#e5e7eb;color:#374151;">
+            idle
+          </div>
+          <div style="font-size:12px;color:#9ca3af;">(<code>data-print-state</code> on wrapper)</div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+          <button id="print-trigger-btn" onclick="window.print()"
+                  style="padding:10px 22px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+            🖨️ Trigger Print Dialog
+          </button>
+          <button onclick="document.getElementById('print-state-wrapper').setAttribute('data-print-state','idle');document.getElementById('print-state-badge').textContent='idle';document.getElementById('print-state-badge').setAttribute('data-state','idle');document.getElementById('print-state-badge').style.background='#e5e7eb';document.getElementById('print-state-badge').style.color='#374151';document.getElementById('print-event-log').innerHTML='';"
+                  style="padding:10px 22px;background:#f3f4f6;color:#374151;border:1px solid #d1d5db;border-radius:8px;font-size:14px;cursor:pointer;">
+            Reset
+          </button>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;">Event log:</div>
+          <div id="print-event-log" data-event-count="0"
+               style="background:#111827;border-radius:8px;padding:14px;font-family:monospace;font-size:12px;color:#d1d5db;min-height:60px;max-height:160px;overflow-y:auto;">
+            <span style="color:#4b5563;">— no events yet —</span>
+          </div>
+        </div>
+
+        <!-- Print preview area -->
+        <div style="border:2px dashed #d1d5db;border-radius:10px;padding:20px;background:#fff;">
+          <div style="font-size:12px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Print Preview Area</div>
+          <div id="print-content" style="font-size:14px;color:#374151;line-height:1.6;">
+            <strong>QA Pro Playground — Print Test Page</strong><br>
+            This content is visible in print preview.<br>
+            The sidebar and buttons are hidden via <code>@media print</code>.<br>
+            Timestamp: <span id="print-timestamp" style="font-family:monospace;color:#6366f1;">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:14px 18px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:13px;color:#92400e;">
+        <strong>Automation tip:</strong> Poll <code>data-print-state</code> for <code>"beforeprint"</code> → <code>"afterprint"</code> transitions. The print dialog blocks JS — any assertion inside the dialog freeze window will time out. Use <code>beforeprint</code>/<code>afterprint</code> events to detect the dialog lifecycle.
+      </div>
+    </div>
+
+    <!-- RIGHT-CLICK CONTEXT MENU -->
+    <div id="contextMenuSection" class="section hidden">
+      <h2>Right-Click Context Menu Lab</h2>
+      <p style="color:#6b7280;margin-bottom:20px;">Custom context menus suppress the browser's native menu. The automation challenge: right-click triggers are not standard WebDriver clicks, and the menu only exists in DOM while visible (<code>data-menu-visible</code>). Menu items have <code>data-action</code> attributes for targeting.</p>
+
+      <!-- Global custom context menu (DOM-injected, position absolute) -->
+      <div id="qa-context-menu" data-menu-visible="false"
+           style="display:none;position:fixed;z-index:9999;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:6px 0;min-width:180px;">
+        <div data-action="copy"   class="ctx-item" style="padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''">📋 Copy</div>
+        <div data-action="paste"  class="ctx-item" style="padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''">📌 Paste</div>
+        <div data-action="edit"   class="ctx-item" style="padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''">✏️ Edit</div>
+        <div style="height:1px;background:#f3f4f6;margin:4px 0;"></div>
+        <div data-action="duplicate" class="ctx-item" style="padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''">⧉ Duplicate</div>
+        <div data-action="delete" class="ctx-item" style="padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:#ef4444;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='#fff1f2'" onmouseout="this.style.background=''">🗑️ Delete</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-bottom:20px;">
+
+        <!-- Target A — plain div -->
+        <div id="ctx-target-a" data-context-target="card-a" data-last-action=""
+             oncontextmenu="return false;"
+             style="background:linear-gradient(135deg,#eef2ff,#e0e7ff);border:2px solid #c7d2fe;border-radius:12px;padding:28px 20px;cursor:context-menu;text-align:center;user-select:none;">
+          <div style="font-size:28px;margin-bottom:8px;">📦</div>
+          <div style="font-weight:700;color:#3730a3;">Card A</div>
+          <div style="font-size:12px;color:#6366f1;margin-top:4px;">Right-click me</div>
+          <div id="ctx-a-status" style="margin-top:10px;font-size:12px;color:#4338ca;min-height:18px;"></div>
+        </div>
+
+        <!-- Target B — image-like div -->
+        <div id="ctx-target-b" data-context-target="card-b" data-last-action=""
+             oncontextmenu="return false;"
+             style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;border-radius:12px;padding:28px 20px;cursor:context-menu;text-align:center;user-select:none;">
+          <div style="font-size:28px;margin-bottom:8px;">🖼️</div>
+          <div style="font-weight:700;color:#166534;">Card B</div>
+          <div style="font-size:12px;color:#16a34a;margin-top:4px;">Right-click me</div>
+          <div id="ctx-b-status" style="margin-top:10px;font-size:12px;color:#15803d;min-height:18px;"></div>
+        </div>
+
+        <!-- Target C — text block -->
+        <div id="ctx-target-c" data-context-target="card-c" data-last-action=""
+             oncontextmenu="return false;"
+             style="background:linear-gradient(135deg,#fefce8,#fef9c3);border:2px solid #fde047;border-radius:12px;padding:28px 20px;cursor:context-menu;text-align:center;user-select:none;">
+          <div style="font-size:28px;margin-bottom:8px;">📝</div>
+          <div style="font-weight:700;color:#713f12;">Card C</div>
+          <div style="font-size:12px;color:#a16207;margin-top:4px;">Right-click me</div>
+          <div id="ctx-c-status" style="margin-top:10px;font-size:12px;color:#854d0e;min-height:18px;"></div>
+        </div>
+
+      </div>
+
+      <!-- Action log -->
+      <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:10px;">Action Log <span id="ctx-action-count" data-count="0" style="background:#e5e7eb;color:#374151;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:6px;">0</span></div>
+        <div id="ctx-action-log" style="font-family:monospace;font-size:12px;color:#374151;min-height:40px;max-height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
+          <span style="color:#9ca3af;">— no actions yet —</span>
+        </div>
+      </div>
+
+      <div style="padding:14px 18px;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;font-size:13px;color:#166534;">
+        <strong>Automation tip:</strong> Use <code>Actions.contextClick(element).perform()</code> in Selenium or <code>element.dispatchEvent(new MouseEvent('contextmenu',…))</code>. Then locate menu items via <code>[data-action="copy"]</code>. The menu wrapper has <code>data-menu-visible="true"</code> when open.
       </div>
     </div>
 

@@ -80,12 +80,15 @@
   .s-cal    { background:#fce7f3; color:#831843; }
   .s-msd    { background:#ede9fe; color:#5b21b6; }
   .s-sess   { background:#ecfdf5; color:#065f46; }
+  .s-mask   { background:#fff7ed; color:#9a3412; }
+  .s-print  { background:#f0f9ff; color:#0c4a6e; }
+  .s-ctx    { background:#fdf4ff; color:#6b21a8; }
 </style>
 </head>
 <body>
 
 <h1>QA Pro Automation Playground — <span>Locator Break Reproduction Guide</span></h1>
-<div class="subtitle">150 categories · Manual steps mapped to live playground sections · Source: <a id="guide-src-link" href="#" target="_blank" style="color:#818cf8;text-decoration:none;"></a>
+<div class="subtitle">159 categories · Manual steps mapped to live playground sections · Source: <a id="guide-src-link" href="#" target="_blank" style="color:#818cf8;text-decoration:none;"></a>
 <script>(function(){var o=window.location.origin;var a=document.getElementById('guide-src-link');a.href=o+'/';a.textContent=o.replace(/^https?:\/\//,'');})()</script></div>
 
 <div class="legend">
@@ -105,6 +108,9 @@
   <div class="legend-item"><div class="dot" style="background:#831843"></div>Calendar / Date Picker</div>
   <div class="legend-item"><div class="dot" style="background:#5b21b6"></div>Multi-Select &amp; Dependent Dropdowns</div>
   <div class="legend-item"><div class="dot" style="background:#065f46"></div>Session-Based Attributes</div>
+  <div class="legend-item"><div class="dot" style="background:#9a3412"></div>Input Masking</div>
+  <div class="legend-item"><div class="dot" style="background:#0c4a6e"></div>Print Dialog</div>
+  <div class="legend-item"><div class="dot" style="background:#6b21a8"></div>Right-Click Context Menu</div>
 </div>
 
 <div class="wrap">
@@ -981,6 +987,50 @@
 <td><span class="sec s-sld">Sliders</span></td>
 <td><ol><li>Click <b>Sliders</b>.</li><li>Custom slider has <code>role="slider"</code> — <code>getByRole('slider')</code> finds it.</li><li>Drag the slider to max — the ARIA role may be updated to <code>role="progressbar"</code> at 100%; the original <code>getByRole('slider')</code> no longer matches.</li></ol></td></tr>
 
+<tr><td>151</td>
+<td class="cat">Input masking — <code>element.value</code> vs raw keystrokes</td>
+<td><span class="sec s-mask">Input Masking</span></td>
+<td><ol><li>Click <b>Input Masking</b> → type <code>2125550123</code> into the Phone field.</li><li><code>element.value</code> returns <code>(212) 555-0123</code> — not the digits typed.</li><li>A script asserting <code>element.value === "2125550123"</code> fails.</li><li>Use <code>getAttribute('data-raw-value')</code> for raw digits, <code>getAttribute('data-masked-value')</code> for the formatted string.</li></ol></td></tr>
+<tr><td>152</td>
+<td class="cat">Input masking — credit card space-separated chunks</td>
+<td><span class="sec s-mask">Input Masking</span></td>
+<td><ol><li>Click <b>Input Masking</b> → type <code>4111111111111111</code> into Credit Card field.</li><li>Field renders <code>4111 1111 1111 1111</code> — spaces injected by mask logic.</li><li>XPath <code>@value='4111111111111111'</code> returns no match; <code>@value='4111 1111 1111 1111'</code> matches.</li><li><code>data-raw-value</code> holds the raw digits for programmatic validation.</li></ol></td></tr>
+
+<tr><td>153</td>
+<td class="cat">Input masking — date validity attribute</td>
+<td><span class="sec s-mask">Input Masking</span></td>
+<td><ol><li>Click <b>Input Masking</b> → type <code>02302025</code> into Date field.</li><li>Field formats to <code>02/30/2025</code> (Feb 30 — invalid).</li><li><code>#mask-date-validity[data-valid="false"]</code> is set immediately.</li><li>Type <code>01152025</code> → formats to <code>01/15/2025</code> → <code>data-valid="true"</code>.</li><li>Assert on <code>data-valid</code> rather than the displayed string.</li></ol></td></tr>
+
+<tr><td>154</td>
+<td class="cat">Print dialog — <code>beforeprint</code> event freezes JS execution</td>
+<td><span class="sec s-print">Print Dialog</span></td>
+<td><ol><li>Click <b>Print Dialog</b> → observe <code>data-print-state="idle"</code> on <code>#print-state-wrapper</code>.</li><li>Click <b>Trigger Print Dialog</b>.</li><li><code>beforeprint</code> fires → <code>data-print-state</code> transitions to <code>"beforeprint"</code> then <code>"printing"</code>.</li><li>The browser opens the system print dialog — JS execution pauses for the entire duration.</li><li>Any WebDriver assertion or click inside the dialog-freeze window times out.</li></ol></td></tr>
+
+<tr><td>155</td>
+<td class="cat">Print dialog — <code>afterprint</code> state recovery</td>
+<td><span class="sec s-print">Print Dialog</span></td>
+<td><ol><li>Trigger print and then cancel the dialog.</li><li><code>afterprint</code> fires → <code>data-print-state</code> transitions to <code>"afterprint"</code> for 2 s, then back to <code>"idle"</code>.</li><li>Automation must wait for <code>data-print-state="idle"</code> before continuing — acting on <code>"afterprint"</code> state causes race conditions.</li><li>Event log at <code>#print-event-log[data-event-count]</code> records both events.</li></ol></td></tr>
+
+<tr><td>156</td>
+<td class="cat">Print dialog — <code>@media print</code> hides sidebar during print</td>
+<td><span class="sec s-print">Print Dialog</span></td>
+<td><ol><li>Click <b>Trigger Print Dialog</b> and open print preview.</li><li>The sidebar and action buttons are hidden via <code>@media print</code> rules.</li><li>Automation capturing a screenshot during <code>beforeprint</code> state will see a different layout.</li><li>Timestamp in <code>#print-timestamp</code> is set at <code>beforeprint</code> — assert it is non-empty after triggering.</li></ol></td></tr>
+
+<tr><td>157</td>
+<td class="cat">Right-click context menu — menu only exists in DOM when visible</td>
+<td><span class="sec s-ctx">Right-Click Context Menu</span></td>
+<td><ol><li>Click <b>Right-Click Context Menu</b>.</li><li>The menu <code>#qa-context-menu</code> is in DOM but <code>display:none</code> with <code>data-menu-visible="false"</code>.</li><li>Right-click <b>Card A</b> → <code>data-menu-visible="true"</code>, menu positioned at click coords.</li><li>Assert <code>[data-menu-visible="true"]</code> before attempting to click any menu item.</li><li>Click outside or press Escape → <code>data-menu-visible="false"</code> again.</li></ol></td></tr>
+
+<tr><td>158</td>
+<td class="cat">Right-click context menu — <code>data-action</code> item targeting</td>
+<td><span class="sec s-ctx">Right-Click Context Menu</span></td>
+<td><ol><li>Right-click <b>Card B</b> → menu opens with <code>data-context-target="card-b"</code> on <code>#qa-context-menu</code>.</li><li>Locate items via <code>[data-action="copy"]</code>, <code>[data-action="delete"]</code>, etc.</li><li>Click <b>Edit</b> → <code>#ctx-target-b[data-last-action="edit"]</code> is set and menu closes.</li><li>Action count tracked in <code>#ctx-action-count[data-count]</code>.</li></ol></td></tr>
+
+<tr><td>159</td>
+<td class="cat">Right-click context menu — native menu suppressed, custom menu only</td>
+<td><span class="sec s-ctx">Right-Click Context Menu</span></td>
+<td><ol><li>Right-click any card — <code>contextmenu</code> default is suppressed via <code>e.preventDefault()</code>.</li><li>Selenium <code>Actions.contextClick(element).perform()</code> fires the JS event — custom menu appears.</li><li>Assert <code>data-menu-visible="true"</code> after right-click to confirm the custom menu opened.</li><li><code>Keys.chord(Keys.CONTEXT_MENU)</code> may not fire the JS event in all browsers — always verify with <code>data-menu-visible</code>.</li></ol></td></tr>
+
 </tbody>
 </table>
 </div>
@@ -991,10 +1041,7 @@
   <span style="color:#4b5563;margin:0 2px;">&middot;</span>
   <span style="color:#9ca3af;">&copy; <span id="footer-year"></span> All rights reserved</span>
 </footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 
-<script>
-  document.getElementById('footer-year').textContent = new Date().getFullYear();
-</script>
 </body>
 </html>
-                                                                     
