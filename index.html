@@ -4466,4 +4466,83 @@
 
     function showConfirmationAlert() {
 
-      if (useBrowserAle
+      if (useBrowserAlert) {
+        console.log(confirm("Are you sure?"));
+        return;
+      }
+
+      AlertEngine.open({
+        title: "Confirmation",
+        message: "Are you sure?",
+        type: "confirm",
+        onOk: () => console.log("Confirmed"),
+        onCancel: () => console.log("Cancelled")
+      });
+    }
+
+    function showErrorAlert() {
+
+      if (useBrowserAlert) {
+        alert("System failure!");
+        return;
+      }
+
+      AlertEngine.open({
+        title: "Error",
+        message: "Unexpected system failure"
+      });
+    }
+
+    let useBrowserAlert = false;
+
+    function toggleAlertMode() {
+      useBrowserAlert =
+        document.getElementById("alertModeToggle").checked;
+
+      console.log(
+        useBrowserAlert
+          ? "Browser Alerts Enabled"
+          : "Custom Alerts Enabled"
+      );
+    }
+
+    // =============================================================
+    // CAPTURE + DOM REMOVAL
+    // Must run synchronously while all sections are still in the DOM.
+    // initCapture() stores refs so show() can find detached sections.
+    // initDomRemoval() replaces CSS .hidden with true DOM removal so
+    // automation tools cannot find off-screen sections.
+    // =============================================================
+    function initCapture() {
+      _allSections     = Array.from(document.querySelectorAll('#content > .section'));
+      _allFormStages   = Array.from(document.querySelectorAll('.form-stage'));
+      _allSubcontents  = Array.from(document.querySelectorAll('.subcontent'));
+    }
+
+    function initDomRemoval() {
+      _allSections.forEach(s => {
+        if (s.classList.contains('hidden')) {
+          s.classList.remove('hidden');
+          domHide(s);
+        }
+      });
+    }
+
+    initCapture();
+    initDomRemoval();
+
+  </script>
+
+  <script src="js/dynamic-elements.js"></script>
+  <script src="js/dynamic-text.js"></script>
+  <script src="js/iframe-loader.js"></script>
+  <script src="js/iframe-context.js"></script>
+  <script src="js/shadow-dom.js"></script>
+  <script src="js/environment-simulator.js"></script>
+  <script src="js/canvas-chart.js"></script>
+  <script src="js/svg-graph.js"></script>
+  <script src="js/lazy-load.js"></script>
+  <script src="js/new-scenarios.js"></script>
+
+</body>
+</html>
